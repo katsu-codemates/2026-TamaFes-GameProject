@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3829599059510868223}
   - component: {fileID: 4739681933986566490}
   - component: {fileID: 9019276930512493167}
+  - component: {fileID: -1478178510758078535}
   m_Layer: 0
   m_Name: AnimalSprite
   m_TagString: Untagged
@@ -104,3 +105,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa99af466c1845940be348da4a475974, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MoveTest
+--- !u!114 &-1478178510758078535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1893108964408875296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2dafe85aa2b722e4a88e8f3a30eb0a0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Billboard

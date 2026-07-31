@@ -29,7 +29,7 @@ public class IllustrationManager : MonoBehaviour
 
     private IImageProvider imageProvider;
 
-    private void Start()
+    private IEnumerator Start()
     {
         // 開発中かどうかに応じて、使用するImageProviderを切り替える
         if (isDevelopment)
@@ -42,7 +42,8 @@ public class IllustrationManager : MonoBehaviour
         }
 
         // 画像一覧を取得して表示する
-        StartCoroutine(LoadAnyDisplayAll());
+        yield return LoadAnyDisplayAll();
+        Debug.Log("表示中の動物の数:" + displayedIllustrations.Count);
     }
 
     private IEnumerator LoadAnyDisplayAll()
@@ -107,8 +108,8 @@ public class IllustrationManager : MonoBehaviour
 
         go.transform.localPosition = new Vector3(
             Random.Range(-5f, 5f), // X座標をランダムに設定
-            Random.Range(-3f, 3f), // Y座標をランダムに設定
-            0f
+            4f, 
+            Random.Range(-5f, 5f)  // Z座標をランダムに設定
         );
 
         // 表示中のイラストを辞書に追加する

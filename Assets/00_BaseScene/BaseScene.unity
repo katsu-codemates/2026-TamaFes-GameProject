@@ -266,10 +266,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 330585543}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a9a8f56385f905468d7420090aef0ce, type: 3}
+  m_Script: {fileID: 11500000, guid: 42a6b4f5f387b5b4fa48fa415b46d288, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MouseCameraControl
-  mouseSensitivity: 100
+  m_EditorClassIdentifier: Assembly-CSharp::CameraMover
+  _positionStep: 2
+  _mouseSensitive: 90
+  _invertHorizontalRotationControl: 0
+  _invertVerticalRotationControl: 1
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -574,7 +577,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -702,7 +705,7 @@ GameObject:
   - component: {fileID: 1775288599}
   - component: {fileID: 1775288598}
   m_Layer: 0
-  m_Name: Image
+  m_Name: Bg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
