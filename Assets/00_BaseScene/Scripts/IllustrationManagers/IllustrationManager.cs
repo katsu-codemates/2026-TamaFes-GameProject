@@ -96,6 +96,7 @@ public class IllustrationManager : MonoBehaviour
 
         // 取得したSpriteを使って動物のプレハブを生成し、表示する
         GameObject go = Instantiate(illustrationPrefab, container);
+        var animalData = SetAnimalData(go, imageData);
         var renderer = go.GetComponent<SpriteRenderer>();
         if (renderer != null)
         {
@@ -114,5 +115,20 @@ public class IllustrationManager : MonoBehaviour
 
         // 表示中のイラストを辞書に追加する
         displayedIllustrations[imageData.imageName] = go;
+    }
+
+    private AnimalData SetAnimalData(GameObject animalPrefab, ImageData animalImageData)
+    {
+        var animalData = animalPrefab.GetComponent<AnimalData>();
+        if (animalData == null)
+        {
+            animalData = animalPrefab.AddComponent<AnimalData>();
+        }
+
+        // 画像データから動物データを設定
+        animalData.animalName = animalImageData.imageName;
+        // 他のデータも設定する...
+
+        return animalData;
     }
 }

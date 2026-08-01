@@ -10,9 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 3829599059510868223}
   - component: {fileID: 4739681933986566490}
-  - component: {fileID: 9019276930512493167}
+  - component: {fileID: 8378995117586599984}
+  - component: {fileID: -4675206277530934385}
   - component: {fileID: -1478178510758078535}
-  m_Layer: 0
+  - component: {fileID: 516948079746460421}
+  - component: {fileID: 9019276930512493167}
+  m_Layer: 3
   m_Name: AnimalSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30,7 +33,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -88,23 +91,44 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.16, y: 0.16}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
---- !u!114 &9019276930512493167
+--- !u!65 &8378995117586599984
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1893108964408875296}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 7, y: 7, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-4675206277530934385
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1893108964408875296}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa99af466c1845940be348da4a475974, type: 3}
+  m_Script: {fileID: 11500000, guid: 322f1bb8e38473846a6cad2b741d2174, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MoveTest
+  m_EditorClassIdentifier: Assembly-CSharp::AnimalsClickDetector
 --- !u!114 &-1478178510758078535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,3 +141,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2dafe85aa2b722e4a88e8f3a30eb0a0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Billboard
+--- !u!114 &516948079746460421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1893108964408875296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4c1da02f9d4b2b46b4e740024a18d74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimalData
+  animalName: 
+  weight: 0
+  speed: 0
+  power: 0
+--- !u!114 &9019276930512493167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1893108964408875296}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa99af466c1845940be348da4a475974, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MoveTest
