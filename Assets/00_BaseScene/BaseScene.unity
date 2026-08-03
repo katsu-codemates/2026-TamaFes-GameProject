@@ -303,7 +303,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ca544db0acf9854c9019fe7d5fae2a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFocus
-  offset: {x: 0, y: 0, z: -10}
+  mainCamera: {fileID: 330585545}
+  screenPosition: {x: 960, y: 540, z: 0}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0

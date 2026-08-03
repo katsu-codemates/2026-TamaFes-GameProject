@@ -12,17 +12,11 @@ public class AnimalsClickDetector : MonoBehaviour, IPointerClickHandler
             if (animalData != null)
             {
                 GameObject mainCamera = GameObject.Find("Main Camera");
-                if (mainCamera != null)
-                {
-                    CameraFocus cameraFocus = mainCamera.GetComponent<CameraFocus>();
-                    if (cameraFocus != null)
-                    {
-                        cameraFocus.Focus(transform);
-                    }
-                }
-                Debug.Log($"クリックされた動物: {animalData.animalName}");
+                CameraFocus cameraFocus = mainCamera.GetComponent<CameraFocus>();
+                if (cameraFocus != null) cameraFocus.Focus(transform);
+                // クリックされた動物の名前をUIに表示する処理を追加
             }
+            Debug.Log($"クリックされた動物: {animalData.animalName}");
         }
-
     }
 }

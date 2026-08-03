@@ -2,15 +2,14 @@ using UnityEngine;
 
 public class CameraFocus : MonoBehaviour
 {
-    private Transform target; // カメラが注視する対象のTransform
-    public Vector3 offset;   // カメラと対象の位置の相対位置
-    private Vector3 targetPosition; // カメラが向かう位置
+    public Camera mainCamera;
+    public Vector3 screenPosition;   // 対象が映ってほしいスクリーン座標
 
     public void Focus(Transform targetTransform)
     {
-        target = targetTransform;
-        targetPosition = target.position + offset;
-        transform.position = targetPosition;
-        transform.LookAt(target.position);
+        Vector3 targetPos = targetTransform.position;
+        Vector3 p = mainCamera.ScreenToWorldPoint(screenPosition);
+        Vector3 offset = targetPos - p;
+        this.transform.position += offset;
     }
 }
