@@ -6,8 +6,7 @@ public class AnimalsClickDetector : MonoBehaviour, IPointerClickHandler
 {
     private CameraFocus cameraFocus;
     private bool isFocusing = false;
-    [SerializeField] TextMeshProUGUI animalName;
-    private GameObject animalNameParent;
+    
     private void Start()
     {
         var mainCamera = Camera.main;
@@ -25,7 +24,7 @@ public class AnimalsClickDetector : MonoBehaviour, IPointerClickHandler
             if (Input.GetMouseButtonDown(1))
             {
                 isFocusing = false;
-                animalNameParent.SetActive(false); // 動物の名前を表示するUIを非表示
+                UIManager.Instance.HideAnimalInfo();
                 cameraFocus.Unfocus();
             }
         }
@@ -41,16 +40,9 @@ public class AnimalsClickDetector : MonoBehaviour, IPointerClickHandler
             {
                 cameraFocus.StartFocus(transform); // カメラを動物にフォーカス
                 isFocusing = true;
-                SetAnimalParameter(animalData); // 動物の名前をUIに表示
-                animalNameParent = animalName.transform.parent.gameObject; // 親オブジェクトを取得
-                animalNameParent.SetActive(true); // 動物の名前を表示するUIを有効化
+                UIManager.Instance.ShowAnimalInfo(animalData);
             }
             Debug.Log($"クリックされた動物: {animalData.animalName}");
         }
-    }
-
-    private void SetAnimalParameter(AnimalData animalData)
-    {
-        animalName.text = animalData.animalName;
     }
 }

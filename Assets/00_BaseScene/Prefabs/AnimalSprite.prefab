@@ -206,7 +206,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 322f1bb8e38473846a6cad2b741d2174, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimalsClickDetector
-  animalName: {fileID: 3929947642470326873}
+  animalName: {fileID: 0}
 --- !u!114 &-1478178510758078535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -232,9 +232,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimalData
   animalName: 
-  weight: 0
+  imageUrl: 
   speed: 0
   power: 0
+  luck: 0
 --- !u!114 &9019276930512493167
 MonoBehaviour:
   m_ObjectHideFlags: 0
