@@ -6712,6 +6712,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RaceManager
   animalPrefab: {fileID: 7049287844960955359, guid: 6e951fb7d6fbbd446bdd5286cf481520, type: 3}
   raceCamera: {fileID: 1465333979}
+  raceTuning: {fileID: 11400000, guid: 2e2115cc373a2e9469f87112f198fd24, type: 2}
   racerCount: 5
 --- !u!114 &1725942745
 MonoBehaviour:

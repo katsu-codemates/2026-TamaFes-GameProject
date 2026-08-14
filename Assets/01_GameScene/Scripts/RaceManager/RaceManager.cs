@@ -16,6 +16,9 @@ public class RaceManager : MonoBehaviour
     [Header("カメラ")]
     [SerializeField] private RaceCameraController raceCamera;
 
+    [Header("レース計算式の調整用パラメータ")]
+    [SerializeField] private RaceTuningConfig raceTuning;
+
     [Header("出走数")]
     [SerializeField] private int racerCount = 5;
 
@@ -38,6 +41,8 @@ public class RaceManager : MonoBehaviour
     /// </summary>
     public void StartRace(List<AnimalData> allAnimals)
     {
+        Debug.Log("レーススタート");
+
         // 出走数に応じて動物を抽選
         List<AnimalData> selectedAnimals = allAnimals
             .OrderBy(a => Random.value)
@@ -57,13 +62,8 @@ public class RaceManager : MonoBehaviour
         {
             GameObject racerObj = Instantiate(animalPrefab);
             var racerView = racerObj.GetComponent<AnimalRacerView>();
-            racerView.SetUp(participant, participants.Count);
+            racerView.SetUp(participant, raceTuning, participants.Count);
             racerViews.Add(racerView);
-        }
-
-        foreach (var racerView in racerViews)
-        {
-            racerView.StartRacing();
         }
     }
 
@@ -73,6 +73,7 @@ public class RaceManager : MonoBehaviour
 
         participant.finishRank = finishedOrder.Count + 1;
         finishedOrder.Add(participant);
+        Debug.Log($"{participant.animalData.animalName} がゴール！順位{participant.finishRank}");
 
         if (finishedOrder.Count == participants.Count)
         {
@@ -83,5 +84,6 @@ public class RaceManager : MonoBehaviour
     private void OnRaceComplete()
     {
         // 結果画面へ
+        Debug.Log("レース終了");
     }
 }

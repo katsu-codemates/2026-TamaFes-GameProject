@@ -132,10 +132,13 @@ public class IllustrationManager : MonoBehaviour
         animalData.animalName = animalImageData.imageName;
         animalData.imageUrl = animalImageData.imageUrl;
         // 他のデータも設定する...
-        // 仮実装ーーーー
-            animalData.speed = Random.Range(5f, 15f);
-            animalData.power = Random.Range(5f, 15f);
-            animalData.luck = Random.Range(5f, 15f);
+            // 仮実装ーーーーー
+                float[] x = DebugSetParam();
+                animalData.speed = x[0];
+                animalData.power = x[1];
+                animalData.wisdom = x[2];
+                animalData.luck = x[3];
+                animalData.stamina = x[4];
 
         if (!registeredAnimals.Contains(animalData))
         {
@@ -148,5 +151,27 @@ public class IllustrationManager : MonoBehaviour
     public List<AnimalData> GetResisterdAnimals()
     {
         return registeredAnimals;
+    }
+
+    float[] DebugSetParam()
+    {
+        float[] values = new float[5];
+        float sum = 0f;
+
+        // Step1: ランダム値を作る
+        for (int i = 0; i < values.Length; i++)
+        {
+            values[i] = Random.value; // 0〜1 のランダム
+            sum += values[i];
+        }
+
+        // Step2: 合計が 250 になるように正規化
+        float targetTotal = 250f;
+        for (int i = 0; i < values.Length; i++)
+        {
+            values[i] = values[i] / sum * targetTotal;
+        }
+
+        return values;
     }
 }
