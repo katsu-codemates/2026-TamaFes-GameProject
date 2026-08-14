@@ -1,0 +1,87 @@
+using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
+
+/// <summary>
+/// レースの進行を管理するクラス。
+/// 出走メンバーの決定⇒レーン割り当て⇒生成⇒進行監視⇒結果通知
+/// </summary>
+public class RaceManager : MonoBehaviour
+{
+    public static RaceManager Instance { get; private set; }
+
+    [Header("動物一体分のプレハブ")]
+    [SerializeField] private GameObject animalPrefab;
+
+    [Header("カメラ")]
+    [SerializeField] private RaceCameraController raceCamera;
+
+    [Header("出走数")]
+    [SerializeField] private int racerCount = 5;
+
+    private List<RaceParticipant> participants = new List<RaceParticipant>();
+    private List<RaceParticipant> finishedOrder = new List<RaceParticipant>();
+    private List<AnimalRacerView> racerViews = new List<AnimalRacerView>();
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this.gameObject);
+            return;
+        }
+        Instance = this;
+    }
+
+    /// <summary>
+    /// 登録済みの動物一覧から出走メンバーを抽選し、レースを開始する。
+    /// </summary>
+    public void StartRace(List<AnimalData> allAnimals)
+    {
+        // 出走数に応じて動物を抽選
+        List<AnimalData> selectedAnimals = allAnimals
+            .OrderBy(a => Random.value)
+            .Take(racerCount)
+            .ToList();
+
+        participants = selectedAnimals
+            .Select((animalData, index) => new RaceParticipant { animalData = animalData, laneIndex = index })
+            .ToList();
+
+        finishedOrder.Clear();
+        racerViews.Clear();
+
+        raceCamera.SetParticipants(participants);
+
+        foreach (var participant in participants)
+        {
+            GameObject racerObj = Instantiate(animalPrefab);
+            var racerView = racerObj.GetComponent<AnimalRacerView>();
+            racerView.SetUp(participant, participants.Count);
+            racerViews.Add(racerView);
+        }
+
+        foreach (var racerView in racerViews)
+        {
+            racerView.StartRacing();
+        }
+    }
+
+    public void NotifyFinished(RaceParticipant participant)
+    {
+        if (finishedOrder.Contains(participant)) return;
+
+        participant.finishRank = finishedOrder.Count + 1;
+        finishedOrder.Add(participant);
+
+        if (finishedOrder.Count == participants.Count)
+        {
+            OnRaceComplete();
+        }
+    }
+
+    private void OnRaceComplete()
+    {
+        // 結果画面へ
+    }
+}

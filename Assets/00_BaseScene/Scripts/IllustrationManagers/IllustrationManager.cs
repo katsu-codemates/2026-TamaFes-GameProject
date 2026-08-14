@@ -27,6 +27,9 @@ public class IllustrationManager : MonoBehaviour
     // imageNameと表示中のGameObjectの対応を保持する辞書。生成済みの画像を管理し、二重生成の防止や後で消すのに使う。
     private readonly Dictionary<string, GameObject> displayedIllustrations = new Dictionary<string, GameObject>();
 
+    // 登録済みの動物を保持するリスト。必要に応じて、ここからランダムに出走メンバーを抽選するなどの処理に使える。
+    private readonly List<AnimalData> registeredAnimals = new List<AnimalData>();
+
     private IImageProvider imageProvider;
 
     private IEnumerator Start()
@@ -127,8 +130,23 @@ public class IllustrationManager : MonoBehaviour
 
         // 画像データから動物データを設定
         animalData.animalName = animalImageData.imageName;
+        animalData.imageUrl = animalImageData.imageUrl;
         // 他のデータも設定する...
+        // 仮実装ーーーー
+            animalData.speed = Random.Range(5f, 15f);
+            animalData.power = Random.Range(5f, 15f);
+            animalData.luck = Random.Range(5f, 15f);
+
+        if (!registeredAnimals.Contains(animalData))
+        {
+            registeredAnimals.Add(animalData);
+        }
 
         return animalData;
+    }
+
+    public List<AnimalData> GetResisterdAnimals()
+    {
+        return registeredAnimals;
     }
 }
