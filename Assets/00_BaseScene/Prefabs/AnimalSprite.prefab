@@ -91,6 +91,7 @@ GameObject:
   - component: {fileID: -1478178510758078535}
   - component: {fileID: 516948079746460421}
   - component: {fileID: 9019276930512493167}
+  - component: {fileID: 7489098296548008715}
   m_Layer: 3
   m_Name: AnimalSprite
   m_TagString: Untagged
@@ -206,7 +207,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 322f1bb8e38473846a6cad2b741d2174, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimalsClickDetector
-  animalName: {fileID: 0}
 --- !u!114 &-1478178510758078535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -248,6 +248,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa99af466c1845940be348da4a475974, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MoveTest
+--- !u!114 &7489098296548008715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1893108964408875296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebb11d554d8628143b54ee14b323e200, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NewMonoBehaviourScript
 --- !u!1 &5921436526476265692
 GameObject:
   m_ObjectHideFlags: 0
