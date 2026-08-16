@@ -120,17 +120,19 @@ public class IllustrationManager : MonoBehaviour
         displayedIllustrations[imageData.imageName] = go;
     }
 
-    private AnimalData SetAnimalData(GameObject animalPrefab, ImageData animalImageData)
+    private AnimalData SetAnimalData(GameObject animalPrefab, ImageData data)
     {
-        var animalData = animalPrefab.GetComponent<AnimalData>();
-        if (animalData == null)
+        var holder = animalPrefab.GetComponent<AnimalDataHolder>();
+        if (holder == null)
         {
-            animalData = animalPrefab.AddComponent<AnimalData>();
+            holder = animalPrefab.AddComponent<AnimalDataHolder>();
         }
 
+        var animalData = holder.Data ?? new AnimalData();
+
         // 画像データから動物データを設定
-        animalData.animalName = animalImageData.imageName;
-        animalData.imageUrl = animalImageData.imageUrl;
+        animalData.animalName = data.imageName;
+        animalData.imageUrl = data.imageUrl;
         // 他のデータも設定する...
             // 仮実装ーーーーー
                 float[] x = DebugSetParam();
@@ -139,6 +141,8 @@ public class IllustrationManager : MonoBehaviour
                 animalData.wisdom = x[2];
                 animalData.luck = x[3];
                 animalData.stamina = x[4];
+
+        holder.Data = animalData;
 
         if (!registeredAnimals.Contains(animalData))
         {
@@ -161,7 +165,7 @@ public class IllustrationManager : MonoBehaviour
         // Step1: ランダム値を作る
         for (int i = 0; i < values.Length; i++)
         {
-            values[i] = Random.value; // 0〜1 のランダム
+            values[i] = UnityEngine.Random.value; // 0〜1 のランダム
             sum += values[i];
         }
 

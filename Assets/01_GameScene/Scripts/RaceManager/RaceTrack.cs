@@ -9,7 +9,7 @@ public static class RaceTrack
     public static readonly Vector3 ForwardDirection = new Vector3(1f, 0f, 0f).normalized;
     public static readonly Vector3 LaneDirection = new Vector3(0f, 0f, 1f).normalized;
 
-    public const float TrackLength = 1000f; // ゴールまでの距離
+    public const float TrackLength = 10000f; // ゴールまでの距離
     public const float LaneWidth = 2f; // レーンの幅
 
     /// <summary>  

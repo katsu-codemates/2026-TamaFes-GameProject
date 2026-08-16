@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -6,6 +7,7 @@ using UnityEngine;
 /// レース中に変化する値を保持するためのクラス。
 /// </summary>
 
+[Serializable]
 public class RaceParticipant
 {
     public AnimalData animalData;

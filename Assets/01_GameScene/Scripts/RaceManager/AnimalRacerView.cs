@@ -9,6 +9,9 @@ using DG.Tweening;
 
 public class AnimalRacerView : MonoBehaviour
 {
+    [Header("デバッグ用パラメータ閲覧")]
+    [SerializeField] private RaceParticipant debugParticipant;
+
     [Header("見た目・演出用の子オブジェクト")]
     [SerializeField] private Transform visualRoot;
     [SerializeField] private SpriteRenderer spriteRenderer;
@@ -28,7 +31,11 @@ public class AnimalRacerView : MonoBehaviour
         this.participant = participant;
         this.raceTuning = raceTuning;
         this.totalParticipantCount = totalParticipantCount;
+        debugParticipant = participant;
         
+        RaceSimulator.Initialize(participant, raceTuning);
+        Debug.Log($"Initialized:{participant.animalData.animalName}");
+
         // 初期位置を設定
         transform.position = RaceTrack.GetWorldPosition(0f, participant.laneIndex, totalParticipantCount);
 
@@ -50,7 +57,6 @@ public class AnimalRacerView : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log($"{participant.animalData.animalName}: progress={participant.progress}, speed={participant.currentSpeed}, finished={participant.isFinished}");
         if (participant == null || participant.isFinished) return;
 
         RaceSimulator.Tick(participant, Time.deltaTime, raceTuning);

@@ -2246,6 +2246,9 @@ MonoBehaviour:
   testImageNames:
   - chicken.png
   - horse.png
+  - alpaca.png
+  - raindeer.png
+  - sheep.png
 --- !u!114 &2014937664
 MonoBehaviour:
   m_ObjectHideFlags: 0

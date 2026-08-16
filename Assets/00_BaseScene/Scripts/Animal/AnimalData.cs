@@ -1,6 +1,8 @@
+using System;
 using UnityEngine;
 
-public class AnimalData : MonoBehaviour
+[Serializable]
+public class AnimalData
 {
     public string animalName;
     public string imageUrl;

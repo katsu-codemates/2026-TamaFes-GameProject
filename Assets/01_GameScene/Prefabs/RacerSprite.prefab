@@ -100,7 +100,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3346172018576414210}
-  - component: {fileID: 8148078818711354341}
   - component: {fileID: 7247158652748448120}
   m_Layer: 0
   m_Name: RacerSprite
@@ -125,25 +124,6 @@ Transform:
   - {fileID: 8375356882016031643}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8148078818711354341
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7049287844960955359}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4c1da02f9d4b2b46b4e740024a18d74, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AnimalData
-  animalName: 
-  imageUrl: 
-  speed: 0
-  power: 0
-  wisdom: 0
-  luck: 0
-  stamina: 0
 --- !u!114 &7247158652748448120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -156,5 +136,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35294b9c2a204a949b8a975a1a820bc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimalRacerView
+  debugParticipant:
+    animalData: {fileID: 0}
+    laneIndex: 0
+    maxSpeed: 0
+    accelerarion: 0
+    initialStamina: 0
+    earlyPhaseEnd: 0
+    latePhaseStart: 0
+    progress: 0
+    currentSpeed: 0
+    currentStamina: 0
+    isFinished: 0
+    finishRank: -1
+    hasRolledLatePhase: 0
+    isSpurting: 0
+    spurtTimer: 0
+    spurtBonusValue: 0
+    isAccident: 0
+    accidentTimer: 0
+    accidentSlowFactor: 0
+    isMiracle: 0
+    miracleTimer: 0
+    miracleBoost: 0
   visualRoot: {fileID: 8375356882016031643}
   spriteRenderer: {fileID: 5671381133940499860}

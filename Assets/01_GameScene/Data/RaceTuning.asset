@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0020b20b40d80b4187035b23c1490a0, type: 3}
   m_Name: RaceTuning
   m_EditorClassIdentifier: Assembly-CSharp::RaceTuningConfig
-  baseSpeed: 8
+  baseSpeed: 100
   speedRange: 6
-  baseAccel: 10
-  accelRange: 15
+  baseAccel: 50
+  accelRange: 20
   earlyPhaseEndMin: 0.15
   earlyPhaseEndMax: 0.25
   latePhaseStartMin: 0.7
   latePhaseStartMax: 0.8
-  staminaMin: 50
+  staminaMin: 500
   staminaRange: 100
-  baseConsumption: 6
-  wisdomEfficiency: 0.5
+  baseConsumption: 10
+  wisdomEfficiency: 0.8
   fatigueThreshold: 0.3
   minFatigueFactor: 0.6
   spurtMinStaminaRatio: 0.35
