@@ -11,10 +11,11 @@ GameObject:
   - component: {fileID: 3829599059510868223}
   - component: {fileID: 4739681933986566490}
   - component: {fileID: 8378995117586599984}
+  - component: {fileID: 8580116750253660313}
   - component: {fileID: -4675206277530934385}
   - component: {fileID: -1478178510758078535}
   - component: {fileID: 9019276930512493167}
-  - component: {fileID: 8580116750253660313}
+  - component: {fileID: 7517819579269573834}
   m_Layer: 3
   m_Name: AnimalSprite
   m_TagString: Untagged
@@ -118,6 +119,26 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 7, y: 7, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8580116750253660313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1893108964408875296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff152243e941a97428fbff52a970a07d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimalDataHolder
+  Data:
+    animalName: 
+    imageUrl: 
+    speed: 0
+    power: 0
+    wisdom: 0
+    luck: 0
+    stamina: 0
 --- !u!114 &-4675206277530934385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,7 +175,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa99af466c1845940be348da4a475974, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MoveTest
---- !u!114 &8580116750253660313
+--- !u!114 &7517819579269573834
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -163,17 +184,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1893108964408875296}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff152243e941a97428fbff52a970a07d, type: 3}
+  m_Script: {fileID: 11500000, guid: ebb11d554d8628143b54ee14b323e200, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AnimalDataHolder
-  Data:
-    animalName: 
-    imageUrl: 
-    speed: 0
-    power: 0
-    wisdom: 0
-    luck: 0
-    stamina: 0
+  m_EditorClassIdentifier: Assembly-CSharp::AnimalIdleanimation
 --- !u!1 &5966863992136639998
 GameObject:
   m_ObjectHideFlags: 0
