@@ -11,7 +11,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI speedText;
     [SerializeField] private TextMeshProUGUI powerText;
+    [SerializeField] private TextMeshProUGUI widomText;
     [SerializeField] private TextMeshProUGUI luckText;
+    [SerializeField] private TextMeshProUGUI staminaText;
 
     private bool isShowing = false;
 
@@ -29,7 +31,9 @@ public class UIManager : MonoBehaviour
         nameText.text = "name:" + data.animalName;
         speedText.text = "speed:" + data.speed.ToString();
         powerText.text = "power:" + data.power.ToString();
+        widomText.text = "wisdom" + data.wisdom.ToString();
         luckText.text = "luck:" + data.luck.ToString();
+        staminaText.text = "stamina" + data.stamina.ToString();
     }
 
     public void HideAnimalInfo()

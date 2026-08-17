@@ -35,14 +35,14 @@ public class AnimalsClickDetector : MonoBehaviour, IPointerClickHandler
         if (eventData.button == PointerEventData.InputButton.Left && !isFocusing)
         {
             // クリックされた動物のデータを取得
-            var animalData = GetComponent<AnimalData>();
-            if (animalData != null && cameraFocus != null)
+            var holder = GetComponent<AnimalDataHolder>();
+            if (holder != null && holder.Data != null && cameraFocus != null)
             {
                 cameraFocus.StartFocus(transform); // カメラを動物にフォーカス
                 isFocusing = true;
-                UIManager.Instance.ShowAnimalInfo(animalData);
+                UIManager.Instance.ShowAnimalInfo(holder.Data);
             }
-            Debug.Log($"クリックされた動物: {animalData.animalName}");
+            Debug.Log($"クリックされた動物: {holder?.Data?.animalName}");
         }
     }
 }

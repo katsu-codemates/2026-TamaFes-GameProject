@@ -120,22 +120,29 @@ public class IllustrationManager : MonoBehaviour
         displayedIllustrations[imageData.imageName] = go;
     }
 
-    private AnimalData SetAnimalData(GameObject animalPrefab, ImageData animalImageData)
+    private AnimalData SetAnimalData(GameObject animalPrefab, ImageData data)
     {
-        var animalData = animalPrefab.GetComponent<AnimalData>();
-        if (animalData == null)
+        var holder = animalPrefab.GetComponent<AnimalDataHolder>();
+        if (holder == null)
         {
-            animalData = animalPrefab.AddComponent<AnimalData>();
+            holder = animalPrefab.AddComponent<AnimalDataHolder>();
         }
 
+        var animalData = holder.Data ?? new AnimalData();
+
         // 画像データから動物データを設定
-        animalData.animalName = animalImageData.imageName;
-        animalData.imageUrl = animalImageData.imageUrl;
+        animalData.animalName = data.imageName;
+        animalData.imageUrl = data.imageUrl;
         // 他のデータも設定する...
-        // 仮実装ーーーー
-            animalData.speed = Random.Range(5f, 15f);
-            animalData.power = Random.Range(5f, 15f);
-            animalData.luck = Random.Range(5f, 15f);
+            // 仮実装ーーーーー
+                float[] x = DebugSetParam();
+                animalData.speed = x[0];
+                animalData.power = x[1];
+                animalData.wisdom = x[2];
+                animalData.luck = x[3];
+                animalData.stamina = x[4];
+
+        holder.Data = animalData;
 
         if (!registeredAnimals.Contains(animalData))
         {
@@ -148,5 +155,27 @@ public class IllustrationManager : MonoBehaviour
     public List<AnimalData> GetResisterdAnimals()
     {
         return registeredAnimals;
+    }
+
+    float[] DebugSetParam()
+    {
+        float[] values = new float[5];
+        float sum = 0f;
+
+        // Step1: ランダム値を作る
+        for (int i = 0; i < values.Length; i++)
+        {
+            values[i] = UnityEngine.Random.value; // 0〜1 のランダム
+            sum += values[i];
+        }
+
+        // Step2: 合計が 250 になるように正規化
+        float targetTotal = 250f;
+        for (int i = 0; i < values.Length; i++)
+        {
+            values[i] = values[i] / sum * targetTotal;
+        }
+
+        return values;
     }
 }

@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0020b20b40d80b4187035b23c1490a0, type: 3}
+  m_Name: RaceTuning
+  m_EditorClassIdentifier: Assembly-CSharp::RaceTuningConfig
+  baseSpeed: 100
+  speedRange: 6
+  baseAccel: 50
+  accelRange: 20
+  earlyPhaseEndMin: 0.15
+  earlyPhaseEndMax: 0.25
+  latePhaseStartMin: 0.7
+  latePhaseStartMax: 0.8
+  staminaMin: 500
+  staminaRange: 100
+  baseConsumption: 10
+  wisdomEfficiency: 0.8
+  fatigueThreshold: 0.3
+  minFatigueFactor: 0.6
+  spurtMinStaminaRatio: 0.35
+  suprtBaseChance: 0.4
+  spurtBonusRange: 4
+  spurtDuration: 2.5
+  baseAccidentChancePerSeccond: 0.02
+  luckReducttionFactor: 0.8
+  accidentDuration: 1
+  accidentSlowMin: 0.5
+  accidentSlowMax: 0.7
+  miracleChancePerSecond: 0.004
+  miracleDuration: 1
+  miracleBoostMin: 1.3
+  miracleBoostMax: 1.6
