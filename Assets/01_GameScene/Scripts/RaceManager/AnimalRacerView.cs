@@ -15,6 +15,7 @@ public class AnimalRacerView : MonoBehaviour
     [Header("見た目・演出用の子オブジェクト")]
     [SerializeField] private Transform visualRoot;
     [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private GameObject spurtFrare;
     
     private RaceParticipant participant;
     private RaceTuningConfig raceTuning;
@@ -32,6 +33,7 @@ public class AnimalRacerView : MonoBehaviour
         this.raceTuning = raceTuning;
         this.totalParticipantCount = totalParticipantCount;
         debugParticipant = participant;
+        spurtFrare.SetActive(false);
         
         RaceSimulator.Initialize(participant, raceTuning);
         Debug.Log($"Initialized:{participant.animalData.animalName}");
@@ -47,6 +49,7 @@ public class AnimalRacerView : MonoBehaviour
                 if (spriteRenderer != null)
                 {
                     spriteRenderer.sprite = loadedSprite;
+                    spriteRenderer.flipX = true;
                 }
             },
             onError: (error) => {
@@ -68,6 +71,7 @@ public class AnimalRacerView : MonoBehaviour
         if (participant.isFinished && !nortifiedFinish)
         {
             nortifiedFinish = true;
+            spurtFrare.SetActive(false);
             RaceManager.Instance.NotifyFinished(participant);
         }
     }
@@ -77,24 +81,32 @@ public class AnimalRacerView : MonoBehaviour
     /// </summary>
     private void HandleEffectTransitions()
     {
+        // スパート演出
         if (participant.isSpurting && !wasSpurting)
         {
             visualRoot.DOKill();
-            visualRoot.DOPunchScale(Vector3.one * 0.25f, duration: 0.35f, vibrato: 6, elasticity: 0.5f);
+            visualRoot.DOPunchScale(Vector3.one * 1f, duration: 0.35f, vibrato: 6, elasticity: 0.5f);
+            spurtFrare.SetActive(true);
+            Debug.Log($"{participant.animalData.animalName}がラストスパート！ progress={participant.progress}");
         }
         wasSpurting = participant.isSpurting;
 
+        // アクシデント演出
         if (participant.isAccident && !wasAccident)
         {
             visualRoot.DOKill();
-            visualRoot.DOShakePosition(raceTuning.accidentDuration, strength: 0.3f, vibrato: 20);
+            visualRoot.DOLocalRotate(new Vector3(0, 0, 360f), duration: participant.accidentTimer, RotateMode.FastBeyond360)
+                .SetEase(Ease.OutBack);
+            Debug.Log($"{participant.animalData.animalName}がアクシデント！");
         }
         wasAccident = participant.isAccident;
 
+        // ミラクル演出
         if (participant.isMiracle && !wasMiracle)
         {
             visualRoot.DOKill();
-            visualRoot.DOPunchScale(Vector3.one * 0.4f, duration: 0.5f, vibrato: 8, elasticity: 0.6f);
+            visualRoot.DOPunchScale(Vector3.one * 1f, participant.miracleTimer, vibrato: 8, elasticity: 0.6f);
+            Debug.Log($"{participant.animalData.animalName}がミラクル！");
         }
         wasMiracle = participant.isMiracle;
     }

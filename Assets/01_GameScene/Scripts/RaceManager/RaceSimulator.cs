@@ -24,7 +24,7 @@ public class RaceSimulator
         
         // フェーズ境界は個体ごとにランダム化（全員が同時に切り替わらないようにする）
         participant.earlyPhaseEnd = Random.Range(raceTuning.earlyPhaseEndMin, raceTuning.earlyPhaseEndMax);
-        participant.latePhaseStart = Random.Range(raceTuning.latePhaseStartMin, raceTuning.earlyPhaseEndMax);
+        participant.latePhaseStart = Random.Range(raceTuning.latePhaseStartMin, raceTuning.latePhaseStartMax);
 
         participant.progress = 0f;
         participant.currentSpeed = 0f;
@@ -130,22 +130,24 @@ public class RaceSimulator
         if (participant.currentStamina <= 0f) return;
 
         float wisdomNorm = participant.animalData.wisdom / 100f;
-        float consumption = raceTuning.baseConsumption * (1f - wisdomNorm * raceTuning.wisdomEfficiency); // 賢さが高いほど消費倍率が低い
+        float spurtConsume = 1f;
+        if (participant.isSpurting) spurtConsume = 1f + raceTuning.spurtConsumption * (1f - wisdomNorm * raceTuning.wisdomEfficiency);
+        float consumption = raceTuning.baseConsumption * (1f - wisdomNorm * raceTuning.wisdomEfficiency) * spurtConsume; // 賢さが高いほど消費倍率が低い
         participant.currentStamina = Mathf.Max(0f, participant.currentStamina - consumption * deltaTime);
     }
     private static void RollSpurt(RaceParticipant participant, RaceTuningConfig raceTuning)
     {
         float staminaRatio = participant.currentStamina / participant.initialStamina;
-        if (staminaRatio <= raceTuning.spurtMinStaminaRatio) return;
+        if (staminaRatio <= raceTuning.spurtMinStaminaRatio) return; // スタミナが一定比率以下ならスパート抽選しない
 
-        float wisdomNorm = participant.animalData.wisdom / 100f;
-        float chance = wisdomNorm * raceTuning.spurtBonusRange;
+        float staminaNorm = participant.animalData.stamina / 100f;
+        float chance = staminaNorm * raceTuning.spurtBonusRange; // スタミナステータスが高いほどスパートしやすい
 
         if (Random.value < chance)
         {
             participant.isSpurting = true;
             participant.spurtTimer = raceTuning.spurtDuration;
-            participant.spurtBonusValue = wisdomNorm * raceTuning.spurtBonusRange;
+            participant.spurtBonusValue = staminaNorm * raceTuning.spurtBonusRange;
         }
     }
 
