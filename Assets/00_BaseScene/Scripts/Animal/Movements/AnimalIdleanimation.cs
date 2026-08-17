@@ -6,28 +6,22 @@ public class AnimalIdleanimation : MonoBehaviour
 {
     Tween idleTween;
     SpriteRenderer spriteRenderer;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         IdleMotion();
         StartCoroutine(RandomMove());
-
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
     void IdleMotion()
     {
         Vector3 startPosition = transform.position;
         startPosition.y += 0.2f;
         idleTween = transform.DOMove(startPosition, 1f)
             .SetLoops(-1, LoopType.Yoyo);
-
     }
+
     IEnumerator RandomMove()
     {
         while (true)
@@ -56,9 +50,7 @@ public class AnimalIdleanimation : MonoBehaviour
                 .WaitForCompletion();
             }
 
-
             IdleMotion();
-
         }
     }
 }
