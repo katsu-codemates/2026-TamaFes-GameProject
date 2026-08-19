@@ -147,7 +147,7 @@ public class RaceSimulator
         {
             participant.isSpurting = true;
             participant.spurtTimer = raceTuning.spurtDuration;
-            participant.spurtBonusValue = staminaNorm * raceTuning.spurtBonusRange;
+            participant.spurtBonusValue = staminaRatio * raceTuning.spurtBonusRange;
         }
     }
 

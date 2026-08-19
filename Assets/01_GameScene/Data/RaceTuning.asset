@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RaceTuningConfig
   baseSpeed: 100
   speedRange: 6
-  baseAccel: 8
-  accelRange: 15
+  baseAccel: 10
+  accelRange: 10
   earlyPhaseEndMin: 0.15
   earlyPhaseEndMax: 0.25
   latePhaseStartMin: 0.7

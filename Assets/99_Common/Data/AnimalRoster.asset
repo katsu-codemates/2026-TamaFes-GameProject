@@ -12,4 +12,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d0586ae5bdca9d4da46712ee94e6e6c, type: 3}
   m_Name: AnimalRoster
   m_EditorClassIdentifier: Assembly-CSharp::AnimalRoster
-  animals: []
+  animals:
+  - animalName: chicken.png
+    imageUrl: C:/Users/katsu/others/unityProjects/2026-TamaFes-GameProject/Assets/StreamingAssets\TestImages\chicken.png
+    speed: 100
+    power: 10
+    wisdom: 50
+    luck: 10
+    stamina: 30
+  - animalName: horse.png
+    imageUrl: C:/Users/katsu/others/unityProjects/2026-TamaFes-GameProject/Assets/StreamingAssets\TestImages\horse.png
+    speed: 30
+    power: 30
+    wisdom: 60
+    luck: 30
+    stamina: 100
+  - animalName: alpaca.png
+    imageUrl: C:/Users/katsu/others/unityProjects/2026-TamaFes-GameProject/Assets/StreamingAssets\TestImages\alpaca.png
+    speed: 60
+    power: 60
+    wisdom: 50
+    luck: 10
+    stamina: 70
+  - animalName: raindeer.png
+    imageUrl: C:/Users/katsu/others/unityProjects/2026-TamaFes-GameProject/Assets/StreamingAssets\TestImages\raindeer.png
+    speed: 60
+    power: 10
+    wisdom: 20
+    luck: 90
+    stamina: 70
+  - animalName: sheep.png
+    imageUrl: C:/Users/katsu/others/unityProjects/2026-TamaFes-GameProject/Assets/StreamingAssets\TestImages\sheep.png
+    speed: 40
+    power: 70
+    wisdom: 40
+    luck: 30
+    stamina: 70
