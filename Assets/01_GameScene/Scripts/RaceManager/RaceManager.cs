@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 
 /// <summary>
 /// レースの進行を管理するクラス。
@@ -18,6 +19,9 @@ public class RaceManager : MonoBehaviour
 
     [Header("レース計算式の調整用パラメータ")]
     [SerializeField] private RaceTuningConfig raceTuning;
+
+    [Header("実況機能")]
+    [SerializeField] private RaceCommentator raceCommentator;
 
     [Header("出走数")]
     [SerializeField] private int racerCount = 5;
@@ -57,6 +61,7 @@ public class RaceManager : MonoBehaviour
         racerViews.Clear();
 
         raceCamera.SetParticipants(participants);
+        raceCommentator.SetParticipants(participants);
 
         foreach (var participant in participants)
         {
@@ -73,6 +78,8 @@ public class RaceManager : MonoBehaviour
 
         participant.finishRank = finishedOrder.Count + 1;
         finishedOrder.Add(participant);
+
+        RaceEventBus.RaiseFinished(participant);
         Debug.Log($"{participant.animalData.animalName} がゴール！順位{participant.finishRank}");
 
         if (finishedOrder.Count == participants.Count)

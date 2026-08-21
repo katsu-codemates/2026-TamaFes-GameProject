@@ -88,6 +88,8 @@ public class AnimalRacerView : MonoBehaviour
             visualRoot.DOLocalRotate(new Vector3(0, 0, 0), 0f);
             visualRoot.DOPunchScale(Vector3.one * 1f, duration: 0.35f, vibrato: 6, elasticity: 0.5f);
             spurtFrare.SetActive(true);
+
+            RaceEventBus.RaiseSpurtStarted(participant);
             Debug.Log($"{participant.animalData.animalName}がラストスパート！ progress={participant.progress}");
         }
         wasSpurting = participant.isSpurting;
@@ -98,6 +100,8 @@ public class AnimalRacerView : MonoBehaviour
             visualRoot.DOKill();
             visualRoot.DOLocalRotate(new Vector3(0, 0, -360f), duration: participant.accidentTimer, RotateMode.FastBeyond360)
                 .SetEase(Ease.OutBack);
+
+            RaceEventBus.RaiseAccidentStarted(participant);
             Debug.Log($"{participant.animalData.animalName}がアクシデント！");
         }
         wasAccident = participant.isAccident;
@@ -107,6 +111,8 @@ public class AnimalRacerView : MonoBehaviour
         {
             visualRoot.DOKill();
             visualRoot.DOPunchScale(Vector3.one * 1f, participant.miracleTimer, vibrato: 8, elasticity: 0.6f);
+            
+            RaceEventBus.RaiseMiracleStarted(participant);
             Debug.Log($"{participant.animalData.animalName}がミラクル！");
         }
         wasMiracle = participant.isMiracle;
