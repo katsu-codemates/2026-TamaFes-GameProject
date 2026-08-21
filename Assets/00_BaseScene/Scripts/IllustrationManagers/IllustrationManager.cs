@@ -131,7 +131,8 @@ public class IllustrationManager : MonoBehaviour
         var animalData = holder.Data ?? new AnimalData();
 
         // 画像データから動物データを設定
-        animalData.animalName = data.imageName;
+        int cutName = data.imageName.Length - 4;
+        animalData.animalName = data.imageName.Substring(0, cutName); // ".png"を引く
         animalData.imageUrl = data.imageUrl;
         // 他のデータも設定する...
             // 仮実装ーーーーー

@@ -4434,7 +4434,7 @@ MonoBehaviour:
   raceCamera: {fileID: 1465333979}
   raceTuning: {fileID: 11400000, guid: 2e2115cc373a2e9469f87112f198fd24, type: 2}
   raceCommentator: {fileID: 1725942746}
-  racerCount: 5
+  racerCount: 20
 --- !u!114 &1725942745
 MonoBehaviour:
   m_ObjectHideFlags: 0

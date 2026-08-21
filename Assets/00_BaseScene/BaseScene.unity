@@ -1389,7 +1389,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'name: aaa'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 54242dd85a5cd0a458bb358b1bfa25b2, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -1456,7 +1456,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &874524364
@@ -2244,11 +2244,16 @@ MonoBehaviour:
   isDevelopment: 1
   remoteEndpointUrl: https://***/api/illustrations
   testImageNames:
-  - chicken.png
-  - horse.png
-  - alpaca.png
-  - raindeer.png
-  - sheep.png
+  - "\u30CB\u30EF\u30C8\u30EA.png"
+  - "\u30A6\u30DE.png"
+  - "\u30A2\u30EB\u30D1\u30AB.png"
+  - "\u30C8\u30CA\u30AB\u30A4.png"
+  - "\u30D2\u30C4\u30B8.png"
+  - "\u30A2\u30E9\u30A4\u30B0\u30DE.png"
+  - "\u30B9\u30A4\u30AE\u30E5\u30A6.png"
+  - "\u30EA\u30B9.png"
+  - "\u30B7\u30ED\u30B5\u30A4.png"
+  - "\u30A2\u30B6\u30E9\u30B7.png"
 --- !u!114 &2014937664
 MonoBehaviour:
   m_ObjectHideFlags: 0
