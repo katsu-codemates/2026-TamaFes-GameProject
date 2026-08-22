@@ -8,6 +8,6 @@ public class GameSceneManager : MonoBehaviour
 
     private void Start()
     {
-        raceManager.StartRace(new List<AnimalData>(animalRoster.Animals));
+        //raceManager.StartRace(new List<AnimalData>(animalRoster.Animals));
     }
 }

@@ -43,7 +43,7 @@ public class RaceManager : MonoBehaviour
     /// <summary>
     /// 登録済みの動物一覧から出走メンバーを抽選し、レースを開始する。
     /// </summary>
-    public void StartRace(List<AnimalData> allAnimals)
+    public List<AnimalData> SelectParticipants(List<AnimalData> allAnimals)
     {
         Debug.Log("レーススタート");
 
@@ -57,6 +57,11 @@ public class RaceManager : MonoBehaviour
             .Select((animalData, index) => new RaceParticipant { animalData = animalData, laneIndex = index })
             .ToList();
 
+        return selectedAnimals;
+    }
+
+    public void BeginRace()
+    {
         finishedOrder.Clear();
         racerViews.Clear();
 
