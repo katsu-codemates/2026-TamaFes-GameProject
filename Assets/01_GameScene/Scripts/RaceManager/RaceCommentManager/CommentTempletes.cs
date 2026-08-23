@@ -26,6 +26,9 @@ public class CommentTempletes
         "{0}が独走態勢!",
         "{0}、このままリードを守れるか!?",
         "先頭は変わらず{0}!",
+        "すごい勢いだ!{0}!",
+        "{0}の前に出る者はいない!!",
+        "{0}が飛ばしていく!!"
     };
  
     private static readonly string[] CloseRaceTemplates =

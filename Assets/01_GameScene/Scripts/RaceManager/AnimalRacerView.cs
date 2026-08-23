@@ -16,7 +16,7 @@ public class AnimalRacerView : MonoBehaviour
     [SerializeField] private Transform visualRoot;
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private GameObject spurtFrare;
-    
+
     private RaceParticipant participant;
     private RaceTuningConfig raceTuning;
     private int totalParticipantCount;
@@ -34,7 +34,7 @@ public class AnimalRacerView : MonoBehaviour
         this.totalParticipantCount = totalParticipantCount;
         debugParticipant = participant;
         spurtFrare.SetActive(false);
-        
+
         RaceSimulator.Initialize(participant, raceTuning);
         Debug.Log($"Initialized:{participant.animalData.animalName}");
 
@@ -43,16 +43,18 @@ public class AnimalRacerView : MonoBehaviour
 
         // 見た目(既存の仕組みを流用)
         StartCoroutine(ImageLoader.LoadSprite(
-            participant.animalData.animalName, 
+            participant.animalData.animalName,
             participant.animalData.imageUrl,
-            onSuccess: (loadedSprite) => {
+            onSuccess: (loadedSprite) =>
+            {
                 if (spriteRenderer != null)
                 {
                     spriteRenderer.sprite = loadedSprite;
                     spriteRenderer.flipX = true;
                 }
             },
-            onError: (error) => {
+            onError: (error) =>
+            {
                 Debug.LogError($"画像の取得に失敗しました: name={participant.animalData.animalName}, url={participant.animalData.imageUrl}, error={error}");
             }
         ));
@@ -89,7 +91,10 @@ public class AnimalRacerView : MonoBehaviour
             visualRoot.DOPunchScale(Vector3.one * 1f, duration: 0.35f, vibrato: 6, elasticity: 0.5f);
             spurtFrare.SetActive(true);
 
-            RaceEventBus.RaiseSpurtStarted(participant);
+            if (IsOnScreen())
+            {
+                RaceEventBus.RaiseSpurtStarted(participant);
+            }
             Debug.Log($"{participant.animalData.animalName}がラストスパート！ progress={participant.progress}");
         }
         wasSpurting = participant.isSpurting;
@@ -101,7 +106,10 @@ public class AnimalRacerView : MonoBehaviour
             visualRoot.DOLocalRotate(new Vector3(0, 0, -360f), duration: participant.accidentTimer, RotateMode.FastBeyond360)
                 .SetEase(Ease.OutBack);
 
-            RaceEventBus.RaiseAccidentStarted(participant);
+            if (IsOnScreen())
+            {
+                RaceEventBus.RaiseAccidentStarted(participant);
+            }
             Debug.Log($"{participant.animalData.animalName}がアクシデント！");
         }
         wasAccident = participant.isAccident;
@@ -111,10 +119,18 @@ public class AnimalRacerView : MonoBehaviour
         {
             visualRoot.DOKill();
             visualRoot.DOPunchScale(Vector3.one * 1f, participant.miracleTimer, vibrato: 8, elasticity: 0.6f);
-            
-            RaceEventBus.RaiseMiracleStarted(participant);
+
+            if (IsOnScreen())
+            {
+                RaceEventBus.RaiseMiracleStarted(participant);
+            }
             Debug.Log($"{participant.animalData.animalName}がミラクル！");
         }
         wasMiracle = participant.isMiracle;
+    }
+
+    bool IsOnScreen()
+    {
+        return spriteRenderer.isVisible;
     }
 }

@@ -13,6 +13,7 @@ public class RaceManager : MonoBehaviour
 
     [Header("動物一体分のプレハブ")]
     [SerializeField] private GameObject animalPrefab;
+    [SerializeField] private Transform animalsParent;
 
     [Header("カメラ")]
     [SerializeField] private RaceCameraController raceCamera;
@@ -70,7 +71,7 @@ public class RaceManager : MonoBehaviour
 
         foreach (var participant in participants)
         {
-            GameObject racerObj = Instantiate(animalPrefab);
+            GameObject racerObj = Instantiate(animalPrefab, animalsParent);
             var racerView = racerObj.GetComponent<AnimalRacerView>();
             racerView.SetUp(participant, raceTuning, participants.Count);
             racerViews.Add(racerView);

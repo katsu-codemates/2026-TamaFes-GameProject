@@ -24,8 +24,20 @@ public class RaceCommentator : MonoBehaviour
     [Header("接戦とみなす進行度の差")]
     [SerializeField] private float closeRaceThreshold = 0.03f;
 
+    [Header("コメントが古いとみなされるまでの時間（秒）")]
+    [SerializeField] private float staleThreshold = 3f;
+    /// <summary>
+    /// キューに積む１件分のコメントの構造体。
+    /// </summary>
+    private struct PendingComment
+    {
+        public string text;
+        public float timestamp;
+        public bool isEventDriven; // trueだと古いとみなすもの。
+    }
+
     private List<RaceParticipant> participants;
-    private readonly Queue<string> pendingComments = new Queue<string>();
+    private readonly Queue<PendingComment> pendingComments = new Queue<PendingComment>();
     private RaceParticipant lastLeader;
 
     public void SetParticipants(List<RaceParticipant> list)
@@ -33,7 +45,7 @@ public class RaceCommentator : MonoBehaviour
         participants = list;
         lastLeader = null;
         pendingComments.Clear();
-        pendingComments.Enqueue(CommentTempletes.RaceStart());
+        EnqueueStatusComment(CommentTempletes.RaceStart());
     }
 
     private void OnEnable()
@@ -61,22 +73,46 @@ public class RaceCommentator : MonoBehaviour
     {
         while (true)
         {
+            DropStaleComments();
+
             // 2秒ごとのコメントを生成
             if (pendingComments.Count == 0 && participants != null)
             {
                 string generated = GenerateStatusComment();
                 Debug.Log(generated);
-                if (generated != null) pendingComments.Enqueue(generated);
+                if (generated != null) EnqueueStatusComment(generated);
             }
 
             if (pendingComments.Count > 0)
             {
-                string text = pendingComments.Dequeue();
-                yield return ShowText(text);
+                PendingComment next = pendingComments.Dequeue();
+                yield return ShowText(next.text);
             }
 
             float wait = Random.Range(minDisplayDuration, maxDisplayDuration);
             yield return new WaitForSeconds(wait);
+        }
+    }
+
+    /// <summary>
+    /// キューの先頭から、staleThresholdを超えて待たされているコメントを取り除く。
+    /// </summary>
+    private void DropStaleComments()
+    {
+        while (pendingComments.Count > 0)
+        {
+            PendingComment front = pendingComments.Peek();
+            bool isStale = front.isEventDriven && (Time.time - front.timestamp) > staleThreshold;
+
+            if (isStale)
+            {
+                PendingComment p = pendingComments.Dequeue(); // 読み捨てて次へ
+                Debug.Log($"Disposed:{p.text}");
+            }
+            else
+            {
+                break;
+            }
         }
     }
 
@@ -97,19 +133,40 @@ public class RaceCommentator : MonoBehaviour
         }
     }
 
+    private void EnqueueEventDrivenComment(string text)
+    {
+        pendingComments.Enqueue(new PendingComment
+        {
+            text = text,
+            timestamp = Time.time,
+            isEventDriven = true
+        });
+    }
+
+    private void EnqueueStatusComment(string text)
+    {
+       pendingComments.Enqueue(new PendingComment
+       {
+          text = text,
+          timestamp = Time.time,
+          isEventDriven = false // 時間制限の対象外 
+       });
+
+    }
+
     // イベント時のコメント表示処理
     private void HandleSpurt(RaceParticipant p) 
-        => pendingComments.Enqueue(CommentTempletes.Spurt(p));
+        => EnqueueEventDrivenComment(CommentTempletes.Spurt(p));
     private void HandleAccident(RaceParticipant p)
-        => pendingComments.Enqueue(CommentTempletes.Accident(p));
+        => EnqueueEventDrivenComment(CommentTempletes.Accident(p));
     private void HandleMiracle(RaceParticipant p)
-        => pendingComments.Enqueue(CommentTempletes.Miracle(p));
+        => EnqueueEventDrivenComment(CommentTempletes.Miracle(p));
     
     private void HandleFinished(RaceParticipant p)
     {
         if (p.finishRank == 1)
         {
-            pendingComments.Enqueue(CommentTempletes.Winner(p));
+            EnqueueStatusComment(CommentTempletes.Winner(p));
         }
     }
 
