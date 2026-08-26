@@ -34,8 +34,17 @@ public class RaceCameraController : MonoBehaviour
     [Header("ゴールカメラ")]
     [SerializeField] private CinemachineCamera goalVCam;
 
+
+
     [Header("フォーカス対象のダミー")]
     [SerializeField] private Transform focusDummyTarget;
+
+    [Header("フォーカスカメラ設定")]
+    [SerializeField] private float focusSideDistance=8f;
+    [SerializeField] private float focusHeight=1.5f;
+    [SerializeField] private float focusSmoothTime=0.15f;
+
+
 
     [Header("斜め上から見下ろす角度。固定")]
     [SerializeField] private Vector3 fixedAngles = new Vector3(35f, -135f, 0f);
@@ -46,6 +55,8 @@ public class RaceCameraController : MonoBehaviour
     [Header("カメラの高さ")]
     [SerializeField] private float height = 5f;
 
+
+
     [Header("カメラの追従の滑らかさ")]
     [SerializeField] private float smoothTime = 0.3f;
 
@@ -54,8 +65,12 @@ public class RaceCameraController : MonoBehaviour
     [SerializeField] private int focusPriority=20;
     [SerializeField] private int goalPriority=30;
 
+
+
     [Header("ゴールカメラへ切り替える先頭のprogress閾値（ゴール直前）")]
     [SerializeField] private float goalCameraTriggerProgress = 0.95f;
+
+
 
     [Header("手振れ値")]
     [SerializeField] private float defaultShakeAmplitude = 0.3f;
@@ -64,6 +79,7 @@ public class RaceCameraController : MonoBehaviour
     [SerializeField] private float eventShakeDuration = 0.6f;
 
     private Vector3 velocity;
+    private Vector3 focusVelocity;
     private List<RaceParticipant> participants;
     private RaceParticipant focusedParticipant;
     private Coroutine focusRoutine;
@@ -73,7 +89,7 @@ public class RaceCameraController : MonoBehaviour
     private  CinemachineBasicMultiChannelPerlin focusNoise;
 
     private CinemachineBrain brain;
-      private bool hasTriggeredGoalCamera;
+    private bool hasTriggeredGoalCamera;
 
     private void Awake()
     {
@@ -97,11 +113,11 @@ public class RaceCameraController : MonoBehaviour
         ApplyNoise(followNoise, defaultShakeAmplitude, defaultShakeFrequency);
         ApplyNoise(focusNoise, defaultShakeAmplitude, defaultShakeFrequency);
 
-        if (focusVCam != null)
-        {
-            focusVCam.Follow = focusDummyTarget;
-            focusVCam.LookAt = focusDummyTarget;
-        }
+        // if (focusVCam != null)
+        // {
+        //     focusVCam.Follow = focusDummyTarget;
+        //     focusVCam.LookAt = focusDummyTarget;
+        // }
 
     }
 
@@ -144,15 +160,25 @@ public class RaceCameraController : MonoBehaviour
         camTransform.position = Vector3.SmoothDamp(camTransform.position, targetPosition, ref velocity, smoothTime);
         camTransform.rotation = fixedRotation;
 
-        if (focusedParticipant != null && focusDummyTarget != null)
+        if (focusedParticipant != null && focusVCam!=null)
         {
-            focusDummyTarget.position = RaceTrack.GetWorldPosition(
-            focusedParticipant.progress, focusedParticipant.laneIndex, participants.Count);
-        }
-        if (!hasTriggeredGoalCamera && leader.progress >= goalCameraTriggerProgress)
-        {
-            hasTriggeredGoalCamera = true;
-            TriggerGoalCamera();
+            // 走者の現在位置
+            Vector3 participantPosition = RaceTrack.GetWorldPosition(
+                focusedParticipant.progress,focusedParticipant.laneIndex,participants.Count
+            );
+
+            // レースの進行方向
+            Vector3 sideDirection = RaceTrack.LaneDirection.normalized;
+
+            Transform cam = focusVCam.transform;
+
+            // 走者の横8m、高さ1.5m
+            cam.position = participantPosition
+                            - sideDirection * 8f
+                            + Vector3.up * 1.5f;
+
+            // 走者を見る
+            cam.LookAt(participantPosition);
         }
 
         //transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
