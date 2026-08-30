@@ -84,9 +84,9 @@ public class IllustrationManager : MonoBehaviour
         string errorMessage = null;
 
         // ImageLoaderを使ってImageDataからSpriteを取得する
-        yield return ImageLoader.LoadSprite(
+        yield return ImageLoader.LoadSpriteFromBase64(
             imageData.imageName,
-            imageData.imageUrl,
+            imageData.imageBase64,
             onSuccess: (loadedSprite) => sprite = loadedSprite,
             onError: (error) => errorMessage = error
         );
@@ -133,7 +133,7 @@ public class IllustrationManager : MonoBehaviour
         // 画像データから動物データを設定
         int cutName = data.imageName.Length - 4;
         animalData.animalName = data.imageName.Substring(0, cutName); // ".png"を引く
-        animalData.imageUrl = data.imageUrl;
+        animalData.imageBase64 = data.imageBase64;
         // 他のデータも設定する...
             // 仮実装ーーーーー
                 float[] x = DebugSetParam();

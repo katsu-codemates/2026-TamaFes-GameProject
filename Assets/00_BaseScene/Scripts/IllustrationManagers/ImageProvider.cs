@@ -41,7 +41,7 @@ public class TestImageProvider : IImageProvider
             imageDataList[i] = new ImageData
             {
                 imageName = filenames[i],
-                imageUrl = System.IO.Path.Combine(Application.streamingAssetsPath, "TestImages", filenames[i])
+                imageBase64 = System.IO.Path.Combine(Application.streamingAssetsPath, "TestImages", filenames[i])
             };
         }
 

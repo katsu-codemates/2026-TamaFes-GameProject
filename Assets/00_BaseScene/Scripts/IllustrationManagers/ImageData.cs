@@ -7,7 +7,7 @@ using System;
 public class ImageData
 {
     public string imageName; // イラストの名前
-    public string imageUrl;  // イラストのURL
+    public string imageBase64;  // イラストのバイト列をbase64化したもの
 }
 
 /// <summary>
