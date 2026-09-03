@@ -40,8 +40,8 @@ public class TestImageProvider : IImageProvider
         {
             imageDataList[i] = new ImageData
             {
-                imageName = filenames[i],
-                imageBase64 = System.IO.Path.Combine(Application.streamingAssetsPath, "TestImages", filenames[i])
+                title = filenames[i],
+                image = System.IO.Path.Combine(Application.streamingAssetsPath, "TestImages", filenames[i])
             };
         }
 
@@ -50,43 +50,43 @@ public class TestImageProvider : IImageProvider
     }
 }
 
-/// <summary>
-/// 【本番実装】サーバーから画像一覧を取得するクラス
-/// バックエンドが完成したら、serverUrlを差し替える。
-/// </summary>
-public class ServerImageProvider : IImageProvider
-{
-    private readonly string serverUrl;
+// /// <summary>
+// /// 【本番実装】サーバーから画像一覧を取得するクラス
+// /// バックエンドが完成したら、serverUrlを差し替える。
+// /// </summary>
+// public class ServerImageProvider : IImageProvider
+// {
+//     private readonly string serverUrl;
 
-    public ServerImageProvider(string serverUrl)
-    {
-        this.serverUrl = serverUrl;
-    }
+//     public ServerImageProvider(string serverUrl)
+//     {
+//         this.serverUrl = serverUrl;
+//     }
 
-    public IEnumerator FetchImageList(Action<ImageData[]> onSuccess, Action<string> onError)
-    {
-        using (UnityWebRequest req = UnityWebRequest.Get(serverUrl))
-        {
-            yield return req.SendWebRequest(); //非同期処理でリクエストを送信し、完了するまで待機
+//     public IEnumerator FetchImageList(Action<ImageData[]> onSuccess, Action<string> onError)
+//     {
+//         using (UnityWebRequest req = UnityWebRequest.Get(serverUrl))
+//         {
+//             yield return req.SendWebRequest(); //非同期処理でリクエストを送信し、完了するまで待機
 
-            if (req.result != UnityWebRequest.Result.Success) // エラーが発生した場合
-            {
-                onError?.Invoke(req.error);
-                yield break;
-            }
+//             if (req.result != UnityWebRequest.Result.Success) // エラーが発生した場合
+//             {
+//                 onError?.Invoke(req.error);
+//                 yield break;
+//             }
 
-            ImageListResponse response = null;
-            try
-            {
-                response = JsonUtility.FromJson<ImageListResponse>(req.downloadHandler.text);
-            }
-            catch (Exception e)
-            {
-                onError?.Invoke($"JSONのパースに失敗しました: {e.Message}");
-                yield break;
-            }
+//             ImageListResponse response = null;
+//             try
+//             {
+//                 response = JsonUtility.FromJson<ImageListResponse>(req.downloadHandler.text);
+//             }
+//             catch (Exception e)
+//             {
+//                 onError?.Invoke($"JSONのパースに失敗しました: {e.Message}");
+//                 yield break;
+//             }
 
-            onSuccess?.Invoke(response?.images ?? Array.Empty<ImageData>()); // 成功したら画像リストを返す。nullの場合は空配列を返す。
-        }
-    }
-}
+//             onSuccess?.Invoke(response?.images ?? Array.Empty<ImageData>()); // 成功したら画像リストを返す。nullの場合は空配列を返す。
+//         }
+//     }
+// }

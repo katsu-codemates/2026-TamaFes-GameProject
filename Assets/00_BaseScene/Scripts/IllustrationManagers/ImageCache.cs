@@ -14,26 +14,26 @@ public static class ImageCache
         Path.Combine(Application.persistentDataPath, CacheFolderName);
 
     /// <summary>
-    /// 指定されたimageNameのキャッシュファイルのパスを返す
+    /// 指定されたidのキャッシュファイルのパスを返す
     /// </summary>
-    public static string GetCacheFilePath(string imageName)
+    public static string GetCacheFilePath(string id)
     {
-        return Path.Combine(CacheDirectory, imageName + ".png");
+        return Path.Combine(CacheDirectory, id + ".png");
     }
 
     /// <summary>
-    /// 指定されたimageNameのキャッシュファイルが存在するかどうかを返す
+    /// 指定されたidのキャッシュファイルが存在するかどうかを返す
     /// </summary>
-    public static bool ExistsCacheFile(string imageName)
+    public static bool ExistsCacheFile(string id)
     {
-        string cacheFilePath = GetCacheFilePath(imageName);
+        string cacheFilePath = GetCacheFilePath(id);
         return File.Exists(cacheFilePath);
     }
 
     /// <summary>
     /// ダウンロードしたバイト列をキャッシュとして保存する
     /// </summary>
-    public static void SaveCacheFile(string imageName, byte[] pngBytes)
+    public static void SaveCacheFile(string id, byte[] pngBytes)
     {
         // キャッシュ用のディレクトリが存在しない場合は作成する
         if (!Directory.Exists(CacheDirectory))
@@ -41,16 +41,16 @@ public static class ImageCache
             Directory.CreateDirectory(CacheDirectory);
         }
 
-        string cacheFilePath = GetCacheFilePath(imageName);
+        string cacheFilePath = GetCacheFilePath(id);
         File.WriteAllBytes(cacheFilePath, pngBytes);
     }
 
     /// <summary>
-    /// 指定されたimageNameのキャッシュファイルを読み込み、Texture2Dとして返す
+    /// 指定されたidのキャッシュファイルを読み込み、Texture2Dとして返す
     /// </summary>
-    public static Texture2D LoadTexture(string imageName)
+    public static Texture2D LoadTexture(string id)
     {
-        string cacheFilePath = GetCacheFilePath(imageName);
+        string cacheFilePath = GetCacheFilePath(id);
         if (!File.Exists(cacheFilePath))
         {
             Debug.LogError($"キャッシュファイルが存在しません: {cacheFilePath}");

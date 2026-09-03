@@ -68,7 +68,7 @@ public class IllustrationManager : MonoBehaviour
         foreach (var imageData in imageList)
         {
             // 既に表示済みならスキップ
-            if (displayedIllustrations.ContainsKey(imageData.imageName))
+            if (displayedIllustrations.ContainsKey(imageData.createdAt))
             {
                 continue;
             }
@@ -85,8 +85,8 @@ public class IllustrationManager : MonoBehaviour
 
         // ImageLoaderを使ってImageDataからSpriteを取得する
         yield return ImageLoader.LoadSpriteFromBase64(
-            imageData.imageName,
-            imageData.imageBase64,
+            imageData.createdAt, // キャッシュ用の一意なIDとしてcreatedAtを使用
+            imageData.image, // データURI形式のbase64文字列
             onSuccess: (loadedSprite) => sprite = loadedSprite,
             onError: (error) => errorMessage = error
         );
@@ -117,7 +117,7 @@ public class IllustrationManager : MonoBehaviour
         );
 
         // 表示中のイラストを辞書に追加する
-        displayedIllustrations[imageData.imageName] = go;
+        displayedIllustrations[imageData.createdAt] = go;
     }
 
     private AnimalData SetAnimalData(GameObject animalPrefab, ImageData data)
@@ -131,9 +131,11 @@ public class IllustrationManager : MonoBehaviour
         var animalData = holder.Data ?? new AnimalData();
 
         // 画像データから動物データを設定
-        int cutName = data.imageName.Length - 4;
-        animalData.animalName = data.imageName.Substring(0, cutName); // ".png"を引く
-        animalData.imageBase64 = data.imageBase64;
+        // int cutName = data.title.Length - 4;
+        // animalData.animalName = data.title.Substring(0, cutName); // ".png"を引く
+        animalData.animalName = data.title;
+        animalData.imageBase64 = data.image;
+        animalData.createdAt = data.createdAt;
         // 他のデータも設定する...
             // 仮実装ーーーーー
                 float[] x = DebugSetParam();

@@ -43,7 +43,7 @@ public class AnimalRacerView : MonoBehaviour
 
         // 見た目(既存の仕組みを流用)
         StartCoroutine(ImageLoader.LoadSpriteFromBase64(
-            participant.animalData.animalName,
+            participant.animalData.createdAt, // キャッシュ用の一意なIDとしてcreatedAtを使用
             participant.animalData.imageBase64,
             onSuccess: (loadedSprite) =>
             {
