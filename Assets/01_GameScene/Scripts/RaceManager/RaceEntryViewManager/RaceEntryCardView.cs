@@ -18,9 +18,9 @@ public class RaceEntryCardView : MonoBehaviour
 
         // 既存のImageLoaderを使用する。
         // キャッシュ機能があるため二重ダウンロードにはならない…はず。
-        StartCoroutine(ImageLoader.LoadSprite(
-            data.animalName + ".png",
-            data.imageUrl,
+        StartCoroutine(ImageLoader.LoadSpriteFromBase64(
+            data.createdAt, // キャッシュ用の一意なIDとしてcreatedAtを使用
+            data.imageBase64,
             onSuccess: sprite => iconImage.sprite = sprite,
             onError: err => Debug.LogWarning($"参加者画像読み込み失敗(name = {data.animalName + ".png"}: {err})")
         ));

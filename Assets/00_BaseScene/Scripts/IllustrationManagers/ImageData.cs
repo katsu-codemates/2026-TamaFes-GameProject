@@ -6,16 +6,9 @@ using System;
 [Serializable]
 public class ImageData
 {
-    public string imageName; // イラストの名前
-    public string imageUrl;  // イラストのURL
-}
-
-/// <summary>
-/// 画像一覧APIのレスポンス全体を受けるためのクラス。
-/// JsonUtilityというシステムを使うが、JsonUtilityは配列を直接扱えないため、配列を包むクラスを作る必要がある。
-/// </summary>
-[Serializable]
-public class ImageListResponse
-{
-    public ImageData[] images; // 画像データの配列
+    public string title; // イラストの名前
+    public string createdAt; // 作成日時
+    public string creatorName; // 作者名
+    public string status; // "approved" / "pending" / "rejected"
+    public string image; // データURI形式のbase64文字列
 }

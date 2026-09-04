@@ -2241,8 +2241,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IllustrationManager
   illustrationPrefab: {fileID: 1893108964408875296, guid: 7ec7561e9790e874ba0e9f2bc42deefc, type: 3}
   container: {fileID: 480020835}
-  isDevelopment: 1
-  remoteEndpointUrl: https://***/api/illustrations
+  isDevelopment: 0
+  remoteEndpointUrl: https://tamasai-app-server.koki-tominaga.workers.dev/api/images
   testImageNames:
   - "\u30CB\u30EF\u30C8\u30EA.png"
   - "\u30A6\u30DE.png"

@@ -42,9 +42,9 @@ public class AnimalRacerView : MonoBehaviour
         transform.position = RaceTrack.GetWorldPosition(0f, participant.laneIndex, totalParticipantCount);
 
         // 見た目(既存の仕組みを流用)
-        StartCoroutine(ImageLoader.LoadSprite(
-            participant.animalData.animalName,
-            participant.animalData.imageUrl,
+        StartCoroutine(ImageLoader.LoadSpriteFromBase64(
+            participant.animalData.createdAt, // キャッシュ用の一意なIDとしてcreatedAtを使用
+            participant.animalData.imageBase64,
             onSuccess: (loadedSprite) =>
             {
                 if (spriteRenderer != null)
@@ -55,7 +55,7 @@ public class AnimalRacerView : MonoBehaviour
             },
             onError: (error) =>
             {
-                Debug.LogError($"画像の取得に失敗しました: name={participant.animalData.animalName}, url={participant.animalData.imageUrl}, error={error}");
+                Debug.LogError($"画像の取得に失敗しました: name={participant.animalData.animalName}, url={participant.animalData.imageBase64}, error={error}");
             }
         ));
     }

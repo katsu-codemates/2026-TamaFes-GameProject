@@ -5,7 +5,8 @@ using UnityEngine;
 public class AnimalData
 {
     public string animalName;
-    public string imageUrl;
+    public string imageBase64;
+    public string createdAt;
 
 
     public float speed;
