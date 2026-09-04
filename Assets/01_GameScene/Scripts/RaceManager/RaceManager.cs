@@ -24,6 +24,9 @@ public class RaceManager : MonoBehaviour
     [Header("実況機能")]
     [SerializeField] private RaceCommentator raceCommentator;
 
+    [Header("結果画面")]
+    [SerializeField] private RaceResultScreen raceResultScreen;
+
     [Header("出走数")]
     [SerializeField] private int racerCount = 5;
 
@@ -98,5 +101,9 @@ public class RaceManager : MonoBehaviour
     {
         // 結果画面へ
         Debug.Log("レース終了");
+        if (raceResultScreen != null)
+        {
+            raceResultScreen.Show(finishedOrder);
+        }
     }
 }
