@@ -150,6 +150,12 @@ public class RaceCameraController : MonoBehaviour
         RaceParticipant leader = GetLeader();
         Vector3 leaderPosition = RaceTrack.GetWorldPosition(leader.progress, leader.laneIndex, participants.Count);
 
+        if (!hasTriggeredGoalCamera && leader.progress >= goalCameraTriggerProgress)
+        {
+            hasTriggeredGoalCamera = true;
+            TriggerGoalCamera();
+        }
+
         Quaternion fixedRotation=Quaternion.Euler(fixedAngles);
         Vector3 targetPosition=leaderPosition
             -(fixedRotation*Vector3.forward)
@@ -218,6 +224,7 @@ public class RaceCameraController : MonoBehaviour
     public void FocusOnParticipant(RaceParticipant target, float duration = 2.5f)
     {
         if (focusVCam == null || target == null) return;
+        if (hasTriggeredGoalCamera) return; // ゴール演出中はフォーカスしない
  
         focusedParticipant = target;
         focusVCam.Priority = focusPriority;
