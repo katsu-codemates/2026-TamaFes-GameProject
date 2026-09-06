@@ -17,6 +17,7 @@ public class RaceManager : MonoBehaviour
 
     [Header("カメラ")]
     [SerializeField] private RaceCameraController raceCamera;
+    [SerializeField] private float unfocusTransparency = 0.5f;
 
     [Header("レース計算式の調整用パラメータ")]
     [SerializeField] private RaceTuningConfig raceTuning;
@@ -98,5 +99,38 @@ public class RaceManager : MonoBehaviour
     {
         // 結果画面へ
         Debug.Log("レース終了");
+    }
+
+    public void MakeTransparentUnFocusedRacers(RaceParticipant focusedParticipant)
+    {
+        foreach (var racerView in racerViews)
+        {
+            if ( focusedParticipant.laneIndex <= racerView.GetParticipant().laneIndex)
+            {
+                // フォーカスされている走者とそれより奥の走者は透明化しない
+                continue;
+            }
+            var spriteRenderer = racerView.GetComponentInChildren<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                Color color = spriteRenderer.color;
+                color.a = unfocusTransparency; // 半透明にする
+                spriteRenderer.color = color;
+            }
+        }
+    }
+
+    public void ResetTransparency()
+    {
+        foreach (var racerView in racerViews)
+        {
+            var spriteRenderer = racerView.GetComponentInChildren<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                Color color = spriteRenderer.color;
+                color.a = 1f; // 元の透明度に戻す
+                spriteRenderer.color = color;
+            }
+        }
     }
 }

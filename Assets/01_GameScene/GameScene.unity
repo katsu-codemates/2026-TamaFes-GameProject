@@ -5281,13 +5281,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf133abd563daa949bdbd777ebed9b10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RaceCameraController
+  raceManager: {fileID: 1725942744}
   followVCam: {fileID: 1535156434}
   focusVCam: {fileID: 1696249693}
   goalVCam: {fileID: 1117333052}
   focusDummyTarget: {fileID: 0}
   focusSideDistance: 8
   focusHeight: 1.5
-  focusSmoothTime: 0.15
+  focusSmoothTime: 1
   fixedAngles: {x: 18, y: -25, z: 0}
   distanceBehind: 50
   height: 5
@@ -5295,7 +5296,7 @@ MonoBehaviour:
   basePriority: 10
   focusPriority: 20
   goalPriority: 30
-  goalCameraTriggerProgress: 0.85
+  goalCameraTriggerProgress: 0.95
   defaultShakeAmplitude: 0.3
   defaultShakeFrequency: 1.5
   eventShakeAmplitude: 1.2
@@ -5821,6 +5822,7 @@ MonoBehaviour:
   animalPrefab: {fileID: 7049287844960955359, guid: 6e951fb7d6fbbd446bdd5286cf481520, type: 3}
   animalsParent: {fileID: 1054756526}
   raceCamera: {fileID: 1465333979}
+  unfocusTransparency: 0.5
   raceTuning: {fileID: 11400000, guid: 2e2115cc373a2e9469f87112f198fd24, type: 2}
   raceCommentator: {fileID: 1725942746}
   racerCount: 20

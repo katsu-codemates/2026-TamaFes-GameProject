@@ -24,6 +24,8 @@ using System.Collections;
 
 public class RaceCameraController : MonoBehaviour
 {
+    [Header("レースマネージャー")]
+    [SerializeField] private RaceManager raceManager;
 
     [Header("出走者追従用の仮想カメラ")]
     [SerializeField] private CinemachineCamera followVCam;
@@ -96,6 +98,7 @@ public class RaceCameraController : MonoBehaviour
         // transform.eulerAngles = fixedAngles;
 
         brain=GetComponent<CinemachineBrain>();
+        brain.DefaultBlend.Time = focusSmoothTime;
 
         if (focusDummyTarget == null)
         {
@@ -129,12 +132,10 @@ public class RaceCameraController : MonoBehaviour
 
     private void OnEnable()
     {
-        RaceEventBus.OnAccidentStarted+=HandleLuckEvent;
-        RaceEventBus.OnMiracleStarted+=HandleLuckEvent;
+        RaceEventBus.OnMiracleStarted += HandleLuckEvent;
     }
     private void OnDisable()
     {
-        RaceEventBus.OnAccidentStarted -= HandleLuckEvent;
         RaceEventBus.OnMiracleStarted -= HandleLuckEvent;
     }
     private void HandleLuckEvent(RaceParticipant participant)
@@ -150,6 +151,7 @@ public class RaceCameraController : MonoBehaviour
         RaceParticipant leader = GetLeader();
         Vector3 leaderPosition = RaceTrack.GetWorldPosition(leader.progress, leader.laneIndex, participants.Count);
 
+        // ゴールカメラ切り替え判定
         if (!hasTriggeredGoalCamera && leader.progress >= goalCameraTriggerProgress)
         {
             hasTriggeredGoalCamera = true;
@@ -166,7 +168,8 @@ public class RaceCameraController : MonoBehaviour
         camTransform.position = Vector3.SmoothDamp(camTransform.position, targetPosition, ref velocity, smoothTime);
         camTransform.rotation = fixedRotation;
 
-        if (focusedParticipant != null && focusVCam!=null)
+        // focus実行中
+        if (focusedParticipant != null && focusVCam != null)
         {
             // 走者の現在位置
             Vector3 participantPosition = RaceTrack.GetWorldPosition(
@@ -180,8 +183,8 @@ public class RaceCameraController : MonoBehaviour
 
             // 走者の横8m、高さ1.5m
             cam.position = participantPosition
-                            - sideDirection * 8f
-                            + Vector3.up * 1.5f;
+                            - sideDirection * focusSideDistance
+                            + Vector3.up * focusHeight;
 
             // 走者を見る
             cam.LookAt(participantPosition);
@@ -229,10 +232,16 @@ public class RaceCameraController : MonoBehaviour
         focusedParticipant = target;
         focusVCam.Priority = focusPriority;
  
-        if (focusRoutine != null) StopCoroutine(focusRoutine);
+        if (focusRoutine != null)
+        {
+            StopCoroutine(focusRoutine);
+            raceManager.ResetTransparency();
+        } 
         focusRoutine = StartCoroutine(ReleaseFocusAfter(duration));
  
         ShakeOnce(eventShakeAmplitude, eventShakeDuration, focusNoise);
+
+        raceManager.MakeTransparentUnFocusedRacers(focusedParticipant);
     }
  
     private IEnumerator ReleaseFocusAfter(float duration)
@@ -241,6 +250,7 @@ public class RaceCameraController : MonoBehaviour
         if (focusVCam != null) focusVCam.Priority = 0;
         focusedParticipant = null;
         focusRoutine = null;
+        raceManager.ResetTransparency();
     }
  
     /// <summary>
@@ -291,4 +301,8 @@ public class RaceCameraController : MonoBehaviour
         shakeRoutine = null;
     }
 
+    public RaceParticipant GetFocusedParticipant()
+    {
+        return focusedParticipant;
+    }
 }
