@@ -133,4 +133,9 @@ public class AnimalRacerView : MonoBehaviour
     {
         return spriteRenderer.isVisible;
     }
+
+    public RaceParticipant GetParticipant()
+    {
+        return participant;
+    }
 }
