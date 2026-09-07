@@ -28,12 +28,12 @@ public class UIManager : MonoBehaviour
 
         isShowing = true;
         animalInfoParent.SetActive(true);
-        nameText.text = "name:" + data.animalName;
-        speedText.text = "speed:" + data.speed.ToString();
-        powerText.text = "power:" + data.power.ToString();
-        widomText.text = "wisdom" + data.wisdom.ToString();
-        luckText.text = "luck:" + data.luck.ToString();
-        staminaText.text = "stamina" + data.stamina.ToString();
+        nameText.text = data.animalName;
+        speedText.text = "はやさ:" + data.speed.ToString();
+        powerText.text = "ちから:" + data.power.ToString();
+        widomText.text = "かしこさ:" + data.wisdom.ToString();
+        luckText.text = "うんのよさ:" + data.luck.ToString();
+        staminaText.text = "スタミナ:" + data.stamina.ToString();
     }
 
     public void HideAnimalInfo()
