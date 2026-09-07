@@ -2,47 +2,80 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class AnimalsClickDetector : MonoBehaviour, IPointerClickHandler
+/// <summary>
+/// 動物画像に対するマウス操作を担当する。
+/// </summary>
+[RequireComponent(typeof(AnimalDataHolder))]
+public class AnimalsClickDetector : MonoBehaviour,
+    IPointerClickHandler,
+    IPointerEnterHandler,
+    IPointerExitHandler
 {
-    private CameraFocus cameraFocus;
-    private bool isFocusing = false;
-    
-    private void Start()
+    [Header("ホバー演出")]
+    // [SerializeField] private Color animalOutlineColor = Color.white;
+    // [SerializeField] private Vector2 outlineDistance = new Vector2(3f, 3f);
+
+    private AnimalDataHolder animalDataHolder;
+    private AnimalSelectionManager selectionManager;
+    // // private Outline outline;
+
+    private void Awake()
     {
-        var mainCamera = Camera.main;
-        cameraFocus = mainCamera.GetComponent<CameraFocus>();
-        if (cameraFocus == null)
-        {
-            Debug.LogError("CameraFocusコンポーネントが見つかりません。");
-        }
+        animalDataHolder = GetComponent<AnimalDataHolder>();
+        // SetupOutline();
     }
 
-    void Update()
+    public void Initialize(AnimalSelectionManager selectionManager)
     {
-        if (isFocusing)
-        {
-            if (Input.GetMouseButtonDown(1))
-            {
-                isFocusing = false;
-                UIManager.Instance.HideAnimalInfo();
-                cameraFocus.Unfocus();
-            }
-        }
+        this.selectionManager = selectionManager;
     }
 
+    // private void SetupOutline()
+    // {
+    //     outline = GetComponent<Outline>();
+    //     if (outline == null) outline = gameObject.AddComponent<Outline>();
+
+    //     outline.effectColor = animalOutlineColor;
+    //     outline.effectDistance = outlineDistance;
+    //     outline.enabled = false;
+    // }
+
+    // カーソルが重なったとき
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (selectionManager.IsSelected)
+        {
+            return;
+        }
+
+        // outline.enabled = true;
+        Debug.Log($"カーソルが重なった{animalDataHolder.Data.animalName}");
+    }
+
+    // カーソルが離れたとき
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        // outline.enabled = false;
+        Debug.Log($"カーソルが離れた{animalDataHolder.Data.animalName}");
+    }
+
+    // クリックされたとき
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Left && !isFocusing)
+        if (eventData.button != PointerEventData.InputButton.Left)
         {
-            // クリックされた動物のデータを取得
-            var holder = GetComponent<AnimalDataHolder>();
-            if (holder != null && holder.Data != null && cameraFocus != null)
-            {
-                cameraFocus.StartFocus(transform); // カメラを動物にフォーカス
-                isFocusing = true;
-                UIManager.Instance.ShowAnimalInfo(holder.Data);
-            }
-            Debug.Log($"クリックされた動物: {holder?.Data?.animalName}");
+            return;
         }
+
+        if (animalDataHolder == null || animalDataHolder.Data == null)
+        {
+            Debug.LogWarning($"動物データが設定されていません：{gameObject.name}");
+            return;
+        }
+
+        // outline.enabled = false;
+
+        selectionManager.SelectAnimal(animalDataHolder);
+        Debug.Log($"クリックされた{animalDataHolder.Data.animalName}");
     }
 }

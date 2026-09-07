@@ -8,9 +8,9 @@ public class CameraFocus : MonoBehaviour
     private CameraMover cameraMover;
     private Transform targetTransform;
     private Vector3 originalPosition;
-    private bool isFocusing = false;
+    private bool IsFocusing => targetTransform != null;
 
-    private void Start()
+    private void Awake()
     {
         cameraMover = mainCamera.GetComponent<CameraMover>();
         if (cameraMover == null)
@@ -18,33 +18,35 @@ public class CameraFocus : MonoBehaviour
             Debug.LogError("CameraMoverコンポーネントが見つかりません。");
         }
     }
-    private void Update()
+    private void LateUpdate()
     {
-        if (isFocusing && targetTransform != null)
+        if (!IsFocusing)
         {
-            Focus(targetTransform);
+            return;
         }
-    }
-    public void Focus(Transform targetTransform)
-    {
-        Vector3 targetPos = targetTransform.position;
-        Vector3 p = mainCamera.ScreenToWorldPoint(screenPosition);
-        Vector3 offset = targetPos - p;
-        this.transform.position += offset;
+
+        UpdateCameraPosition();
     }
 
-    public void StartFocus(Transform targetTransform)
+    public void StartFocus(Transform target)
     {
-        this.targetTransform = targetTransform;
-        originalPosition = this.transform.position;
+        targetTransform = target;
+        originalPosition = transform.position;
         cameraMover.enabled = false;
-        isFocusing = true;
     }
+
+    private void UpdateCameraPosition()
+    {
+        Vector3 targetPosition = targetTransform.position;
+        Vector3 screenWorldPosition = mainCamera.ScreenToWorldPoint(screenPosition);
+        Vector3 offset = targetPosition - screenWorldPosition;
+        transform.position = originalPosition + offset;
+    }
+
     public void Unfocus()
     {
         this.transform.position = originalPosition;
         cameraMover.enabled = true;
-        isFocusing = false;
         targetTransform = null;
     }
 }

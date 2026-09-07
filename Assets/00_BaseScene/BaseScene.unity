@@ -2264,6 +2264,7 @@ GameObject:
   - component: {fileID: 2014937664}
   - component: {fileID: 2014937663}
   - component: {fileID: 2014937665}
+  - component: {fileID: 2014937666}
   m_Layer: 0
   m_Name: BaseSceneManager
   m_TagString: Untagged
@@ -2302,6 +2303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6a5418cc2c1b0b41b178f954d9f66d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IllustrationManager
+  selectionManager: {fileID: 2014937666}
   illustrationPrefab: {fileID: 1893108964408875296, guid: 7ec7561e9790e874ba0e9f2bc42deefc, type: 3}
   container: {fileID: 480020835}
   isDevelopment: 0
@@ -2343,7 +2345,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0c04407a56dbc845b0526354ea858d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
-  cameraFocus: {fileID: 330585550}
   animalInfoParent: {fileID: 1245867189}
   nameText: {fileID: 874524363}
   speedText: {fileID: 737692006}
@@ -2351,6 +2352,21 @@ MonoBehaviour:
   widomText: {fileID: 1249633484}
   luckText: {fileID: 128549832}
   staminaText: {fileID: 611893287}
+--- !u!114 &2014937666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2014937661}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d9078152497d544d9fb74230dfb06bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimalSelectionManager
+  cameraFocus: {fileID: 330585550}
+  uiManager: {fileID: 2014937665}
+  illustrationManager: {fileID: 2014937663}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

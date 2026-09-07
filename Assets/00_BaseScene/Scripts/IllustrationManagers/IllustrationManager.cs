@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 
@@ -9,6 +10,8 @@ using UnityEngine;
 /// </summary>
 public class IllustrationManager : MonoBehaviour
 {
+    [SerializeField] private AnimalSelectionManager selectionManager;
+
     [Header("表示に使うプレハブ")]
     [SerializeField] private GameObject illustrationPrefab; 
 
@@ -109,6 +112,11 @@ public class IllustrationManager : MonoBehaviour
         {
             Debug.LogError("SpriteRendererが見つかりませんでした。プレハブにSpriteRendererコンポーネントがアタッチされているか確認してください。");
         }
+        var clickDetector = go.GetComponent<AnimalsClickDetector>();
+        if (clickDetector != null)
+        {
+            clickDetector.Initialize(selectionManager);
+        }
 
         go.transform.localPosition = new Vector3(
             Random.Range(-5f, 5f), // X座標をランダムに設定
@@ -123,10 +131,6 @@ public class IllustrationManager : MonoBehaviour
     private AnimalData SetAnimalData(GameObject animalPrefab, ImageData data)
     {
         var holder = animalPrefab.GetComponent<AnimalDataHolder>();
-        if (holder == null)
-        {
-            holder = animalPrefab.AddComponent<AnimalDataHolder>();
-        }
 
         var animalData = holder.Data ?? new AnimalData();
 
@@ -180,5 +184,40 @@ public class IllustrationManager : MonoBehaviour
         }
 
         return values;
+    }
+
+    public void MakeTransparentAllImages(string exceptionImageId)
+    {
+        foreach (var kvp in displayedIllustrations)
+        {
+            string imageId = kvp.Key;
+            GameObject go = kvp.Value;
+
+            if (imageId != exceptionImageId)
+            {
+                var renderer = go.GetComponent<SpriteRenderer>();
+                if (renderer != null)
+                {
+                    Color color = renderer.color;
+                    color.a = 0.5f; // 半透明にする
+                    renderer.color = color;
+                }
+            }
+        }
+    }
+
+    public void ResetTransparencyAllImages()
+    {
+        foreach (var kvp in displayedIllustrations)
+        {
+            GameObject go = kvp.Value;
+            var renderer = go.GetComponent<SpriteRenderer>();
+            if (renderer != null)
+            {
+                Color color = renderer.color;
+                color.a = 1f; // 元の不透明度に戻す
+                renderer.color = color;
+            }
+        }
     }
 }
