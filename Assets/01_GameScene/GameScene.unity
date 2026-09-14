@@ -5556,6 +5556,7 @@ MonoBehaviour:
   focusSideDistance: 8
   focusHeight: 1.5
   focusSmoothTime: 1
+  defaultFocusDuration: 2.5
   fixedAngles: {x: 18, y: -25, z: 0}
   distanceBehind: 50
   height: 5
@@ -5568,6 +5569,8 @@ MonoBehaviour:
   defaultShakeFrequency: 1.5
   eventShakeAmplitude: 1.2
   eventShakeDuration: 0.6
+  slowMotionScale: 0.35
+  slowMotionDuration: 0.5
 --- !u!114 &1465333980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6127,6 +6130,12 @@ MonoBehaviour:
   fadeDuration: 0.2
   closeRaceThreshold: 0.003
   staleThreshold: 3
+  raceCamera: {fileID: 1465333979}
+  nomalColor: {r: 1, g: 1, b: 1, a: 1}
+  emphasisColor: {r: 1, g: 0.85, b: 0.2, a: 1}
+  emphasisScaleAmount: 0.35
+  emphasisPunchDuration: 0.4
+  fallbackEmphasisDuration: 2.5
 --- !u!114 &1725942747
 MonoBehaviour:
   m_ObjectHideFlags: 0
