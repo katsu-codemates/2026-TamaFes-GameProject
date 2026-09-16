@@ -8,6 +8,7 @@ public class CameraFocus : MonoBehaviour
     private CameraMover cameraMover;
     private Transform targetTransform;
     private Vector3 originalPosition;
+    private Vector3 screenWorldPosition; // どこに対象がいれば映したい画面座標に映るか
     private bool IsFocusing => targetTransform != null;
 
     private void Awake()
@@ -32,20 +33,20 @@ public class CameraFocus : MonoBehaviour
     {
         targetTransform = target;
         originalPosition = transform.position;
+        screenWorldPosition = mainCamera.ScreenToWorldPoint(screenPosition);
         cameraMover.enabled = false;
     }
 
     private void UpdateCameraPosition()
     {
         Vector3 targetPosition = targetTransform.position;
-        Vector3 screenWorldPosition = mainCamera.ScreenToWorldPoint(screenPosition);
         Vector3 offset = targetPosition - screenWorldPosition;
         transform.position = originalPosition + offset;
     }
 
     public void Unfocus()
     {
-        this.transform.position = originalPosition;
+        transform.position = originalPosition;
         cameraMover.enabled = true;
         targetTransform = null;
     }
