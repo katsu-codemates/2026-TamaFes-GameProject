@@ -3,7 +3,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class BaceSceneManager : MonoBehaviour
+public class BaseSceneManager : MonoBehaviour
 {
     [SerializeField] private IllustrationManager illustrationManager;
     [SerializeField] private AnimalRoster animalRoster;

@@ -3,25 +3,9 @@ using System.Collections.Generic;
 using Unity.Cinemachine;
 using System.Collections;
 
-//  変更予定内容
-//      ・水平移動のみでなく、カメラ設置ポイントからのフォーカスを交える
-//      ・運イベント発生時、該当者にカメラが寄るようにする
-//      ・ゴール時はゴールラインを垂直に映すようにする
-//      ・手振れを追加する
-//      ・フォーカス対象を場合によって動的に変更できるようにする   
-//            
-//  方針
-//      CinemachineBrainによる仮想カメラを使用（各場所または走者に対し配置し、slerpによる滑らかなカメラ移動を行う）   
-//      手振れはパーリンノイズを使用
-//      フォーカス対象は運やスタミナ切れ等のイベントによって変更する
-//
-
 /// <summary>
 /// レースの先頭を追従するカメラの制御クラス。
 /// </summary>
-
-
-
 public class RaceCameraController : MonoBehaviour
 {
     [Header("レースマネージャー")]
@@ -36,8 +20,6 @@ public class RaceCameraController : MonoBehaviour
     [Header("ゴールカメラ")]
     [SerializeField] private CinemachineCamera goalVCam;
 
-
-
     [Header("フォーカス対象のダミー")]
     [SerializeField] private Transform focusDummyTarget;
 
@@ -46,7 +28,10 @@ public class RaceCameraController : MonoBehaviour
     [SerializeField] private float focusHeight=1.5f;
     [SerializeField] private float focusSmoothTime=0.15f;
 
-
+    // 実況側がこの値を呼んで、テロップの協調表示などの演出に使える。
+    [Header("フォーカスの規定継続時間")]
+    [SerializeField] private float defaultFocusDuration = 2.5f;
+    public float DefaultFocusDuration => defaultFocusDuration;
 
     [Header("斜め上から見下ろす角度。固定")]
     [SerializeField] private Vector3 fixedAngles = new Vector3(35f, -135f, 0f);
@@ -67,12 +52,8 @@ public class RaceCameraController : MonoBehaviour
     [SerializeField] private int focusPriority=20;
     [SerializeField] private int goalPriority=30;
 
-
-
     [Header("ゴールカメラへ切り替える先頭のprogress閾値（ゴール直前）")]
     [SerializeField] private float goalCameraTriggerProgress = 0.95f;
-
-
 
     [Header("手振れ値")]
     [SerializeField] private float defaultShakeAmplitude = 0.3f;
@@ -80,12 +61,17 @@ public class RaceCameraController : MonoBehaviour
     [SerializeField] private float eventShakeAmplitude = 1.2f;
     [SerializeField] private float eventShakeDuration = 0.6f;
 
+    [Header("スローモーション設定")]
+    [SerializeField] private float slowMotionScale = 0.35f;
+    [SerializeField] private float slowMotionDuration = 0.5f;
+
     private Vector3 velocity;
     private Vector3 focusVelocity;
     private List<RaceParticipant> participants;
     private RaceParticipant focusedParticipant;
     private Coroutine focusRoutine;
     private Coroutine shakeRoutine;
+    private Coroutine slowMotionRoutine;
 
     private CinemachineBasicMultiChannelPerlin followNoise;
     private  CinemachineBasicMultiChannelPerlin focusNoise;
@@ -93,12 +79,17 @@ public class RaceCameraController : MonoBehaviour
     private CinemachineBrain brain;
     private bool hasTriggeredGoalCamera;
 
+    private float defaultFixedDeltaTime;
+
     private void Awake()
     {
         // transform.eulerAngles = fixedAngles;
 
         brain=GetComponent<CinemachineBrain>();
         brain.DefaultBlend.Time = focusSmoothTime;
+
+        // 物理演算のFiixedUpdate間隔も一緒にスケールさせるため、元の値を覚えておく
+        defaultFixedDeltaTime = Time.fixedDeltaTime;
 
         if (focusDummyTarget == null)
         {
@@ -137,10 +128,20 @@ public class RaceCameraController : MonoBehaviour
     private void OnDisable()
     {
         RaceEventBus.OnMiracleStarted -= HandleLuckEvent;
+
+        // スロー効果(timeScale)が、このオブジェクトが無効かされたときにそのままになる事故を防ぐ
+        if (slowMotionRoutine != null)
+        {
+            Time.timeScale = 1f;
+            Time.fixedDeltaTime = defaultFixedDeltaTime;
+        }
     }
     private void HandleLuckEvent(RaceParticipant participant)
     {
         FocusOnParticipant(participant);
+
+        // スロー演出
+        SlowMortionOnce(slowMotionScale, slowMotionDuration);
     }
 
     private void LateUpdate()
@@ -181,7 +182,7 @@ public class RaceCameraController : MonoBehaviour
 
             Transform cam = focusVCam.transform;
 
-            // 走者の横8m、高さ1.5m
+            // 走者とのカメラの相対的位置
             cam.position = participantPosition
                             - sideDirection * focusSideDistance
                             + Vector3.up * focusHeight;
@@ -224,10 +225,12 @@ public class RaceCameraController : MonoBehaviour
     /// duration秒経過後は自動的に通常追従カメラへ戻る。
     /// フォーカス対象は呼び出し側から自由に切り替え可能。
     /// </summary>
-    public void FocusOnParticipant(RaceParticipant target, float duration = 2.5f)
+    public void FocusOnParticipant(RaceParticipant target, float? duration = null)
     {
         if (focusVCam == null || target == null) return;
         if (hasTriggeredGoalCamera) return; // ゴール演出中はフォーカスしない
+
+        float actualDuration = duration ?? defaultFocusDuration;
  
         focusedParticipant = target;
         focusVCam.Priority = focusPriority;
@@ -237,7 +240,7 @@ public class RaceCameraController : MonoBehaviour
             StopCoroutine(focusRoutine);
             raceManager.ResetTransparency();
         } 
-        focusRoutine = StartCoroutine(ReleaseFocusAfter(duration));
+        focusRoutine = StartCoroutine(ReleaseFocusAfter(actualDuration));
  
         ShakeOnce(eventShakeAmplitude, eventShakeDuration, focusNoise);
 
@@ -299,6 +302,31 @@ public class RaceCameraController : MonoBehaviour
         yield return new WaitForSeconds(duration);
         noise.AmplitudeGain = originalAmplitude;
         shakeRoutine = null;
+    }
+
+    /// <summary>
+    /// 一瞬だけスローにする演出。
+    /// durationはリアルタイム秒（ゲーム内時間のスケールに関係なく一定の現実時間）で指定
+    /// </summary>
+    public void SlowMortionOnce(float scale, float duration)
+    {
+        if (slowMotionRoutine != null)
+        {
+            StopCoroutine(slowMotionRoutine);
+        }
+        slowMotionRoutine = StartCoroutine(SlowMotionRoutine(scale, duration));
+    }
+
+    private IEnumerator SlowMotionRoutine(float scale, float duration)
+    {
+        Time.timeScale = scale;
+        Time.fixedDeltaTime = defaultFixedDeltaTime * scale;
+
+        yield return new WaitForSecondsRealtime(duration);
+
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = defaultFixedDeltaTime;
+        slowMotionRoutine = null;
     }
 
     public RaceParticipant GetFocusedParticipant()

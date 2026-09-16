@@ -4,9 +4,20 @@ using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using System.Runtime.InteropServices;
+using Unity.VisualScripting;
 
 /// <summary>
-/// レース実況機能の表示を統括するクラス。
+/// レース実況の表示を統括する。
+///
+/// - スパート/アクシデント/ミラクルなどの「イベント」はRaceEventBus経由で通知され、
+///   即座にキューへ追加される
+/// - イベントが何もない間は、2〜3秒おきに現在の順位状況から実況文を自動生成する
+/// - 表示の切り替えはCanvasGroupのフェードで演出する
+/// - イベント系コメントは発生から一定時間(staleThreshold)を超えて待たされていたら
+///   読み捨てて次のコメントに進む(実際の状況との乖離を防ぐ)
+///
+/// ★演出強化: ミラクル発生時のコメントは、カメラのフォーカス時間と同じ長さ・
+/// 拡大アニメーション付きで表示する(カメラの寄りとテロップの見た目を連動させる)。
 /// </summary>
 public class RaceCommentator : MonoBehaviour
 {
@@ -26,6 +37,19 @@ public class RaceCommentator : MonoBehaviour
 
     [Header("コメントが古いとみなされるまでの時間（秒）")]
     [SerializeField] private float staleThreshold = 3f;
+
+    // カメラのフォーカス時間を参照する。
+    [Header("カメラとの連動")]
+    [SerializeField] private RaceCameraController raceCamera;
+
+    [Header("強調表示の見た目")]
+    [SerializeField] private Color nomalColor = Color.white;
+    [SerializeField] private Color emphasisColor = new Color(1f, 0.85f, 0.2f);
+    [SerializeField] private float emphasisScaleAmount = 0.35f; // 拡大アニメの強さ
+    [SerializeField] private float emphasisPunchDuration = 0.4f;
+    [SerializeField] private float fallbackEmphasisDuration = 2.5f; // raceCamera未設定時のフォールバック
+
+
     /// <summary>
     /// キューに積む１件分のコメントの構造体。
     /// </summary>
@@ -34,6 +58,7 @@ public class RaceCommentator : MonoBehaviour
         public string text;
         public float timestamp;
         public bool isEventDriven; // trueだと古いとみなすもの。
+        public bool isFocusEvent;
     }
 
     private List<RaceParticipant> participants;
@@ -83,13 +108,19 @@ public class RaceCommentator : MonoBehaviour
                 if (generated != null) EnqueueStatusComment(generated);
             }
 
+            bool isFocusEvent = false;
+
             if (pendingComments.Count > 0)
             {
                 PendingComment next = pendingComments.Dequeue();
-                yield return ShowText(next.text);
+                isFocusEvent = next.isFocusEvent;
+                yield return ShowText(next.text, next.isFocusEvent);
             }
 
-            float wait = Random.Range(minDisplayDuration, maxDisplayDuration);
+            float wait = isFocusEvent
+                            ? (raceCamera != null ? raceCamera.DefaultFocusDuration : fallbackEmphasisDuration)
+                            : Random.Range(minDisplayDuration, maxDisplayDuration);
+
             yield return new WaitForSeconds(wait);
         }
     }
@@ -116,7 +147,7 @@ public class RaceCommentator : MonoBehaviour
         }
     }
 
-    private IEnumerator ShowText(string text)
+    private IEnumerator ShowText(string text, bool emphasize)
     {
         if (textCanvasGroup != null)
         {
@@ -125,21 +156,36 @@ public class RaceCommentator : MonoBehaviour
         }
 
         commentText.text = text;
+        commentText.color = emphasize ? emphasisColor : nomalColor;
 
         if (textCanvasGroup != null)
         {
             textCanvasGroup.DOFade(1f, fadeDuration); // 表示する処理
-            yield return new WaitForSeconds(fadeDuration);
         }
+
+        if (emphasize)
+        {
+            commentText.transform.DOKill();
+            commentText.transform.localScale = Vector3.one;
+            commentText.transform.DOPunchScale(
+                Vector3.one * emphasisScaleAmount,
+                emphasisPunchDuration,
+                vibrato: 6,
+                elasticity: 0.5f
+            );
+        }
+
+        yield return new WaitForSeconds(fadeDuration);
     }
 
-    private void EnqueueEventDrivenComment(string text)
+    private void EnqueueEventDrivenComment(string text, bool isFocusEvent = false)
     {
         pendingComments.Enqueue(new PendingComment
         {
             text = text,
             timestamp = Time.time,
-            isEventDriven = true
+            isEventDriven = true,
+            isFocusEvent = isFocusEvent
         });
     }
 
@@ -149,7 +195,8 @@ public class RaceCommentator : MonoBehaviour
        {
           text = text,
           timestamp = Time.time,
-          isEventDriven = false // 時間制限の対象外 
+          isEventDriven = false, // 時間制限の対象外 
+          isFocusEvent = false
        });
 
     }
@@ -160,7 +207,7 @@ public class RaceCommentator : MonoBehaviour
     private void HandleAccident(RaceParticipant p)
         => EnqueueEventDrivenComment(CommentTempletes.Accident(p));
     private void HandleMiracle(RaceParticipant p)
-        => EnqueueEventDrivenComment(CommentTempletes.Miracle(p));
+        => EnqueueEventDrivenComment(CommentTempletes.Miracle(p), isFocusEvent: true);
     
     private void HandleFinished(RaceParticipant p)
     {
