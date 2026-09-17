@@ -2460,6 +2460,7 @@ MonoBehaviour:
   - "\u30EA\u30B9.png"
   - "\u30B7\u30ED\u30B5\u30A4.png"
   - "\u30A2\u30B6\u30E9\u30B7.png"
+  displayPositionSqu: 50
 --- !u!114 &2014937664
 MonoBehaviour:
   m_ObjectHideFlags: 0

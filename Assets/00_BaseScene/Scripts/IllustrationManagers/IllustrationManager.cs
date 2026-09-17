@@ -29,6 +29,9 @@ public class IllustrationManager : MonoBehaviour
     [Header("【テスト仕様】ローカルの画像名一覧(pngファイル)")]
     [SerializeField] private string[] testImageNames; // StreamingAssets/TestImages/ に置いた画像
 
+    [Header("表示座標の最大絶対値")]
+    [SerializeField] private float displayPositionSqu = 5f; // 一片の長さがこの値の二倍である正方形の領域に表示する。
+
     // imageNameと表示中のGameObjectの対応を保持する辞書。生成済みの画像を管理し、二重生成の防止や後で消すのに使う。
     private readonly Dictionary<string, GameObject> displayedIllustrations = new Dictionary<string, GameObject>();
 
@@ -126,9 +129,9 @@ public class IllustrationManager : MonoBehaviour
         }
 
         go.transform.localPosition = new Vector3(
-            Random.Range(-5f, 5f), // X座標をランダムに設定
+            Random.Range(-displayPositionSqu, displayPositionSqu), // X座標をランダムに設定
             4f, 
-            Random.Range(-5f, 5f)  // Z座標をランダムに設定
+            Random.Range(-displayPositionSqu, displayPositionSqu)  // Z座標をランダムに設定
         );
 
         // 表示中のイラストを辞書に追加する

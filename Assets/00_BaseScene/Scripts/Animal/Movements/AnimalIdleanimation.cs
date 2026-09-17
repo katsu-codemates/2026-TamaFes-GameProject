@@ -11,6 +11,20 @@ public class AnimalIdleAnimation : MonoBehaviour
     [SerializeField] private float sleepWeight = 10f;
     [SerializeField] private float fightWeight = 10f;
 
+    [Header("演出（食べる）")]
+    [SerializeField] private float eatingDuration = 0.3f;
+    [SerializeField] private int maxBiteCount = 6;
+    [SerializeField] private int minBiteCount = 3;
+
+    [Header("演出（眠る）")]
+    [SerializeField] private float breathingDuration = 1f;
+    [SerializeField] private float maxSleepingDuration = 3f;
+    [SerializeField] private float minSleepingDuration = 6f;
+
+    [Header("演出（けんか")]
+    [SerializeField] private int maxClashCount = 3;
+    [SerializeField] private int minClashCount = 5;
+
     Tween idleTween;
     Tween jumpTween;
     SpriteRenderer spriteRenderer;
@@ -127,10 +141,10 @@ public class AnimalIdleAnimation : MonoBehaviour
         yield return jumpTween.WaitForCompletion();
 
         // 頭を振って食べる動作を表現する
-        int biteCount = Random.Range(3, 6);
+        int biteCount = Random.Range(minBiteCount, maxBiteCount);
         for (int i = 0; i < biteCount; i++)
         {
-            yield return transform.DOPunchPosition(Vector3.down * 0.3f, 0.3f, 1, 0.5f)
+            yield return transform.DOPunchPosition(Vector3.down * 0.3f, eatingDuration, 1, 0.5f)
                 .SetLink(gameObject).WaitForCompletion();
         }
 
@@ -166,11 +180,11 @@ public class AnimalIdleAnimation : MonoBehaviour
             .SetLink(gameObject).WaitForCompletion();
         spriteRenderer.color = new Color(originalColor.r * 0.6f, originalColor.g * 0.6f, originalColor.b * 0.6f, originalColor.a);
 
-        Tween breathingTween = transform.DOScale(originalScale * 1.05f, 1f)
+        Tween breathingTween = transform.DOScale(originalScale * 1.05f, breathingDuration)
             .SetLoops(-1, LoopType.Yoyo)
             .SetLink(gameObject);
 
-        yield return new WaitForSeconds(Random.Range(3f, 6f));
+        yield return new WaitForSeconds(Random.Range(minSleepingDuration, maxSleepingDuration));
 
         breathingTween.Kill();
         transform.localScale = originalScale;
@@ -236,7 +250,7 @@ public class AnimalIdleAnimation : MonoBehaviour
         jumpTween = transform.DOJump(approachPosition, 1f, 1, 1f).SetLink(gameObject);
         yield return jumpTween.WaitForCompletion();
 
-        int clashCount = Random.Range(3, 5);
+        int clashCount = Random.Range(minClashCount, maxClashCount);
         Color originalColor = spriteRenderer.color;
         for (int i = 0; i < clashCount; i++)
         {
