@@ -87,7 +87,7 @@ public class CameraMover : MonoBehaviour
 			HandleResetKey(); //位置・回転をデフォルトにリセット
             CameraRotationMouseControl(); //カメラの回転 マウス
             CameraSlideMouseControl(); //カメラの縦横移動 マウス
-			CameraZoommouseControl(); //カメラのズーム　マウス
+			CameraZoomMouseControl(); //カメラのズーム　マウス
             CameraPositionKeyControl(); //カメラのローカル移動 キー
             ClampCameraPosition(); //可動範囲の制限
         }
@@ -205,7 +205,7 @@ public class CameraMover : MonoBehaviour
 		}
 	}
 
-	private void CameraZoommouseControl()
+	private void CameraZoomMouseControl()
 	{
 		float scroll = Input.mouseScrollDelta.y;
 		Vector3 campos = _camTransform.position;
