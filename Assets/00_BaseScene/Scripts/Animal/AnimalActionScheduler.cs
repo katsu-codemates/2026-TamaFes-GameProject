@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEngine;
 
 /// <summary>
@@ -8,46 +9,38 @@ using UnityEngine;
 /// </summary>
 public class AnimalActionScheduler : MonoBehaviour
 {
-    private static AnimalActionScheduler instance;
+    // private static AnimalActionScheduler instance;
 
-    public static AnimalActionScheduler Instance
-    {
-        get
-        {
-            if (instance == null)
-            {
-                var go = new GameObject(nameof(AnimalActionScheduler));
-                instance = go.AddComponent<AnimalActionScheduler>();
-            }
-            return instance;
-        }
-    }
+    // public static AnimalActionScheduler Instance
+    // {
+    //     get
+    //     {
+    //         if (instance == null)
+    //         {
+    //             var go = new GameObject(nameof(AnimalActionScheduler));
+    //             instance = go.AddComponent<AnimalActionScheduler>();
+    //         }
+    //         return instance;
+    //     }
+    // }
 
     /// <summary>
     /// シーン終了処理などでインスタンス生成を誘発せずに存在確認したい場合に使う。
     /// </summary>
-    public static bool HasInstance => instance != null;
+    // public static bool HasInstance => instance != null;
 
-    [Header("餌場（プレースホルダ配置、素材ができたらスプライトを差し替え）")]
-    [SerializeField] private Vector3[] feedingSpotPositions =
-    {
-        new Vector3(-4f, 5f, -13f),
-        new Vector3(4f, 5f, -7f),
-    };
+    [Header("餌場")]
+    [SerializeField] private Transform[] feedingSpotTransforms;
 
-    [Header("寝床（プレースホルダ配置、素材ができたらスプライトを差し替え）")]
-    [SerializeField] private Vector3[] bedSpotPositions =
-    {
-        new Vector3(4f, 5f, -13f),
-        new Vector3(-4f, 5f, -7f),
-    };
+    [Header("寝床")]
+    [SerializeField] private Transform[] bedSpotTransforms;
 
     [Header("けんか相手を探す最大距離")]
     [SerializeField] private float fightOpponentMaxDistance = 6f;
 
     private readonly List<ActionSpot> feedingSpots = new List<ActionSpot>();
     private readonly List<ActionSpot> bedSpots = new List<ActionSpot>();
-    private readonly List<AnimalIdleanimation> activeAnimals = new List<AnimalIdleanimation>();
+    private readonly List<AnimalIdleAnimation> activeAnimals = new List<AnimalIdleAnimation>();
 
     private class ActionSpot
     {
@@ -57,53 +50,67 @@ public class AnimalActionScheduler : MonoBehaviour
 
     private void Awake()
     {
-        if (instance != null && instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        instance = this;
-
-        BuildSpots(feedingSpotPositions, feedingSpots, "FeedingSpot(Placeholder)", new Color(0.9f, 0.7f, 0.2f));
-        BuildSpots(bedSpotPositions, bedSpots, "BedSpot(Placeholder)", new Color(0.5f, 0.4f, 0.9f));
+        ResisterSpots(feedingSpotTransforms, feedingSpots);
+        ResisterSpots(bedSpotTransforms, bedSpots);
     }
 
-    private void BuildSpots(Vector3[] positions, List<ActionSpot> spots, string namePrefix, Color color)
+    private void ResisterSpots(Transform[] transforms, List<ActionSpot> spots)
     {
-        var placeholderSprite = CreatePlaceholderSprite();
-        for (int i = 0; i < positions.Length; i++)
+        for (int i = 0; i < transforms.Length; i++)
         {
-            var go = new GameObject($"{namePrefix}_{i}");
-            go.transform.SetParent(transform, false);
-            go.transform.position = positions[i];
-
-            var renderer = go.AddComponent<SpriteRenderer>();
-            renderer.sprite = placeholderSprite;
-            renderer.color = color;
-            renderer.drawMode = SpriteDrawMode.Simple;
-            go.transform.localScale = Vector3.one * 1.5f;
-
-            spots.Add(new ActionSpot { Transform = go.transform, InUse = false });
+            spots.Add(new ActionSpot { Transform = transforms[i], InUse = false});
         }
     }
 
-    private static Sprite placeholderSprite;
+    // private void Awake()
+    // {
+    //     if (instance != null && instance != this)
+    //     {
+    //         Destroy(gameObject);
+    //         return;
+    //     }
+    //     instance = this;
 
-    private static Sprite CreatePlaceholderSprite()
-    {
-        if (placeholderSprite == null)
-        {
-            var texture = Texture2D.whiteTexture;
-            placeholderSprite = Sprite.Create(
-                texture,
-                new Rect(0, 0, texture.width, texture.height),
-                new Vector2(0.5f, 0.5f),
-                32f);
-        }
-        return placeholderSprite;
-    }
+    //     BuildSpots(feedingSpotPositions, feedingSpots, "FeedingSpot(Placeholder)", new Color(0.9f, 0.7f, 0.2f));
+    //     BuildSpots(bedSpotPositions, bedSpots, "BedSpot(Placeholder)", new Color(0.5f, 0.4f, 0.9f));
+    // }
 
-    public void Register(AnimalIdleanimation animal)
+    // private void BuildSpots(Vector3[] positions, List<ActionSpot> spots, string namePrefix, Color color)
+    // {
+    //     var placeholderSprite = CreatePlaceholderSprite();
+    //     for (int i = 0; i < positions.Length; i++)
+    //     {
+    //         var go = new GameObject($"{namePrefix}_{i}");
+    //         go.transform.SetParent(transform, false);
+    //         go.transform.position = positions[i];
+
+    //         var renderer = go.AddComponent<SpriteRenderer>();
+    //         renderer.sprite = placeholderSprite;
+    //         renderer.color = color;
+    //         renderer.drawMode = SpriteDrawMode.Simple;
+    //         go.transform.localScale = Vector3.one * 1.5f;
+
+    //         spots.Add(new ActionSpot { Transform = go.transform, InUse = false });
+    //     }
+    // }
+
+    // private static Sprite placeholderSprite;
+
+    // private static Sprite CreatePlaceholderSprite()
+    // {
+    //     if (placeholderSprite == null)
+    //     {
+    //         var texture = Texture2D.whiteTexture;
+    //         placeholderSprite = Sprite.Create(
+    //             texture,
+    //             new Rect(0, 0, texture.width, texture.height),
+    //             new Vector2(0.5f, 0.5f),
+    //             32f);
+    //     }
+    //     return placeholderSprite;
+    // }
+
+    public void Register(AnimalIdleAnimation animal)
     {
         if (!activeAnimals.Contains(animal))
         {
@@ -111,7 +118,7 @@ public class AnimalActionScheduler : MonoBehaviour
         }
     }
 
-    public void Unregister(AnimalIdleanimation animal)
+    public void Unregister(AnimalIdleAnimation animal)
     {
         activeAnimals.Remove(animal);
     }
@@ -150,9 +157,9 @@ public class AnimalActionScheduler : MonoBehaviour
     /// <summary>
     /// けんか相手を探して予約する。相手が見つかった場合、相手のIsBusyもtrueにする。
     /// </summary>
-    public AnimalIdleanimation TryReserveOpponent(AnimalIdleanimation self)
+    public AnimalIdleAnimation TryReserveOpponent(AnimalIdleAnimation self)
     {
-        AnimalIdleanimation best = null;
+        AnimalIdleAnimation best = null;
         float bestDistance = fightOpponentMaxDistance;
 
         foreach (var candidate in activeAnimals)

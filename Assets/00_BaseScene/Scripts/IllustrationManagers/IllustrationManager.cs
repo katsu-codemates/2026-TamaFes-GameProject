@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ using UnityEngine;
 public class IllustrationManager : MonoBehaviour
 {
     [SerializeField] private AnimalSelectionManager selectionManager;
+    [SerializeField] private AnimalActionScheduler actionScheduler;
 
     [Header("表示に使うプレハブ")]
     [SerializeField] private GameObject illustrationPrefab; 
@@ -116,6 +118,11 @@ public class IllustrationManager : MonoBehaviour
         if (clickDetector != null)
         {
             clickDetector.Initialize(selectionManager);
+        }
+        var animation = go.GetComponent<AnimalIdleAnimation>();
+        if (animation != null)
+        {
+            animation.Initialize(actionScheduler);
         }
 
         go.transform.localPosition = new Vector3(

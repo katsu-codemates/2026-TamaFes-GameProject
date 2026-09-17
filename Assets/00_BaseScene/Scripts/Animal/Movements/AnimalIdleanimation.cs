@@ -2,7 +2,7 @@ using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 
-public class AnimalIdleanimation : MonoBehaviour
+public class AnimalIdleAnimation : MonoBehaviour
 {
     private enum AnimalAction { Wander, Eat, Sleep, Fight }
 
@@ -16,6 +16,7 @@ public class AnimalIdleanimation : MonoBehaviour
     SpriteRenderer spriteRenderer;
     Billboard billboard;
     Coroutine randomMoveCoroutine;
+    AnimalActionScheduler animalActionScheduler;
 
     public bool IsBusy { get; set; }
 
@@ -23,9 +24,14 @@ public class AnimalIdleanimation : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         billboard = GetComponent<Billboard>();
-        AnimalActionScheduler.Instance.Register(this);
+        animalActionScheduler.Register(this);
         IdleMotion();
         randomMoveCoroutine = StartCoroutine(RandomMove());
+    }
+
+    public void Initialize(AnimalActionScheduler animalActionScheduler)
+    {
+        this.animalActionScheduler = animalActionScheduler;
     }
 
     void IdleMotion()
@@ -106,7 +112,7 @@ public class AnimalIdleanimation : MonoBehaviour
 
     IEnumerator DoEat()
     {
-        Transform spot = AnimalActionScheduler.Instance.TryReserveFeedingSpot(out int spotIndex);
+        Transform spot = animalActionScheduler.TryReserveFeedingSpot(out int spotIndex);
         if (spot == null)
         {
             // 餌場が空いていなければ通常移動で代替する
@@ -131,13 +137,13 @@ public class AnimalIdleanimation : MonoBehaviour
         jumpTween = transform.DOJump(originalPosition, 1f, 1, 1f).SetLink(gameObject);
         yield return jumpTween.WaitForCompletion();
 
-        AnimalActionScheduler.Instance.ReleaseFeedingSpot(spotIndex);
+        animalActionScheduler.ReleaseFeedingSpot(spotIndex);
         IsBusy = false;
     }
 
     IEnumerator DoSleep()
     {
-        Transform spot = AnimalActionScheduler.Instance.TryReserveBedSpot(out int spotIndex);
+        Transform spot = animalActionScheduler.TryReserveBedSpot(out int spotIndex);
         if (spot == null)
         {
             // 寝床が空いていなければ通常移動で代替する
@@ -177,13 +183,13 @@ public class AnimalIdleanimation : MonoBehaviour
         jumpTween = transform.DOJump(originalPosition, 1f, 1, 1f).SetLink(gameObject);
         yield return jumpTween.WaitForCompletion();
 
-        AnimalActionScheduler.Instance.ReleaseBedSpot(spotIndex);
+        animalActionScheduler.ReleaseBedSpot(spotIndex);
         IsBusy = false;
     }
 
     IEnumerator DoFight()
     {
-        AnimalIdleanimation opponent = AnimalActionScheduler.Instance.TryReserveOpponent(this);
+        AnimalIdleAnimation opponent = animalActionScheduler.TryReserveOpponent(this);
         if (opponent == null)
         {
             // 近くにけんか相手がいなければ通常移動で代替する
@@ -263,9 +269,9 @@ public class AnimalIdleanimation : MonoBehaviour
             jumpTween.Kill();
         }
 
-        if (AnimalActionScheduler.HasInstance)
+        if (animalActionScheduler != null)
         {
-            AnimalActionScheduler.Instance.Unregister(this);
+            animalActionScheduler.Unregister(this);
         }
     }
 }
