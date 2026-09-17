@@ -12,20 +12,20 @@ public class AnimalsClickDetector : MonoBehaviour,
     IPointerEnterHandler,
     IPointerExitHandler
 {
-    [Header("ホバー演出")]
-    [SerializeField] private Color animalOutlineColor = Color.yellow;
-    [SerializeField] private float outlineScale = 1.15f;
+    // [Header("ホバー演出")]
+    // [SerializeField] private Color animalOutlineColor = Color.yellow;
+    // [SerializeField] private float outlineScale = 1.15f;
 
     private AnimalDataHolder animalDataHolder;
     private AnimalSelectionManager selectionManager;
     private SpriteRenderer mainRenderer;
-    private SpriteRenderer outlineRenderer;
+    // private SpriteRenderer outlineRenderer;
 
     private void Awake()
     {
         animalDataHolder = GetComponent<AnimalDataHolder>();
         mainRenderer = GetComponent<SpriteRenderer>();
-        SetupOutline();
+        // SetupOutline();
     }
 
     public void Initialize(AnimalSelectionManager selectionManager)
@@ -34,20 +34,20 @@ public class AnimalsClickDetector : MonoBehaviour,
     }
 
     // 本体のSpriteRendererを一回り大きく複製した子オブジェクトを本体の奥に重ね、輪郭線のように見せる
-    private void SetupOutline()
-    {
-        var outlineObject = new GameObject("OutlineSprite");
-        var outlineTransform = outlineObject.transform;
-        outlineTransform.SetParent(transform, false);
-        // ビルボード回転後のローカルZ-方向（カメラから遠ざかる向き）に少し下げて本体の奥に描画されるようにする
-        outlineTransform.localPosition = new Vector3(0f, 0f, -0.05f);
-        outlineTransform.localScale = Vector3.one * outlineScale;
+    // private void SetupOutline()
+    // {
+    //     var outlineObject = new GameObject("OutlineSprite");
+    //     var outlineTransform = outlineObject.transform;
+    //     outlineTransform.SetParent(transform, false);
+    //     // ビルボード回転後のローカルZ-方向（カメラから遠ざかる向き）に少し下げて本体の奥に描画されるようにする
+    //     outlineTransform.localPosition = new Vector3(0f, 0f, -0.05f);
+    //     outlineTransform.localScale = Vector3.one * outlineScale;
 
-        outlineRenderer = outlineObject.AddComponent<SpriteRenderer>();
-        outlineRenderer.color = animalOutlineColor;
-        outlineRenderer.sortingOrder = mainRenderer.sortingOrder - 1;
-        outlineObject.SetActive(false);
-    }
+    //     outlineRenderer = outlineObject.AddComponent<SpriteRenderer>();
+    //     outlineRenderer.color = animalOutlineColor;
+    //     outlineRenderer.sortingOrder = mainRenderer.sortingOrder - 1;
+    //     outlineObject.SetActive(false);
+    // }
 
     // カーソルが重なったとき
     public void OnPointerEnter(PointerEventData eventData)
@@ -57,15 +57,15 @@ public class AnimalsClickDetector : MonoBehaviour,
             return;
         }
 
-        outlineRenderer.sprite = mainRenderer.sprite;
-        outlineRenderer.gameObject.SetActive(true);
+        // outlineRenderer.sprite = mainRenderer.sprite;
+        // outlineRenderer.gameObject.SetActive(true);
         Debug.Log($"カーソルが重なった{animalDataHolder.Data.animalName}");
     }
 
     // カーソルが離れたとき
     public void OnPointerExit(PointerEventData eventData)
     {
-        outlineRenderer.gameObject.SetActive(false);
+        // outlineRenderer.gameObject.SetActive(false);
         Debug.Log($"カーソルが離れた{animalDataHolder.Data.animalName}");
     }
 
@@ -83,7 +83,7 @@ public class AnimalsClickDetector : MonoBehaviour,
             return;
         }
 
-        outlineRenderer.gameObject.SetActive(false);
+        // outlineRenderer.gameObject.SetActive(false);
 
         selectionManager.SelectAnimal(animalDataHolder);
         Debug.Log($"クリックされた{animalDataHolder.Data.animalName}");
