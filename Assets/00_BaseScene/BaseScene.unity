@@ -2453,6 +2453,7 @@ MonoBehaviour:
   actionScheduler: {fileID: 2014937667}
   illustrationPrefab: {fileID: 1893108964408875296, guid: 7ec7561e9790e874ba0e9f2bc42deefc, type: 3}
   container: {fileID: 480020835}
+  loadingInterval: 10
   isDevelopment: 0
   remoteEndpointUrl: https://tamasai-app-server.koki-tominaga.workers.dev/api/images
   testImageNames:
@@ -2466,7 +2467,7 @@ MonoBehaviour:
   - "\u30EA\u30B9.png"
   - "\u30B7\u30ED\u30B5\u30A4.png"
   - "\u30A2\u30B6\u30E9\u30B7.png"
-  displayPositionSqu: 50
+  displayPositionSqu: 40
 --- !u!114 &2014937664
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -20,6 +20,9 @@ public class IllustrationManager : MonoBehaviour
     [Header("表示に使う親オブジェクト")]
     [SerializeField] private Transform container;
 
+    [Header("画像読み込み間隔（秒）")]
+    [SerializeField] private float loadingInterval = 10f;
+
     [Header("開発中かどうか")]
     [SerializeField] private bool isDevelopment = true;
 
@@ -39,8 +42,9 @@ public class IllustrationManager : MonoBehaviour
     private readonly List<AnimalData> registeredAnimals = new List<AnimalData>();
 
     private IImageProvider imageProvider;
+    private Coroutine repeatCoroutine;
 
-    private IEnumerator Start()
+    private void Start()
     {
         // 開発中かどうかに応じて、使用するImageProviderを切り替える
         if (isDevelopment)
@@ -52,9 +56,21 @@ public class IllustrationManager : MonoBehaviour
             imageProvider = new ServerImageProvider(remoteEndpointUrl);
         }
 
-        // 画像一覧を取得して表示する
-        yield return LoadAnyDisplayAll();
-        Debug.Log("表示中の動物の数:" + displayedIllustrations.Count);
+        // 画像一覧を取得して表示するのを繰り返す
+        repeatCoroutine = StartCoroutine(RepeatDisplay());
+    }
+
+    private IEnumerator RepeatDisplay()
+    {
+        var wait = new WaitForSeconds(loadingInterval);
+        while(true)
+        {
+            yield return LoadAnyDisplayAll();
+            Debug.Log("表示中の動物の数:" + displayedIllustrations.Count);
+            
+            yield return wait;
+            Debug.Log("新規読み込み開始");
+        }
     }
 
     private IEnumerator LoadAnyDisplayAll()
@@ -169,7 +185,7 @@ public class IllustrationManager : MonoBehaviour
         return animalData;
     }
 
-    public List<AnimalData> GetResisterdAnimals()
+    public List<AnimalData> GetRegisteredAnimals()
     {
         return registeredAnimals;
     }
@@ -229,5 +245,10 @@ public class IllustrationManager : MonoBehaviour
                 renderer.color = color;
             }
         }
+    }
+
+    private void OnDestroy()
+    {
+        StopCoroutine(repeatCoroutine);
     }
 }

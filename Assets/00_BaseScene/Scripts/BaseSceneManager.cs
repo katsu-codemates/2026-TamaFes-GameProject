@@ -10,7 +10,7 @@ public class BaseSceneManager : MonoBehaviour
 
     public void OnRaceStartButtonClicked()
     {
-        List<AnimalData> loadedAnimals = illustrationManager.GetResisterdAnimals();
+        List<AnimalData> loadedAnimals = illustrationManager.GetRegisteredAnimals();
         animalRoster.SetAnimals(loadedAnimals);
         SceneManager.LoadScene("GameScene");
     }
