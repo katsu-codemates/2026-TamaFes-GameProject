@@ -50,7 +50,7 @@ public class RaceCommentator : MonoBehaviour
     [SerializeField] private RaceCameraController raceCamera;
 
     [Header("強調表示の見た目")]
-    [SerializeField] private Color nomalColor = Color.white;
+    [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color emphasisColor = new Color(1f, 0.85f, 0.2f);
     [SerializeField] private float emphasisScaleAmount = 0.35f; // 拡大アニメの強さ
     [SerializeField] private float emphasisPunchDuration = 0.4f;
@@ -223,7 +223,7 @@ public class RaceCommentator : MonoBehaviour
         }
 
         commentText.text = text;
-        commentText.color = emphasize ? emphasisColor : nomalColor;
+        commentText.color = emphasize ? emphasisColor : normalColor;
 
         if (textCanvasGroup != null)
         {

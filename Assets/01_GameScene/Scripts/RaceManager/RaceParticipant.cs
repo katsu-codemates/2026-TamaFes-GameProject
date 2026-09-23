@@ -15,7 +15,7 @@ public class RaceParticipant
 
     // レース開始時に確定する値(RaceSimulator.Initializeで設定される。)
     public float maxSpeed;
-    public float accelerarion;
+    public float acceleration;
     public float initialStamina;
     public float earlyPhaseEnd;     // このprogressまでが加速フェーズ
     public float latePhaseStart;    // このprogress以降が終盤フェーズ
