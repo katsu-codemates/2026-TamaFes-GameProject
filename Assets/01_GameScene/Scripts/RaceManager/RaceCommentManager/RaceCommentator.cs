@@ -43,7 +43,7 @@ public class RaceCommentator : MonoBehaviour
     [SerializeField] private RaceCameraController raceCamera;
 
     [Header("強調表示の見た目")]
-    [SerializeField] private Color nomalColor = Color.white;
+    [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color emphasisColor = new Color(1f, 0.85f, 0.2f);
     [SerializeField] private float emphasisScaleAmount = 0.35f; // 拡大アニメの強さ
     [SerializeField] private float emphasisPunchDuration = 0.4f;
@@ -70,7 +70,7 @@ public class RaceCommentator : MonoBehaviour
         participants = list;
         lastLeader = null;
         pendingComments.Clear();
-        EnqueueStatusComment(CommentTempletes.RaceStart());
+        EnqueueStatusComment(CommentTemplates.RaceStart());
     }
 
     private void OnEnable()
@@ -156,7 +156,7 @@ public class RaceCommentator : MonoBehaviour
         }
 
         commentText.text = text;
-        commentText.color = emphasize ? emphasisColor : nomalColor;
+        commentText.color = emphasize ? emphasisColor : normalColor;
 
         if (textCanvasGroup != null)
         {
@@ -203,17 +203,17 @@ public class RaceCommentator : MonoBehaviour
 
     // イベント時のコメント表示処理
     private void HandleSpurt(RaceParticipant p) 
-        => EnqueueEventDrivenComment(CommentTempletes.Spurt(p));
+        => EnqueueEventDrivenComment(CommentTemplates.Spurt(p));
     private void HandleAccident(RaceParticipant p)
-        => EnqueueEventDrivenComment(CommentTempletes.Accident(p));
+        => EnqueueEventDrivenComment(CommentTemplates.Accident(p));
     private void HandleMiracle(RaceParticipant p)
-        => EnqueueEventDrivenComment(CommentTempletes.Miracle(p), isFocusEvent: true);
+        => EnqueueEventDrivenComment(CommentTemplates.Miracle(p), isFocusEvent: true);
     
     private void HandleFinished(RaceParticipant p)
     {
         if (p.finishRank == 1)
         {
-            EnqueueStatusComment(CommentTempletes.Winner(p));
+            EnqueueStatusComment(CommentTemplates.Winner(p));
         }
     }
 
@@ -228,15 +228,15 @@ public class RaceCommentator : MonoBehaviour
 
         if (secondLeader != null && (leader.progress - secondLeader.progress) < closeRaceThreshold)
         {
-            comment = CommentTempletes.CloseRace(leader, secondLeader);
+            comment = CommentTemplates.CloseRace(leader, secondLeader);
         }
         else if (leader != lastLeader)
         {
-            comment = CommentTempletes.NewLeader(leader);
+            comment = CommentTemplates.NewLeader(leader);
         }
         else
         {
-            comment = CommentTempletes.Leading(leader);
+            comment = CommentTemplates.Leading(leader);
         }
 
         lastLeader = leader;
