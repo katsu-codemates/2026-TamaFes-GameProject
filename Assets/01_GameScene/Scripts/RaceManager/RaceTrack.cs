@@ -17,11 +17,11 @@ public static class RaceTrack
     /// </summary>
     public static Vector3 GetWorldPosition(float progress, int laneIndex, int totalLanes)
     {
-        float disstanceAlongTrack = Mathf.Clamp01(progress) * TrackLength;
+        float distanceAlongTrack = Mathf.Clamp01(progress) * TrackLength;
         float laneOffset = (laneIndex - (totalLanes - 1) / 2f) * LaneWidth; // レーンの中心を基準にオフセットを計算
 
         return StartPosition
-            + ForwardDirection * disstanceAlongTrack
+            + ForwardDirection * distanceAlongTrack
             + LaneDirection * laneOffset;
     }
 }
