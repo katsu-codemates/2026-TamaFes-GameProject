@@ -6,15 +6,15 @@ using UnityEngine.InputSystem.Controls;
 /// 実況分のテンプレート集。
 /// 同じ状況でもパターンをいくつか用意することで、マンネリ化を防ぐ。
 /// </summary>
-public class CommentTempletes
+public class CommentTemplates
 {
-    private static readonly string[] RaceStartTempletes =
+    private static readonly string[] RaceStartTemplates =
     {
         "レーススタート！",
         "さあ、レースが始まりました！"  
     };
 
-    private static readonly string[] NewLeaderTempletes =
+    private static readonly string[] NewLeaderTemplates =
     {
         "{0}が先頭に立った！",
         "ここで{0}が前に出る！",
@@ -146,9 +146,9 @@ public class CommentTempletes
     };
 
     public static string RaceStart() 
-        => Pick(RaceStartTempletes);
+        => Pick(RaceStartTemplates);
     public static string NewLeader(RaceParticipant p) 
-        => Format(NewLeaderTempletes, p.animalData.animalName);
+        => Format(NewLeaderTemplates, p.animalData.animalName);
     public static string Leading(RaceParticipant p) 
         => Format(LeadingTemplates, p.animalData.animalName);
     public static string CloseRace(RaceParticipant a, RaceParticipant b) 
@@ -199,8 +199,8 @@ public class CommentTempletes
         return bestName;
     }
 
-    private static string Pick(string[] templetes) 
-        => templetes[Random.Range(0, templetes.Length)];
-    private static string Format(string[] templetes, params object[] args) 
-        => string.Format(Pick(templetes), args);
+    private static string Pick(string[] templates) 
+        => templates[Random.Range(0, templates.Length)];
+    private static string Format(string[] templates, params object[] args) 
+        => string.Format(Pick(templates), args);
 }

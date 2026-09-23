@@ -95,7 +95,7 @@ public class RaceCommentator : MonoBehaviour
         pendingComments.Clear();
         mentionCount.Clear();
         forceRequested = false;
-        EnqueueStatusComment(CommentTempletes.RaceStart());
+        EnqueueStatusComment(CommentTemplates.RaceStart());
     }
 
     private void OnEnable()
@@ -328,19 +328,19 @@ public class RaceCommentator : MonoBehaviour
     private void HandleSpurt(RaceParticipant p)
     {
         Mention(p);
-        EnqueueEventDrivenComment(CommentTempletes.Spurt(p));
+        EnqueueEventDrivenComment(CommentTemplates.Spurt(p));
     }
 
     private void HandleAccident(RaceParticipant p)
     {
         Mention(p);
-        EnqueueEventDrivenComment(CommentTempletes.Accident(p));
+        EnqueueEventDrivenComment(CommentTemplates.Accident(p));
     }
 
     private void HandleMiracle(RaceParticipant p)
     {
         Mention(p);
-        string text = CommentTempletes.Miracle(p);
+        string text = CommentTemplates.Miracle(p);
 
         if (raceCamera == null)
         {
@@ -361,14 +361,14 @@ public class RaceCommentator : MonoBehaviour
     private void HandleStaminaDepleted(RaceParticipant p)
     {
         Mention(p);
-        EnqueueEventDrivenComment(CommentTempletes.StaminaDepleted(p));
+        EnqueueEventDrivenComment(CommentTemplates.StaminaDepleted(p));
     }
 
     private void HandleOvertake(RaceParticipant passer, RaceParticipant passed, int newRank)
     {
         Mention(passer, passed);
         if (newRank == 1) lastLeader = passer; // 自動生成の「先頭に立った」と重複させない
-        EnqueueEventDrivenComment(CommentTempletes.Overtake(passer, passed, newRank), kind: CommentKind.Overtake);
+        EnqueueEventDrivenComment(CommentTemplates.Overtake(passer, passed, newRank), kind: CommentKind.Overtake);
     }
 
     private void HandleFinished(RaceParticipant p)
@@ -377,15 +377,15 @@ public class RaceCommentator : MonoBehaviour
 
         if (p.finishRank == 1)
         {
-            EnqueueForceComment(CommentTempletes.Winner(p), emphasize: true, maxDisplayDuration);
+            EnqueueForceComment(CommentTemplates.Winner(p), emphasize: true, maxDisplayDuration);
         }
         else if (participants != null && p.finishRank == participants.Count)
         {
-            EnqueueFinishComment(CommentTempletes.LastFinisher(p));
+            EnqueueFinishComment(CommentTemplates.LastFinisher(p));
         }
         else
         {
-            EnqueueFinishComment(CommentTempletes.Finished(p, p.finishRank));
+            EnqueueFinishComment(CommentTemplates.Finished(p, p.finishRank));
         }
     }
 
@@ -394,7 +394,7 @@ public class RaceCommentator : MonoBehaviour
     {
         if (leader == null) return;
         Mention(leader);
-        EnqueueForceComment(CommentTempletes.FinalStretch(leader), emphasize: false);
+        EnqueueForceComment(CommentTemplates.FinalStretch(leader), emphasize: false);
     }
 
     // カメラ連動：後続集団のショットに切り替わった瞬間
@@ -410,7 +410,7 @@ public class RaceCommentator : MonoBehaviour
         if (target == null) return;
 
         Mention(target);
-        EnqueueForceComment(CommentTempletes.ChaserShot(target), emphasize: false, raceCamera.ChaserShotDuration);
+        EnqueueForceComment(CommentTemplates.ChaserShot(target), emphasize: false, raceCamera.ChaserShotDuration);
     }
 
     // 二秒ごとの状況に合わせたコメント表示処理
@@ -430,26 +430,26 @@ public class RaceCommentator : MonoBehaviour
             if (isClose)
             {
                 Mention(leader, secondLeader);
-                return CommentTempletes.PlaceBattle(leader, secondLeader, place);
+                return CommentTemplates.PlaceBattle(leader, secondLeader, place);
             }
 
             string spotlight = TryGenerateSpotlight(leader);
             if (spotlight != null) return spotlight;
 
             Mention(leader);
-            return CommentTempletes.HeadingToGoal(leader, place);
+            return CommentTemplates.HeadingToGoal(leader, place);
         }
 
         string comment;
         if (isClose)
         {
             Mention(leader, secondLeader);
-            comment = CommentTempletes.CloseRace(leader, secondLeader);
+            comment = CommentTemplates.CloseRace(leader, secondLeader);
         }
         else if (leader != lastLeader)
         {
             Mention(leader);
-            comment = CommentTempletes.NewLeader(leader);
+            comment = CommentTemplates.NewLeader(leader);
         }
         else
         {
@@ -457,7 +457,7 @@ public class RaceCommentator : MonoBehaviour
             if (comment == null)
             {
                 Mention(leader);
-                comment = CommentTempletes.Leading(leader);
+                comment = CommentTemplates.Leading(leader);
             }
         }
 
@@ -484,15 +484,15 @@ public class RaceCommentator : MonoBehaviour
         string comment;
         if (Random.value < 0.5f)
         {
-            comment = CommentTempletes.SpotlightStat(target);
+            comment = CommentTemplates.SpotlightStat(target);
         }
         else if (rank == participants.Count)
         {
-            comment = CommentTempletes.SpotlightLast(target);
+            comment = CommentTemplates.SpotlightLast(target);
         }
         else
         {
-            comment = CommentTempletes.SpotlightMid(target, rank);
+            comment = CommentTemplates.SpotlightMid(target, rank);
         }
 
         Mention(target);
