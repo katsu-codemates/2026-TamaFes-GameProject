@@ -19,9 +19,9 @@ public class RaceSimulator
         float staminaNorm = participant.animalData.stamina / 100f;
 
         participant.maxSpeed = raceTuning.baseSpeed + speedNorm * raceTuning.speedRange;
-        participant.accelerarion = raceTuning.baseAccel + powerNorm * raceTuning.accelRange;
+        participant.acceleration = raceTuning.baseAccel + powerNorm * raceTuning.accelRange;
         participant.initialStamina = raceTuning.staminaMin + staminaNorm * raceTuning.staminaRange;
-        
+
         // フェーズ境界は個体ごとにランダム化（全員が同時に切り替わらないようにする）
         participant.earlyPhaseEnd = Random.Range(raceTuning.earlyPhaseEndMin, raceTuning.earlyPhaseEndMax);
         participant.latePhaseStart = Random.Range(raceTuning.latePhaseStartMin, raceTuning.latePhaseStartMax);
@@ -76,10 +76,10 @@ public class RaceSimulator
     // 序盤；加速フェーズ
     private static void TickAccelerationPhase(RaceParticipant participant, float deltaTime)
     {
-        participant.currentSpeed = 
+        participant.currentSpeed =
             Mathf.Min(
                 participant.maxSpeed,
-                participant.currentSpeed + participant.accelerarion * deltaTime
+                participant.currentSpeed + participant.acceleration * deltaTime
             );
     }
 
