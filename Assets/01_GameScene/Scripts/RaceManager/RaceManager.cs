@@ -34,6 +34,11 @@ public class RaceManager : MonoBehaviour
     private List<RaceParticipant> participants = new List<RaceParticipant>();
     private List<RaceParticipant> finishedOrder = new List<RaceParticipant>();
     private List<AnimalRacerView> racerViews = new List<AnimalRacerView>();
+    private Dictionary<RaceParticipant, AnimalRacerView> viewByParticipant = new Dictionary<RaceParticipant, AnimalRacerView>();
+
+    // 追い抜き判定用の「確定順位」。進行度の差がovertakeMargin以上ついたときだけ入れ替える
+    private List<RaceParticipant> confirmedOrder = new List<RaceParticipant>();
+    private float overtakeCheckTimer;
 
     private void Awake()
     {
@@ -69,6 +74,10 @@ public class RaceManager : MonoBehaviour
     {
         finishedOrder.Clear();
         racerViews.Clear();
+        viewByParticipant.Clear();
+        confirmedOrder.Clear();
+        confirmedOrder.AddRange(participants);
+        overtakeCheckTimer = 0f;
 
         raceCamera.SetParticipants(participants);
         raceCommentator.SetParticipants(participants);
@@ -79,7 +88,63 @@ public class RaceManager : MonoBehaviour
             var racerView = racerObj.GetComponent<AnimalRacerView>();
             racerView.SetUp(participant, raceTuning, participants.Count);
             racerViews.Add(racerView);
+            viewByParticipant[participant] = racerView;
         }
+    }
+
+    private void Update()
+    {
+        if (confirmedOrder.Count < 2 || raceTuning == null) return;
+
+        overtakeCheckTimer += Time.deltaTime;
+        if (overtakeCheckTimer < raceTuning.overtakeCheckInterval) return;
+        overtakeCheckTimer = 0f;
+
+        UpdateOvertakes();
+    }
+
+    /// <summary>
+    /// 確定順位を更新し、追い抜きが起きたらRaceEventBusで通知する。
+    /// 隣り合う走者同士で、後ろの走者がovertakeMargin以上前に出たときだけ入れ替える（ばたつき防止）。
+    /// </summary>
+    private void UpdateOvertakes()
+    {
+        float leaderProgress = 0f;
+        foreach (var p in confirmedOrder) leaderProgress = Mathf.Max(leaderProgress, p.progress);
+
+        // スタート直後の団子状態では実況せず、順位の同期だけ行う
+        if (leaderProgress < raceTuning.overtakeStartProgress)
+        {
+            confirmedOrder.Sort((a, b) => b.progress.CompareTo(a.progress));
+            return;
+        }
+
+        bool swapped = true;
+        while (swapped)
+        {
+            swapped = false;
+            for (int i = 0; i < confirmedOrder.Count - 1; i++)
+            {
+                RaceParticipant front = confirmedOrder[i];
+                RaceParticipant back = confirmedOrder[i + 1];
+                if (back.progress - front.progress < raceTuning.overtakeMargin) continue;
+
+                confirmedOrder[i] = back;
+                confirmedOrder[i + 1] = front;
+                swapped = true;
+
+                // 画面に映っている走者同士の追い抜きだけを実況する
+                if (!back.isFinished && !front.isFinished && IsOnScreen(back) && IsOnScreen(front))
+                {
+                    RaceEventBus.RaiseOvertake(back, front, i + 1);
+                }
+            }
+        }
+    }
+
+    private bool IsOnScreen(RaceParticipant participant)
+    {
+        return viewByParticipant.TryGetValue(participant, out var view) && view != null && view.IsOnScreen();
     }
 
     public void NotifyFinished(RaceParticipant participant)

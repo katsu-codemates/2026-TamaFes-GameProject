@@ -57,6 +57,7 @@ public class RaceCameraController : MonoBehaviour
     [Header("ショット切替：独走時に各ショットを映す秒数")]
     [SerializeField] private float leaderShotDuration = 4f;
     [SerializeField] private float chaserShotDuration = 3f;
+    public float ChaserShotDuration => chaserShotDuration;
 
     [Header("ショット切替：2位からこの距離以内の走者を後続集団として映す")]
     [SerializeField] private float chaserGroupRange = 25f;
@@ -97,6 +98,11 @@ public class RaceCameraController : MonoBehaviour
     private bool hasTriggeredGoalCamera;
 
     private float defaultFixedDeltaTime;
+
+    // 実況側がカメラの切り替わりに合わせてコメントを出すためのイベント
+    public event System.Action<RaceParticipant> OnGoalCameraStarted;   // 引数：その時点の先頭
+    public event System.Action<List<RaceParticipant>> OnChaserShotStarted; // 引数：後続ショットに映る走者（順位順）
+    public bool IsGoalCameraActive => hasTriggeredGoalCamera;
 
     // 追従カメラのショット種別
     private enum ShotMode
@@ -193,6 +199,10 @@ public class RaceCameraController : MonoBehaviour
 
         // 独走状態かどうかでショットを決める。切り替わった瞬間はカットで映像を切り替える
         bool isCut = UpdateShotMode();
+        if (isCut && currentShot == ShotMode.Chaser && !hasTriggeredGoalCamera)
+        {
+            OnChaserShotStarted?.Invoke(GetGroupMembers(1, chaserGroupRange));
+        }
         Vector3 shotCenter = GetShotCenter();
 
         Quaternion fixedRotation=Quaternion.Euler(fixedAngles);
@@ -326,6 +336,20 @@ public class RaceCameraController : MonoBehaviour
         return sum / count;
     }
     
+    /// <summary>
+    /// GetGroupCenterと同じ条件で、ショットに映る走者の一覧を返す。
+    /// </summary>
+    private List<RaceParticipant> GetGroupMembers(int startRank, float range)
+    {
+        var members = new List<RaceParticipant>();
+        for (int i = startRank; i < ranking.Count && members.Count < Mathf.Max(1, maxGroupSize); i++)
+        {
+            if (i > startRank && GetGap(startRank, i) > range) break;
+            members.Add(ranking[i]);
+        }
+        return members;
+    }
+
     private void SetPriority(CinemachineCamera vCam,int priority)
     {
         if(vCam==null)return;
@@ -392,6 +416,8 @@ public class RaceCameraController : MonoBehaviour
         }
  
         goalVCam.Priority = goalPriority;
+
+        if (ranking.Count > 0) OnGoalCameraStarted?.Invoke(ranking[0]);
     }
  
     /// <summary>
