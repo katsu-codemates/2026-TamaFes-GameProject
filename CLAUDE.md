@@ -34,8 +34,8 @@ Animal data does not persist via `DontDestroyOnLoad` — it's carried between sc
 
 - **`RaceManager`** (singleton, `Instance`) is the orchestrator: picks participants from the roster, spawns one racer view per participant, and tracks finish order via `NotifyFinished`.
 - **`RaceParticipant`** is the per-racer runtime state; **`RaceTrack`**/**`RaceSimulator`** compute race progress along a 0–1 track-progress value (`Mathf.Clamp01`), not physical movement.
-- **`RaceEventBus`** is a static C# event bus (`OnSpurtStarted`, `OnAccidentStarted`, `OnMiracleStarted`, `OnFinished`) that decouples the simulation from reactive systems — `RaceCameraController` and `RaceCommentator` subscribe to it rather than being called directly by `RaceManager`/`RaceSimulator`.
-- **`RaceCommentator`** (`RaceManager/RaceCommentManager/`) generates commentary text from `CommentTempletes` keyed to race events.
+- **`RaceEventBus`** is a static C# event bus (`OnSpurtStarted`, `OnAccidentStarted`, `OnMiracleStarted`, `OnFinished`, `OnStaminaDepleted`, `OnOvertake`) that decouples the simulation from reactive systems — `RaceCameraController` and `RaceCommentator` subscribe to it rather than being called directly by `RaceManager`/`RaceSimulator`. `OnOvertake` is raised by `RaceManager` (margin-based confirmed ranking, on-screen racers only); the others are raised from `AnimalRacerView` state transitions.
+- **`RaceCommentator`** (`RaceManager/RaceCommentManager/`) generates commentary text from `CommentTempletes` keyed to race events. Comments flagged `isForce` (miracle, 1st-place finish, and camera cuts it hears about via `RaceCameraController.OnGoalCameraStarted`/`OnChaserShotStarted`) skip the normal 2–3s display interval and interrupt immediately so the text matches what the camera shows.
 - **`RaceTuningConfig`** is a `ScriptableObject` holding the race's numeric tuning knobs (speeds, phase thresholds, etc.) — prefer adding new tunable race parameters here over hardcoding them in `RaceManager`/`RaceSimulator`.
 - `RaceEntryScreen`/`RaceResultScreen` (under `RaceEntryViewManager`/`RaceResultView`) are the pre-race roster display and post-race results UI.
 

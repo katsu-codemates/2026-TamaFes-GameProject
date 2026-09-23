@@ -26,6 +26,7 @@ public class AnimalRacerView : MonoBehaviour
     private bool wasSpurting;
     private bool wasAccident;
     private bool wasMiracle;
+    private bool notifiedStaminaDepleted;
 
     public void SetUp(RaceParticipant participant, RaceTuningConfig raceTuning, int totalParticipantCount)
     {
@@ -127,9 +128,26 @@ public class AnimalRacerView : MonoBehaviour
             Debug.Log($"{participant.animalData.animalName}がミラクル！");
         }
         wasMiracle = participant.isMiracle;
+
+        // スタミナ切れ：終盤かつスパート中でないときにスタミナが0なら一度だけ通知する。
+        // （中盤ではスタミナ0でも減速しないため、画面と実況がずれないよう終盤に限定。
+        //   スパート中に0になった場合は、スパート終了時に通知される）
+        if (!notifiedStaminaDepleted
+            && participant.progress >= participant.latePhaseStart
+            && participant.currentStamina <= 0f
+            && !participant.isSpurting)
+        {
+            notifiedStaminaDepleted = true;
+
+            if (IsOnScreen())
+            {
+                RaceEventBus.RaiseStaminaDepleted(participant);
+            }
+            Debug.Log($"{participant.animalData.animalName}がスタミナ切れ！");
+        }
     }
 
-    bool IsOnScreen()
+    public bool IsOnScreen()
     {
         return spriteRenderer.isVisible;
     }
