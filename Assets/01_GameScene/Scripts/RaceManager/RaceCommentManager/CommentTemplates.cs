@@ -6,7 +6,7 @@ using UnityEngine.InputSystem.Controls;
 /// 実況分のテンプレート集。
 /// 同じ状況でもパターンをいくつか用意することで、マンネリ化を防ぐ。
 /// </summary>
-public class CommentTempletes
+public class CommentTemplates
 {
     private static readonly string[] RaceStartTempletes =
     {
