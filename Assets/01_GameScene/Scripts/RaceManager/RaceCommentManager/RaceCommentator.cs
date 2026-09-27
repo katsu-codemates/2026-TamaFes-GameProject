@@ -410,7 +410,7 @@ public class RaceCommentator : MonoBehaviour
         if (target == null) return;
 
         Mention(target);
-        EnqueueForceComment(CommentTemplates.ChaserShot(target), emphasize: false, raceCamera.ChaserShotDuration);
+        EnqueueStatusComment(CommentTemplates.ChaserShot(target));
     }
 
     // 二秒ごとの状況に合わせたコメント表示処理

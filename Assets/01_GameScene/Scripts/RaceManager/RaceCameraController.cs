@@ -377,7 +377,8 @@ public class RaceCameraController : MonoBehaviour
  
         focusedParticipant = target;
         focusVCam.Priority = focusPriority;
- 
+        
+        // フォーカス中に別の対象へフォーカスさせられるとき
         if (focusRoutine != null)
         {
             StopCoroutine(focusRoutine);
@@ -411,6 +412,7 @@ public class RaceCameraController : MonoBehaviour
         {
             StopCoroutine(focusRoutine);
             focusRoutine = null;
+            raceManager.ResetTransparency();
             focusedParticipant = null;
             if (focusVCam != null) focusVCam.Priority = 0;
         }
