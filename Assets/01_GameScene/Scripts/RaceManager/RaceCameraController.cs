@@ -179,7 +179,7 @@ public class RaceCameraController : MonoBehaviour
         FocusOnParticipant(participant);
 
         // スロー演出
-        SlowMortionOnce(slowMotionScale, slowMotionDuration);
+        SlowMotionOnce(slowMotionScale, slowMotionDuration);
     }
 
     private void LateUpdate()
@@ -453,7 +453,7 @@ public class RaceCameraController : MonoBehaviour
     /// 一瞬だけスローにする演出。
     /// durationはリアルタイム秒（ゲーム内時間のスケールに関係なく一定の現実時間）で指定
     /// </summary>
-    public void SlowMortionOnce(float scale, float duration)
+    public void SlowMotionOnce(float scale, float duration)
     {
         if (slowMotionRoutine != null)
         {

@@ -33,9 +33,9 @@ public class CommentTemplates
  
     private static readonly string[] CloseRaceTemplates =
     {
-        "{0}と{1}、まさかの大接戦!",
-        "{0}と{1}が並んだ!目が離せない展開!",
-        "僅差の争い!{0}か{1}か!",
+        "{0}の後を{1}が狙っている!",
+        "{0}が{1}を追いかける展開となりました!",
+        "{0}の後ろには{1}がいる!",
     };
  
     private static readonly string[] SpurtTemplates =
