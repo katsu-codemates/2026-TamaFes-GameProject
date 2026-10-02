@@ -5561,6 +5561,12 @@ MonoBehaviour:
   distanceBehind: 50
   height: 5
   smoothTime: 0.3
+  groupFramingDistance: 25
+  groupReenterDistance: 18
+  leaderShotDuration: 4
+  chaserShotDuration: 3
+  chaserGroupRange: 25
+  maxGroupSize: 3
   basePriority: 10
   focusPriority: 20
   goalPriority: 30
@@ -6125,17 +6131,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RaceCommentator
   commentText: {fileID: 809552995}
   textCanvasGroup: {fileID: 809552992}
-  minDisplayDuration: 2
-  maxDisplayDuration: 3
+  minDisplayDuration: 1.5
+  maxDisplayDuration: 2.5
+  minForceDisplayDuration: 1
   fadeDuration: 0.2
-  closeRaceThreshold: 0.003
-  staleThreshold: 3
+  closeRaceThreshold: 0.0005
+  staleThreshold: 1.5
+  spotlightChance: 0.5
   raceCamera: {fileID: 1465333979}
-  nomalColor: {r: 1, g: 1, b: 1, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
   emphasisColor: {r: 1, g: 0.85, b: 0.2, a: 1}
   emphasisScaleAmount: 0.35
   emphasisPunchDuration: 0.4
   fallbackEmphasisDuration: 2.5
+  accidentCooldown: 10
+  spurtCooldown: 6
+  staminaCooldown: 8
 --- !u!114 &1725942747
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -19,6 +19,11 @@ using Unity.VisualScripting;
 /// ★強制表示(isForce): ミラクル・1着ゴール・カメラの切り替わりなど、画面と同時に出したい
 /// コメントは表示間隔を無視して割り込み、すぐに表示する。
 /// ★全員に出番を: 走者ごとに名前を呼んだ回数を数え、あまり呼ばれていない走者を優先して取り上げる。
+/// ★同じ種類が続きすぎないように:
+///   - アクシデント/スパート/スタミナ切れは、種類ごとのクールダウン中に起きた分は実況しない
+///     (待機中の同じ種類のコメントは最新の1件だけ残す)
+///   - 直前に表示したコメントと同じ種類が次に来たら、別の種類のコメントを先に出す。
+///     別の種類がなければ、クールダウン対象の種類は読み捨てて状況コメントに切り替える
 /// </summary>
 public class RaceCommentator : MonoBehaviour
 {
@@ -56,6 +61,11 @@ public class RaceCommentator : MonoBehaviour
     [SerializeField] private float emphasisPunchDuration = 0.4f;
     [SerializeField] private float fallbackEmphasisDuration = 2.5f; // raceCamera未設定時のフォールバック
 
+    [Header("同じ種類のイベントを再び実況するまでの間隔（秒）")]
+    [SerializeField] private float accidentCooldown = 10f;
+    [SerializeField] private float spurtCooldown = 6f;
+    [SerializeField] private float staminaCooldown = 8f;
+
 
     /// <summary>
     /// コメントの種類。キューの整理（破棄・まとめ）に使う。
@@ -63,9 +73,13 @@ public class RaceCommentator : MonoBehaviour
     private enum CommentKind
     {
         Status,   // 自動生成の状況コメント
-        Event,    // スパート・アクシデントなどのイベント
+        Spurt,    // スパート
+        Accident, // アクシデント
+        Stamina,  // スタミナ切れ
+        Miracle,  // ミラクル
+        Camera,   // カメラの切り替わりに合わせたコメント
         Overtake, // 追い抜き（キューには最新の1件だけ残す）
-        Finish,   // 2着以降のゴール（読み捨てない）
+        Finish,   // ゴール（2着以降は読み捨てない）
     }
 
     /// <summary>
@@ -87,6 +101,8 @@ public class RaceCommentator : MonoBehaviour
     private readonly Dictionary<RaceParticipant, int> mentionCount = new Dictionary<RaceParticipant, int>();
     private RaceParticipant lastLeader;
     private bool forceRequested; // 強制表示コメントが積まれたら立てる
+    private readonly Dictionary<CommentKind, float> lastShownTime = new Dictionary<CommentKind, float>();
+    private CommentKind? lastShownKind; // 直前に表示したコメントの種類
 
     public void SetParticipants(List<RaceParticipant> list)
     {
@@ -95,6 +111,8 @@ public class RaceCommentator : MonoBehaviour
         pendingComments.Clear();
         mentionCount.Clear();
         forceRequested = false;
+        lastShownTime.Clear();
+        lastShownKind = null;
         EnqueueStatusComment(CommentTemplates.RaceStart());
     }
 
@@ -154,9 +172,13 @@ public class RaceCommentator : MonoBehaviour
                 continue;
             }
 
-            PendingComment next = pendingComments[0];
-            pendingComments.RemoveAt(0);
+            if (!TryTakeNextComment(out PendingComment next))
+            {
+                continue; // 読み捨てたので、改めて次のコメントを選び直す
+            }
             forceRequested = false;
+            lastShownKind = next.kind;
+            lastShownTime[next.kind] = Time.time;
 
             Debug.Log($"[実況 {Time.time:F2}] {next.text}");
             yield return ShowText(next.text, next.isFocusEvent, instant: next.isForce);
@@ -210,6 +232,64 @@ public class RaceCommentator : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 次に表示するコメントをキューから取り出す。
+    /// 先頭が直前と同じ種類なら、別の種類のコメントを先に出す。
+    /// 別の種類がなく、先頭がクールダウン対象の種類なら読み捨ててfalseを返す。
+    /// </summary>
+    private bool TryTakeNextComment(out PendingComment next)
+    {
+        int index = 0;
+        PendingComment front = pendingComments[0];
+
+        // 強制表示は画面と合わせるため、順番を入れ替えない
+        if (!front.isForce && IsRepeatOfLastKind(front.kind))
+        {
+            int other = pendingComments.FindIndex(c => !IsRepeatOfLastKind(c.kind));
+            if (other >= 0)
+            {
+                index = other;
+            }
+            else if (GetCooldown(front.kind) > 0f)
+            {
+                pendingComments.RemoveAt(0);
+                Debug.Log($"Skipped(同じ種類が連続):{front.text}");
+                next = default;
+                return false;
+            }
+        }
+
+        next = pendingComments[index];
+        pendingComments.RemoveAt(index);
+        return true;
+    }
+
+    // 状況コメントとゴールは続いても不自然ではないので対象外
+    private bool IsRepeatOfLastKind(CommentKind kind)
+        => kind == lastShownKind && kind != CommentKind.Status && kind != CommentKind.Finish;
+
+    // 0なら制限なし
+    private float GetCooldown(CommentKind kind)
+    {
+        switch (kind)
+        {
+            case CommentKind.Accident: return accidentCooldown;
+            case CommentKind.Spurt: return spurtCooldown;
+            case CommentKind.Stamina: return staminaCooldown;
+            default: return 0f;
+        }
+    }
+
+    /// <summary>
+    /// その種類のイベントを今実況してよいか。前回表示からクールダウンが明けていなければfalse。
+    /// </summary>
+    private bool CanAcceptEvent(CommentKind kind)
+    {
+        float cooldown = GetCooldown(kind);
+        if (cooldown <= 0f) return true;
+        return !lastShownTime.TryGetValue(kind, out float shownAt) || Time.time - shownAt >= cooldown;
+    }
+
     private IEnumerator ShowText(string text, bool emphasize, bool instant = false)
     {
         if (textCanvasGroup != null)
@@ -255,12 +335,12 @@ public class RaceCommentator : MonoBehaviour
         }
     }
 
-    private void EnqueueEventDrivenComment(string text, bool isFocusEvent = false, CommentKind kind = CommentKind.Event)
+    private void EnqueueEventDrivenComment(string text, CommentKind kind, bool isFocusEvent = false)
     {
-        // 追い抜きは状況がすぐ変わるので、古い追い抜きコメントは捨てて最新の1件だけ残す
-        if (kind == CommentKind.Overtake)
+        // 追い抜き・クールダウン対象のイベントは、古いコメントを捨てて最新の1件だけ残す
+        if (kind == CommentKind.Overtake || GetCooldown(kind) > 0f)
         {
-            pendingComments.RemoveAll(c => c.kind == CommentKind.Overtake && !c.isForce);
+            pendingComments.RemoveAll(c => c.kind == kind && !c.isForce);
         }
 
         pendingComments.Add(new PendingComment
@@ -303,7 +383,7 @@ public class RaceCommentator : MonoBehaviour
     /// 表示間隔を無視して、すぐに表示するコメントを積む。
     /// 画面と噛み合わなくなる待機中のコメント（ゴール以外）は捨てる。
     /// </summary>
-    private void EnqueueForceComment(string text, bool emphasize, float duration = 0f)
+    private void EnqueueForceComment(string text, CommentKind kind, bool emphasize, float duration = 0f)
     {
         pendingComments.RemoveAll(c => !c.isForce && c.kind != CommentKind.Finish);
 
@@ -319,7 +399,7 @@ public class RaceCommentator : MonoBehaviour
             isFocusEvent = emphasize,
             isForce = true,
             displayDuration = duration,
-            kind = CommentKind.Event
+            kind = kind
         });
         forceRequested = true;
     }
@@ -327,14 +407,16 @@ public class RaceCommentator : MonoBehaviour
     // イベント時のコメント表示処理
     private void HandleSpurt(RaceParticipant p)
     {
+        if (!CanAcceptEvent(CommentKind.Spurt)) return;
         Mention(p);
-        EnqueueEventDrivenComment(CommentTemplates.Spurt(p));
+        EnqueueEventDrivenComment(CommentTemplates.Spurt(p), CommentKind.Spurt);
     }
 
     private void HandleAccident(RaceParticipant p)
     {
+        if (!CanAcceptEvent(CommentKind.Accident)) return;
         Mention(p);
-        EnqueueEventDrivenComment(CommentTemplates.Accident(p));
+        EnqueueEventDrivenComment(CommentTemplates.Accident(p), CommentKind.Accident);
     }
 
     private void HandleMiracle(RaceParticipant p)
@@ -344,31 +426,32 @@ public class RaceCommentator : MonoBehaviour
 
         if (raceCamera == null)
         {
-            EnqueueForceComment(text, emphasize: true, fallbackEmphasisDuration);
+            EnqueueForceComment(text, CommentKind.Miracle, emphasize: true, fallbackEmphasisDuration);
         }
         else if (!raceCamera.IsGoalCameraActive)
         {
             // カメラが寄っている時間と同じだけ強調表示する
-            EnqueueForceComment(text, emphasize: true, raceCamera.DefaultFocusDuration);
+            EnqueueForceComment(text, CommentKind.Miracle, emphasize: true, raceCamera.DefaultFocusDuration);
         }
         else
         {
             // ゴールカメラ中はカメラが寄らないので、通常のイベントとして扱う
-            EnqueueEventDrivenComment(text);
+            EnqueueEventDrivenComment(text, CommentKind.Miracle);
         }
     }
 
     private void HandleStaminaDepleted(RaceParticipant p)
     {
+        if (!CanAcceptEvent(CommentKind.Stamina)) return;
         Mention(p);
-        EnqueueEventDrivenComment(CommentTemplates.StaminaDepleted(p));
+        EnqueueEventDrivenComment(CommentTemplates.StaminaDepleted(p), CommentKind.Stamina);
     }
 
     private void HandleOvertake(RaceParticipant passer, RaceParticipant passed, int newRank)
     {
         Mention(passer, passed);
         if (newRank == 1) lastLeader = passer; // 自動生成の「先頭に立った」と重複させない
-        EnqueueEventDrivenComment(CommentTemplates.Overtake(passer, passed, newRank), kind: CommentKind.Overtake);
+        EnqueueEventDrivenComment(CommentTemplates.Overtake(passer, passed, newRank), CommentKind.Overtake);
     }
 
     private void HandleFinished(RaceParticipant p)
@@ -377,7 +460,7 @@ public class RaceCommentator : MonoBehaviour
 
         if (p.finishRank == 1)
         {
-            EnqueueForceComment(CommentTemplates.Winner(p), emphasize: true, maxDisplayDuration);
+            EnqueueForceComment(CommentTemplates.Winner(p), CommentKind.Finish, emphasize: true, maxDisplayDuration);
         }
         else if (participants != null && p.finishRank == participants.Count)
         {
@@ -394,7 +477,7 @@ public class RaceCommentator : MonoBehaviour
     {
         if (leader == null) return;
         Mention(leader);
-        EnqueueForceComment(CommentTemplates.FinalStretch(leader), emphasize: false);
+        EnqueueForceComment(CommentTemplates.FinalStretch(leader), CommentKind.Camera, emphasize: false);
     }
 
     // カメラ連動：後続集団のショットに切り替わった瞬間
