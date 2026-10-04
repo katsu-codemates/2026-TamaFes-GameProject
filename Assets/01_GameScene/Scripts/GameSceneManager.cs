@@ -4,8 +4,6 @@ using UnityEngine.SceneManagement;
 
 public class GameSceneManager : MonoBehaviour
 {
-    public AudioManager audioManager;
-
     public void OnBackToBaseSceneButtonClicked()
     {
         SceneManager.LoadScene("BaseScene");

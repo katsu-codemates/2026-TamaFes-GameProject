@@ -7,9 +7,11 @@ using Unity.VisualScripting;
 /// レースの進行を管理するクラス。
 /// 出走メンバーの決定⇒レーン割り当て⇒生成⇒進行監視⇒結果通知
 /// </summary>
-public class RaceManager : GameSceneManager
+public class RaceManager : MonoBehaviour
 {
     public static RaceManager Instance { get; private set; }
+
+    [SerializeField] private AudioManager audioManager;
 
     [Header("動物一体分のプレハブ")]
     [SerializeField] private GameObject animalPrefab;
