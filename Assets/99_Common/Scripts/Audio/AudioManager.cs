@@ -44,6 +44,11 @@ public class AudioManager : MonoBehaviour
     private AudioSource[] seSources;
     private int nextSeIndex;
 
+    // 歓声などの環境音を鳴らし続けるループ専用のSE
+    private AudioSource loopSeSource;
+    private SeId currentLoopSe = SeId.None;
+    private float currentLoopSeBaseVolume = 1f;
+
     private bool hasWarnedNoMixer;
 
     public BgmId CurrentBgm => currentBgm;
@@ -68,6 +73,8 @@ public class AudioManager : MonoBehaviour
         {
             seSources[i] = CreateSource($"SE_{i}", seGroup, false);
         }
+
+        loopSeSource = CreateSource("SE_Loop", seGroup, true);
     }
 
     private void Start()
@@ -85,6 +92,7 @@ public class AudioManager : MonoBehaviour
 
         // シーン遷移時に破棄済みのAudioSourceをTweenが触らないよう止めておく
         foreach (var source in bgmSources) source.DOKill();
+        loopSeSource.DOKill();
     }
 
     private AudioSource CreateSource(string name, AudioMixerGroup group, bool loop)
@@ -234,7 +242,83 @@ public class AudioManager : MonoBehaviour
         {
             source.Stop();
         }
+        StopLoopSe(0f);
         Debug.Log($"[AudioManager] すべてのSEを停止します。");
+    }
+
+    /// <summary>
+    /// ループSEを再生する。同じSEが既に流れている場合は頭出しせず音量だけ変える。
+    /// volumeScaleはカタログに設定した音量への倍率。0を指定すると無音のまま再生を始める。
+    /// </summary>
+    public void PlayLoopSe(SeId id, float volumeScale = 1f, float fadeDuration = 0f)
+    {
+        if (id == SeId.None)
+        {
+            StopLoopSe(fadeDuration);
+            return;
+        }
+        if (id == currentLoopSe && loopSeSource.isPlaying)
+        {
+            SetLoopSeVolume(volumeScale, fadeDuration);
+            return;
+        }
+        if (catalog == null)
+        {
+            Debug.LogWarning("[AudioManager] SoundCatalogが設定されていません。");
+            return;
+        }
+        if (!catalog.TryGetSe(id, out var entry)) return;
+
+        loopSeSource.DOKill();
+        loopSeSource.clip = entry.clip;
+        loopSeSource.pitch = entry.GetRandomPitch();
+        loopSeSource.volume = 0f;
+        loopSeSource.Play();
+
+        currentLoopSe = id;
+        currentLoopSeBaseVolume = entry.volume;
+        SetLoopSeVolume(volumeScale, fadeDuration);
+
+        Debug.Log($"[AudioManager] ループSE「{id}」を再生します。");
+    }
+
+    /// <summary>
+    /// 再生中のループSEの音量を、再生位置を保ったまま変える。volumeScaleはカタログに設定した音量への倍率。
+    /// </summary>
+    public void SetLoopSeVolume(float volumeScale, float fadeDuration = 0f)
+    {
+        if (currentLoopSe == SeId.None) return;
+
+        float target = Mathf.Clamp01(currentLoopSeBaseVolume * volumeScale);
+        loopSeSource.DOKill();
+        if (fadeDuration > 0f)
+        {
+            // スローモーション演出(timeScale変更)中もフェード時間が変わらないよう、実時間で進める
+            loopSeSource.DOFade(target, fadeDuration).SetUpdate(true);
+        }
+        else
+        {
+            loopSeSource.volume = target;
+        }
+    }
+
+    /// <summary>
+    /// 再生中のループSEを止める。
+    /// </summary>
+    public void StopLoopSe(float fadeDuration = 0.5f)
+    {
+        currentLoopSe = SeId.None;
+        loopSeSource.DOKill();
+        if (!loopSeSource.isPlaying) return;
+
+        if (fadeDuration > 0f)
+        {
+            loopSeSource.DOFade(0f, fadeDuration).SetUpdate(true).OnComplete(loopSeSource.Stop);
+        }
+        else
+        {
+            loopSeSource.Stop();
+        }
     }
 
     // 空いているSourceを返す。全部使用中なら順番に古いものから上書きする

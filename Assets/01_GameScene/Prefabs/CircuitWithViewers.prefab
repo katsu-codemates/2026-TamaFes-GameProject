@@ -45,6 +45,7 @@ GameObject:
   - component: {fileID: 9221205837065252581}
   - component: {fileID: 8678581466008138554}
   - component: {fileID: 441123015119079019}
+  - component: {fileID: 2930418475611802376}
   m_Layer: 0
   m_Name: Viewer
   m_TagString: Untagged
@@ -146,6 +147,18 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2930418475611802376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8335266338467847356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c516602a244642ba82c24feee240c3da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudienceViewer
 --- !u!1001 &6702705219301327972
 PrefabInstance:
   m_ObjectHideFlags: 0
