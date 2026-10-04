@@ -23,8 +23,24 @@ public class SoundCatalog : ScriptableObject
         public SeId id;
         public AudioClip clip;
         [Range(0f, 1f)] public float volume = 1f;
-        [Tooltip("再生ごとにこの範囲からランダムにピッチを選ぶ(x=最小, y=最大)")]
+        [Tooltip("再生ごとにこの範囲からランダムにピッチを選ぶ(x=最小, y=最大)。(0,0)の場合は等倍(1)で再生")]
         public Vector2 pitchRange = new Vector2(1f, 1f);
+
+        // ピッチが0以下だと無音・逆再生になるため下限を設ける
+        private const float MinPitch = 0.1f;
+
+        /// <summary>
+        /// pitchRangeからランダムなピッチを返す。
+        /// Inspectorのリストで要素を追加すると初期値(1,1)が入らず(0,0)になるため、その場合は1を返す。
+        /// </summary>
+        public float GetRandomPitch()
+        {
+            if (pitchRange.x <= 0f && pitchRange.y <= 0f) return 1f;
+
+            float min = Mathf.Min(pitchRange.x, pitchRange.y);
+            float max = Mathf.Max(pitchRange.x, pitchRange.y);
+            return Mathf.Max(MinPitch, UnityEngine.Random.Range(min, max));
+        }
     }
 
     [SerializeField] private List<BgmEntry> bgmList = new List<BgmEntry>();

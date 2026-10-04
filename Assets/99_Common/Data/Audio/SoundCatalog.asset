@@ -20,12 +20,12 @@ MonoBehaviour:
   - id: 1
     clip: {fileID: 8300000, guid: 742f666120af2b34dac559936c88423e, type: 3}
     volume: 1
-    pitchRange: {x: 0, y: 0}
+    pitchRange: {x: 1, y: 1}
   - id: 2
     clip: {fileID: 8300000, guid: a7af176990a4dfc45a154f77ebd6debb, type: 3}
     volume: 1
-    pitchRange: {x: 0, y: 0}
+    pitchRange: {x: 1, y: 1}
   - id: 3
     clip: {fileID: 8300000, guid: 654f6bbe9e0cd82429eb2dd8ffb04b7e, type: 3}
     volume: 1
-    pitchRange: {x: 0, y: 0}
+    pitchRange: {x: 1, y: 1}

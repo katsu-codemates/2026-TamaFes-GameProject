@@ -219,7 +219,7 @@ public class AudioManager : MonoBehaviour
         var source = GetFreeSeSource();
         source.clip = entry.clip;
         source.volume = Mathf.Clamp01(entry.volume * volumeScale);
-        source.pitch = Random.Range(entry.pitchRange.x, entry.pitchRange.y);
+        source.pitch = entry.GetRandomPitch();
         source.Play();
 
         Debug.Log($"[AudioManager] SE「{id}」を再生します。");
