@@ -6177,25 +6177,6 @@ MonoBehaviour:
   raceSoundDirector: {fileID: 1725942749}
   raceResultScreen: {fileID: 1991819438}
   racerCount: 20
---- !u!114 &1725942749
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1725942742}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1304bf9e30142dd8a65a3804fd7a179, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RaceSoundDirector
-  targetCamera: {fileID: 0}
-  eventSeCooldown: 0.3
-  cheerVolume: 1
-  cheerFadeIn: 0.8
-  cheerFadeOut: 1.2
-  cheerReleaseDelay: 0.5
-  checkInterval: 0.1
 --- !u!114 &1725942746
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6257,6 +6238,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7374498213ef18b459064cb0151d529a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameSceneManager
+--- !u!114 &1725942749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725942742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1304bf9e30142dd8a65a3804fd7a179, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RaceSoundDirector
+  targetCamera: {fileID: 1465333976}
+  eventSeCooldown: 0.3
+  cheerVolume: 1
+  cheerFadeIn: 0.8
+  cheerFadeOut: 1.2
+  cheerReleaseDelay: 0.5
+  checkInterval: 0.1
 --- !u!1 &1739648929
 GameObject:
   m_ObjectHideFlags: 0
