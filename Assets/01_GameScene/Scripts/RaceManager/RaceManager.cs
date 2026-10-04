@@ -7,7 +7,7 @@ using Unity.VisualScripting;
 /// レースの進行を管理するクラス。
 /// 出走メンバーの決定⇒レーン割り当て⇒生成⇒進行監視⇒結果通知
 /// </summary>
-public class RaceManager : MonoBehaviour
+public class RaceManager : GameSceneManager
 {
     public static RaceManager Instance { get; private set; }
 
@@ -55,8 +55,6 @@ public class RaceManager : MonoBehaviour
     /// </summary>
     public List<AnimalData> SelectParticipants(List<AnimalData> allAnimals)
     {
-        Debug.Log("レーススタート");
-
         // 出走数に応じて動物を抽選
         List<AnimalData> selectedAnimals = allAnimals
             .OrderBy(a => Random.value)
@@ -90,6 +88,10 @@ public class RaceManager : MonoBehaviour
             racerViews.Add(racerView);
             viewByParticipant[participant] = racerView;
         }
+
+        Debug.Log("レーススタート");
+        audioManager.PlaySe(SeId.Start);
+        audioManager.PlayBgm(BgmId.Race);
     }
 
     private void Update()
@@ -156,6 +158,10 @@ public class RaceManager : MonoBehaviour
 
         RaceEventBus.RaiseFinished(participant);
         Debug.Log($"{participant.animalData.animalName} がゴール！順位{participant.finishRank}");
+        if (participant.finishRank == 1)
+        {
+            audioManager.PlaySe(SeId.Finish);
+        }
 
         if (finishedOrder.Count == participants.Count)
         {

@@ -142,6 +142,7 @@ public class AudioManager : MonoBehaviour
         }
 
         currentBgm = id;
+        Debug.Log($"[AudioManager] BGM「{id}」を再生します。");
     }
 
     /// <summary>
@@ -220,6 +221,8 @@ public class AudioManager : MonoBehaviour
         source.volume = Mathf.Clamp01(entry.volume * volumeScale);
         source.pitch = Random.Range(entry.pitchRange.x, entry.pitchRange.y);
         source.Play();
+
+        Debug.Log($"[AudioManager] SE「{id}」を再生します。");
     }
 
     /// <summary>
@@ -231,6 +234,7 @@ public class AudioManager : MonoBehaviour
         {
             source.Stop();
         }
+        Debug.Log($"[AudioManager] すべてのSEを停止します。");
     }
 
     // 空いているSourceを返す。全部使用中なら順番に古いものから上書きする

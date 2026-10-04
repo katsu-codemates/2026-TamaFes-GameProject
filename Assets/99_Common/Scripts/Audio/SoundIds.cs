@@ -17,4 +17,6 @@ public enum SeId
 {
     None = 0,
     Cheer = 1,
+    Start = 2,
+    Finish = 3,
 }
