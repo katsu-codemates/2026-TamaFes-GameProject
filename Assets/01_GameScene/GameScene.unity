@@ -2613,6 +2613,61 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7801752766500784734, guid: 1edc8edd23df2104f8fc0c0f70ac52fd, type: 3}
   m_PrefabInstance: {fileID: 604864103}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &606930423
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 606930425}
+  - component: {fileID: 606930424}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &606930424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 606930423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c33be1d8198d45b4a44f8736dad3beb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  catalog: {fileID: 11400000, guid: 2a0a1f179e8674547a6a754a7071e7df, type: 2}
+  mixer: {fileID: 24100000, guid: 7133e5c4e3fabee428910f591781db9e, type: 2}
+  bgmGroup: {fileID: -1723036882146476320, guid: 7133e5c4e3fabee428910f591781db9e, type: 2}
+  seGroup: {fileID: 7827816335459556277, guid: 7133e5c4e3fabee428910f591781db9e, type: 2}
+  masterVolumeParam: MasterVolume
+  bgmVolumeParam: BgmVolume
+  seVolumeParam: SeVolume
+  masterVolume: 1
+  bgmVolume: 1
+  seVolume: 1
+  seSourceCount: 8
+--- !u!4 &606930425
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 606930423}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1725942743}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &608740637
 GameObject:
   m_ObjectHideFlags: 0
@@ -2747,7 +2802,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1725942745}
+      - m_Target: {fileID: 1725942748}
         m_TargetAssemblyTypeName: GameSceneManager, Assembly-CSharp
         m_MethodName: OnBackToBaseSceneButtonClicked
         m_Mode: 1
@@ -6067,7 +6122,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1725942743}
-  - component: {fileID: 1725942745}
+  - component: {fileID: 1725942748}
   - component: {fileID: 1725942744}
   - component: {fileID: 1725942746}
   - component: {fileID: 1725942747}
@@ -6096,6 +6151,7 @@ Transform:
   - {fileID: 1054756526}
   - {fileID: 2114060301}
   - {fileID: 1217739376}
+  - {fileID: 606930425}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1725942744
@@ -6110,6 +6166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18e0fd537850f72408da1d7c37b7438f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RaceManager
+  audioManager: {fileID: 606930424}
   animalPrefab: {fileID: 7049287844960955359, guid: 6e951fb7d6fbbd446bdd5286cf481520, type: 3}
   animalsParent: {fileID: 1054756526}
   raceCamera: {fileID: 1465333979}
@@ -6118,20 +6175,6 @@ MonoBehaviour:
   raceCommentator: {fileID: 1725942746}
   raceResultScreen: {fileID: 1991819438}
   racerCount: 20
---- !u!114 &1725942745
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1725942742}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7374498213ef18b459064cb0151d529a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameSceneManager
-  raceManager: {fileID: 1725942744}
-  animalRoster: {fileID: 11400000, guid: e9f80f43031c17e49b6cad951fd7b158, type: 2}
 --- !u!114 &1725942746
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6181,6 +6224,18 @@ MonoBehaviour:
   countdownText: {fileID: 63235356}
   countdownSeconds: 3
   screenRoot: {fileID: 278431340}
+--- !u!114 &1725942748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725942742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7374498213ef18b459064cb0151d529a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameSceneManager
 --- !u!1 &1739648929
 GameObject:
   m_ObjectHideFlags: 0
