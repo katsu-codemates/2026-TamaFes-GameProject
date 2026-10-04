@@ -19,4 +19,6 @@ public enum SeId
     Cheer = 1,
     Start = 2,
     Finish = 3,
+    Accident = 4,
+    Miracle = 5,
 }

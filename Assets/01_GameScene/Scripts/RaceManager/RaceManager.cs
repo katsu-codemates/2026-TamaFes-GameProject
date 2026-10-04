@@ -27,6 +27,9 @@ public class RaceManager : MonoBehaviour
     [Header("実況機能")]
     [SerializeField] private RaceCommentator raceCommentator;
 
+    [Header("画面に合わせたSE演出")]
+    [SerializeField] private RaceSoundDirector raceSoundDirector;
+
     [Header("結果画面")]
     [SerializeField] private RaceResultScreen raceResultScreen;
 
@@ -94,6 +97,7 @@ public class RaceManager : MonoBehaviour
         Debug.Log("レーススタート");
         audioManager.PlaySe(SeId.Start);
         audioManager.PlayBgm(BgmId.Race);
+        if (raceSoundDirector != null) raceSoundDirector.BeginCheer();
     }
 
     private void Update()
@@ -175,6 +179,7 @@ public class RaceManager : MonoBehaviour
     {
         // 結果画面へ
         Debug.Log("レース終了");
+        if (raceSoundDirector != null) raceSoundDirector.StopCheer();
         if (raceResultScreen != null)
         {
             raceResultScreen.Show(finishedOrder);
