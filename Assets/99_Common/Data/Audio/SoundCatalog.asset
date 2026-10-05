@@ -18,7 +18,7 @@ MonoBehaviour:
     volume: 1
   seList:
   - id: 1
-    clip: {fileID: 8300000, guid: 742f666120af2b34dac559936c88423e, type: 3}
+    clip: {fileID: 8300000, guid: 495755d518b4c294188d6c91461fc2e4, type: 3}
     volume: 0.8
     pitchRange: {x: 1, y: 1}
   - id: 2
@@ -31,7 +31,7 @@ MonoBehaviour:
     pitchRange: {x: 1, y: 1}
   - id: 4
     clip: {fileID: 8300000, guid: 2f06b9be6be527f4999d166d8e1f26fc, type: 3}
-    volume: 1
+    volume: 0.4
     pitchRange: {x: 1, y: 1}
   - id: 5
     clip: {fileID: 8300000, guid: 654f6bbe9e0cd82429eb2dd8ffb04b7e, type: 3}
