@@ -60,11 +60,15 @@ public class RaceManager : MonoBehaviour
     /// </summary>
     public List<AnimalData> SelectParticipants(List<AnimalData> allAnimals)
     {
-        // 出走数に応じて動物を抽選
+        // 出走回数が少ない動物を優先して抽選する（同じ回数の中ではランダム）
         List<AnimalData> selectedAnimals = allAnimals
-            .OrderBy(a => Random.value)
+            .OrderBy(a => RaceHistoryStore.GetRaceCount(a.AnimalId))
+            .ThenBy(a => Random.value)
             .Take(racerCount)
             .ToList();
+
+        // 出走回数順のままだとレーンが偏るので、レーン割り当て前にシャッフルする
+        selectedAnimals = selectedAnimals.OrderBy(a => Random.value).ToList();
 
         participants = selectedAnimals
             .Select((animalData, index) => new RaceParticipant { animalData = animalData, laneIndex = index })
@@ -179,6 +183,7 @@ public class RaceManager : MonoBehaviour
     {
         // 結果画面へ
         Debug.Log("レース終了");
+        RaceHistoryStore.RecordRace(finishedOrder);
         if (raceSoundDirector != null) raceSoundDirector.StopCheer();
         if (raceResultScreen != null)
         {

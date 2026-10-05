@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class AnimalIdleAnimation : MonoBehaviour
 {
-    private enum AnimalAction { Wander, Eat, Sleep, Fight }
+    private enum AnimalAction { Wander, Eat, Sleep, Fight, Celebrate }
 
     [Header("特殊行動の抽選確率（%）。残りはWander（通常移動）になる")]
     [SerializeField] private float eatWeight = 10f;
     [SerializeField] private float sleepWeight = 10f;
     [SerializeField] private float fightWeight = 10f;
+    [Tooltip("直前のレースで1着だった動物だけが抽選する")]
+    [SerializeField] private float celebrateWeight = 30f;
 
     [Header("演出（食べる）")]
     [SerializeField] private float eatingDuration = 0.3f;
@@ -31,6 +33,7 @@ public class AnimalIdleAnimation : MonoBehaviour
     Billboard billboard;
     Coroutine randomMoveCoroutine;
     AnimalActionScheduler animalActionScheduler;
+    AnimalDataHolder dataHolder;
 
     public bool IsBusy { get; set; }
 
@@ -38,6 +41,7 @@ public class AnimalIdleAnimation : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         billboard = GetComponent<Billboard>();
+        dataHolder = GetComponent<AnimalDataHolder>();
         animalActionScheduler.Register(this);
         IdleMotion();
         randomMoveCoroutine = StartCoroutine(RandomMove());
@@ -86,6 +90,9 @@ public class AnimalIdleAnimation : MonoBehaviour
                 case AnimalAction.Fight:
                     yield return DoFight();
                     break;
+                case AnimalAction.Celebrate:
+                    yield return DoCelebrate();
+                    break;
                 default:
                     yield return DoWander();
                     break;
@@ -98,6 +105,11 @@ public class AnimalIdleAnimation : MonoBehaviour
     private AnimalAction RollAction()
     {
         float roll = Random.Range(0f, 100f);
+        if (IsLastRaceWinner())
+        {
+            if (roll < celebrateWeight) return AnimalAction.Celebrate;
+            roll -= celebrateWeight;
+        }
         if (roll < eatWeight) return AnimalAction.Eat;
         roll -= eatWeight;
         if (roll < sleepWeight) return AnimalAction.Sleep;
@@ -122,6 +134,18 @@ public class AnimalIdleAnimation : MonoBehaviour
 
             yield return jumpTween.WaitForCompletion();
         }
+    }
+
+    private bool IsLastRaceWinner()
+    {
+        return dataHolder != null && dataHolder.Data != null
+            && RaceHistoryStore.IsLastRaceWinner(dataHolder.Data.AnimalId);
+    }
+
+    IEnumerator DoCelebrate()
+    {
+        // TODO: 喜ぶモーションを実装する。それまでは通常移動で代替する
+        yield return DoWander();
     }
 
     IEnumerator DoEat()
