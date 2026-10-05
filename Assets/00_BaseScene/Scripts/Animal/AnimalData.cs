@@ -14,4 +14,10 @@ public class AnimalData
     public float wisdom;
     public float luck;
     public float stamina;
+
+    /// <summary>
+    /// レース履歴などで動物を識別するためのID。
+    /// 本番はcreatedAt、テスト画像（createdAtなし）はファイル名で代用する。
+    /// </summary>
+    public string AnimalId => !string.IsNullOrEmpty(createdAt) ? createdAt : animalName;
 }
