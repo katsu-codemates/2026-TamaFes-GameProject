@@ -50,6 +50,9 @@ public class RaceTuningConfig : ScriptableObject
     public float miracleBoostMin = 1.3f;
     public float miracleBoostMax = 1.6f;
 
+    [Header("ゴール後")]
+    public float postFinishSpeedRatio = 1f; // ゴール時の速度に対して、ゴール後に走り続ける速度の倍率
+
     [Header("実況：追い抜き判定")]
     public float overtakeMargin = 0.01f; // この進行度差以上前に出たら追い抜きとみなす（入れ替わりのばたつき防止）
     public float overtakeStartProgress = 0.1f; // 先頭がこの進行度に達するまでは追い抜きを実況しない（スタート直後の団子状態）

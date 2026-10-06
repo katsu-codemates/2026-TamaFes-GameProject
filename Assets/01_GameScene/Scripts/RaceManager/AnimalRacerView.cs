@@ -21,6 +21,7 @@ public class AnimalRacerView : MonoBehaviour
     private RaceTuningConfig raceTuning;
     private int totalParticipantCount;
     private bool nortifiedFinish;
+    private float postFinishSpeed; // ゴール後に走り続ける速度
 
     // 前フレームの状態を覚えておき、状態が変化したときだけ演出する
     private bool wasSpurting;
@@ -63,7 +64,14 @@ public class AnimalRacerView : MonoBehaviour
 
     private void Update()
     {
-        if (participant == null || participant.isFinished) return;
+        if (participant == null) return;
+
+        // ゴール後はシミュレーションを止め、見た目だけゴールテープの先へ走り続けさせる
+        if (participant.isFinished)
+        {
+            transform.position += RaceTrack.ForwardDirection * postFinishSpeed * Time.deltaTime;
+            return;
+        }
 
         RaceSimulator.Tick(participant, Time.deltaTime, raceTuning);
 
@@ -75,6 +83,7 @@ public class AnimalRacerView : MonoBehaviour
         {
             nortifiedFinish = true;
             spurtFrare.SetActive(false);
+            postFinishSpeed = participant.currentSpeed * raceTuning.postFinishSpeedRatio;
             RaceManager.Instance.NotifyFinished(participant);
         }
     }
