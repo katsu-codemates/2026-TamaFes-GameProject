@@ -61,6 +61,10 @@ public class RaceCommentator : MonoBehaviour
     [SerializeField] private float emphasisPunchDuration = 0.4f;
     [SerializeField] private float fallbackEmphasisDuration = 2.5f; // raceCamera未設定時のフォールバック
 
+    [Header("実況文の色分け(テンプレート部分は上の通常/強調の色)")]
+    [SerializeField] private Color entryNumberColor = new Color(0.4f, 0.85f, 1f);
+    [SerializeField] private Color racerNameColor = new Color(1f, 0.6f, 0.2f);
+
     [Header("同じ種類のイベントを再び実況するまでの間隔（秒）")]
     [SerializeField] private float accidentCooldown = 10f;
     [SerializeField] private float spurtCooldown = 6f;
@@ -106,6 +110,9 @@ public class RaceCommentator : MonoBehaviour
 
     public void SetParticipants(List<RaceParticipant> list)
     {
+        CommentTemplates.EntryNumberColor = entryNumberColor;
+        CommentTemplates.NameColor = racerNameColor;
+
         participants = list;
         lastLeader = null;
         pendingComments.Clear();

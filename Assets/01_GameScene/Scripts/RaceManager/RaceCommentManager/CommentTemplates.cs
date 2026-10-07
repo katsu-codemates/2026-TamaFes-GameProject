@@ -497,47 +497,64 @@ public class CommentTemplates
         "{1}に恵まれた{0}!",
     };
 
+    // 実況での出場番号・名前の色(RaceCommentatorのInspectorから設定される)
+    // テンプレート部分の色は、表示側(RaceCommentator)のテキスト色がそのまま使われる
+    public static Color EntryNumberColor = new Color(0.4f, 0.85f, 1f);
+    public static Color NameColor = new Color(1f, 0.6f, 0.2f);
+
+    /// <summary>
+    /// 実況文に埋め込む走者表記。「3番ポチ」の番号と名前をそれぞれの色で囲む(TextMeshProのリッチテキスト)。
+    /// 名前は外部サイトから入力されたものなので、タグとして解釈されないよう<noparse>で囲む。
+    /// </summary>
+    private static string Racer(RaceParticipant p)
+    {
+        string numberHex = ColorUtility.ToHtmlStringRGBA(EntryNumberColor);
+        string nameHex = ColorUtility.ToHtmlStringRGBA(NameColor);
+        return $"<color=#{numberHex}>{EntryNumberFormatter.Format(p)}</color>"
+             + $"<color=#{nameHex}><noparse>{p.animalData.animalName}</noparse></color>";
+    }
+
     public static string RaceStart() 
         => Pick(RaceStartTemplates);
     public static string NewLeader(RaceParticipant p) 
-        => Format(NewLeaderTemplates, p.animalData.animalName);
+        => Format(NewLeaderTemplates, Racer(p));
     public static string Leading(RaceParticipant p) 
-        => Format(LeadingTemplates, p.animalData.animalName);
+        => Format(LeadingTemplates, Racer(p));
     public static string CloseRace(RaceParticipant a, RaceParticipant b) 
-        => Format(CloseRaceTemplates, a.animalData.animalName, b.animalData.animalName);
+        => Format(CloseRaceTemplates, Racer(a), Racer(b));
     public static string Spurt(RaceParticipant p) 
-        => Format(SpurtTemplates, p.animalData.animalName);
+        => Format(SpurtTemplates, Racer(p));
     public static string Accident(RaceParticipant p) 
-        => Format(AccidentTemplates, p.animalData.animalName);
+        => Format(AccidentTemplates, Racer(p));
     public static string Miracle(RaceParticipant p) 
-        => Format(MiracleTemplates, p.animalData.animalName);
+        => Format(MiracleTemplates, Racer(p));
     public static string Winner(RaceParticipant p) 
-        => Format(WinnerTemplates, p.animalData.animalName);
+        => Format(WinnerTemplates, Racer(p));
 
     public static string Overtake(RaceParticipant passer, RaceParticipant passed, int newRank)
         => newRank == 1
-            ? Format(OvertakeForLeadTemplates, passer.animalData.animalName, passed.animalData.animalName)
-            : Format(OvertakeTemplates, passer.animalData.animalName, passed.animalData.animalName, newRank);
+            ? Format(OvertakeForLeadTemplates, Racer(passer), Racer(passed))
+            : Format(OvertakeTemplates, Racer(passer), Racer(passed), newRank);
     public static string StaminaDepleted(RaceParticipant p)
-        => Format(StaminaDepletedTemplates, p.animalData.animalName);
+        => Format(StaminaDepletedTemplates, Racer(p));
     public static string Finished(RaceParticipant p, int rank)
-        => Format(FinishedTemplates, p.animalData.animalName, rank);
+        => Format(FinishedTemplates, Racer(p), rank);
     public static string LastFinisher(RaceParticipant p)
-        => Format(LastFinisherTemplates, p.animalData.animalName);
+        => Format(LastFinisherTemplates, Racer(p));
     public static string PlaceBattle(RaceParticipant a, RaceParticipant b, int place)
-        => Format(PlaceBattleTemplates, a.animalData.animalName, b.animalData.animalName, place);
+        => Format(PlaceBattleTemplates, Racer(a), Racer(b), place);
     public static string HeadingToGoal(RaceParticipant p, int place)
-        => Format(HeadingToGoalTemplates, p.animalData.animalName, place);
+        => Format(HeadingToGoalTemplates, Racer(p), place);
     public static string FinalStretch(RaceParticipant p)
-        => Format(FinalStretchTemplates, p.animalData.animalName);
+        => Format(FinalStretchTemplates, Racer(p));
     public static string ChaserShot(RaceParticipant p)
-        => Format(ChaserShotTemplates, p.animalData.animalName);
+        => Format(ChaserShotTemplates, Racer(p));
     public static string SpotlightLast(RaceParticipant p)
-        => Format(SpotlightLastTemplates, p.animalData.animalName);
+        => Format(SpotlightLastTemplates, Racer(p));
     public static string SpotlightMid(RaceParticipant p, int rank)
-        => Format(SpotlightMidTemplates, p.animalData.animalName, rank);
+        => Format(SpotlightMidTemplates, Racer(p), rank);
     public static string SpotlightStat(RaceParticipant p)
-        => Format(SpotlightStatTemplates, p.animalData.animalName, GetBestStatName(p.animalData));
+        => Format(SpotlightStatTemplates, Racer(p), GetBestStatName(p.animalData));
 
     // 一番高いステータスの名前を返す
     private static string GetBestStatName(AnimalData data)

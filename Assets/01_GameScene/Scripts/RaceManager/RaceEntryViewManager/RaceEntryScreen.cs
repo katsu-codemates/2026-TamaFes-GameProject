@@ -25,18 +25,19 @@ public class RaceEntryScreen : MonoBehaviour
 
     private void Start()
     {
-        List<AnimalData> selectedAnimals = raceManager.SelectParticipants(new List<AnimalData>(animalRoster.Animals));
-        DisplayEntries(selectedAnimals);
+        raceManager.SelectParticipants(new List<AnimalData>(animalRoster.Animals));
+        DisplayEntries(raceManager.Participants);
         StartCoroutine(CountdownRoutine());
     }
 
-    private void DisplayEntries(List<AnimalData> selected)
+    // 出場番号順(=レーン順)に並べる
+    private void DisplayEntries(IReadOnlyList<RaceParticipant> participants)
     {
-        foreach (var animal in selected)
+        foreach (var participant in participants)
         {
             GameObject card = Instantiate(entryCardPrefab, cardContainer);
             RaceEntryCardView view = card.GetComponent<RaceEntryCardView>();
-            view.Setup(animal);
+            view.Setup(participant);
         }
     }
 

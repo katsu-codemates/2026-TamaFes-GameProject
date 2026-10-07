@@ -13,6 +13,9 @@ public class RaceParticipant
     public AnimalData animalData;
     public int laneIndex;   // 0から始まるレーン番号
 
+    // 出場番号(1始まり)。レーン順にそのまま割り振る(競馬の馬番と同じ)
+    public int EntryNumber => laneIndex + 1;
+
     // レース開始時に確定する値(RaceSimulator.Initializeで設定される。)
     public float maxSpeed;
     public float acceleration;

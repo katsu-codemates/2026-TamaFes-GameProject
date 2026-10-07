@@ -8,10 +8,13 @@ public class RaceResultRowView : MonoBehaviour
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private Image iconImage;
 
+    [Header("出場番号専用のテキスト(未設定なら名前の前に番号を付ける)")]
+    [SerializeField] private TextMeshProUGUI entryNumberText;
+
     public void Setup(RaceParticipant participant)
     {
         rankText.text = FormatRank(participant.finishRank);
-        nameText.text = participant.animalData.animalName;
+        EntryNumberFormatter.Apply(participant, nameText, entryNumberText);
 
         StartCoroutine(ImageLoader.LoadSpriteFromBase64(
             participant.animalData.createdAt,
