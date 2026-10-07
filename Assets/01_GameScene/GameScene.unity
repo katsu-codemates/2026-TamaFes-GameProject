@@ -1094,7 +1094,7 @@ MonoBehaviour:
     m_Bottom: 0
   m_ChildAlignment: 0
   m_StartCorner: 0
-  m_StartAxis: 0
+  m_StartAxis: 1
   m_CellSize: {x: 860, y: 100}
   m_Spacing: {x: 0, y: 0}
   m_Constraint: 2
@@ -3409,7 +3409,7 @@ MonoBehaviour:
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 260, y: 260}
+  m_CellSize: {x: 265, y: 260}
   m_Spacing: {x: 10, y: 100}
   m_Constraint: 0
   m_ConstraintCount: 2
@@ -6204,6 +6204,8 @@ MonoBehaviour:
   emphasisScaleAmount: 0.35
   emphasisPunchDuration: 0.4
   fallbackEmphasisDuration: 2.5
+  entryNumberColor: {r: 0.4, g: 0.85, b: 1, a: 1}
+  racerNameColor: {r: 1, g: 0.6, b: 0.2, a: 1}
   accidentCooldown: 10
   spurtCooldown: 6
   staminaCooldown: 8
