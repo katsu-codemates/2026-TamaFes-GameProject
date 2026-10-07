@@ -45,6 +45,9 @@ public class RaceManager : MonoBehaviour
     private List<RaceParticipant> confirmedOrder = new List<RaceParticipant>();
     private float overtakeCheckTimer;
 
+    // 出走メンバー(レーン順=出場番号順)
+    public IReadOnlyList<RaceParticipant> Participants => participants;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
