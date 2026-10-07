@@ -80,6 +80,7 @@ public class RaceCommentator : MonoBehaviour
         public bool isForce;       // trueだと表示間隔を無視して割り込み、すぐに表示する
         public float displayDuration; // 0ならランダム(minDisplayDuration~maxDisplayDuration)
         public CommentKind kind;
+        public System.Func<bool> isStillValid; // 表示直前に確認し、falseなら内容が古いとして捨てる(nullなら確認しない)
     }
 
     private List<RaceParticipant> participants;
@@ -157,6 +158,12 @@ public class RaceCommentator : MonoBehaviour
             PendingComment next = pendingComments[0];
             pendingComments.RemoveAt(0);
             forceRequested = false;
+
+            if (next.isStillValid != null && !next.isStillValid())
+            {
+                Debug.Log($"Disposed(outdated):{next.text}");
+                continue;
+            }
 
             Debug.Log($"[実況 {Time.time:F2}] {next.text}");
             yield return ShowText(next.text, next.isFocusEvent, instant: next.isForce);
@@ -255,7 +262,8 @@ public class RaceCommentator : MonoBehaviour
         }
     }
 
-    private void EnqueueEventDrivenComment(string text, bool isFocusEvent = false, CommentKind kind = CommentKind.Event)
+    private void EnqueueEventDrivenComment(string text, bool isFocusEvent = false, CommentKind kind = CommentKind.Event,
+                                           System.Func<bool> isStillValid = null)
     {
         // 追い抜きは状況がすぐ変わるので、古い追い抜きコメントは捨てて最新の1件だけ残す
         if (kind == CommentKind.Overtake)
@@ -269,7 +277,8 @@ public class RaceCommentator : MonoBehaviour
             timestamp = Time.time,
             isEventDriven = true,
             isFocusEvent = isFocusEvent,
-            kind = kind
+            kind = kind,
+            isStillValid = isStillValid
         });
     }
 
@@ -368,7 +377,14 @@ public class RaceCommentator : MonoBehaviour
     {
         Mention(passer, passed);
         if (newRank == 1) lastLeader = passer; // 自動生成の「先頭に立った」と重複させない
-        EnqueueEventDrivenComment(CommentTemplates.Overtake(passer, passed, newRank), kind: CommentKind.Overtake);
+        // 表示待ちの間に抜き返されたり順位が変わったりしていたら、表示せずに捨てる
+        EnqueueEventDrivenComment(
+            CommentTemplates.Overtake(passer, passed, newRank),
+            kind: CommentKind.Overtake,
+            isStillValid: () => !passer.isFinished
+                                && !passed.isFinished
+                                && passer.progress > passed.progress
+                                && GetRank(passer) == newRank);
     }
 
     private void HandleFinished(RaceParticipant p)

@@ -24,6 +24,7 @@ public class RaceParticipant
     public float progress;  // 0.0fから1.0fまでの範囲で、ゴールまでの進行度を表す
     public float currentSpeed;
     public float currentStamina;
+    public float fatigueFactor = 1f; // バテによる現在の速度倍率(1で減速なし)
     public bool isFinished;
     public int finishRank = -1; // ゴールした順位。ゴールしていない場合は-1
 

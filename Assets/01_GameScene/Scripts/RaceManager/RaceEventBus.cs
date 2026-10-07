@@ -10,7 +10,7 @@ public static class RaceEventBus
     public static event Action<RaceParticipant> OnAccidentStarted;
     public static event Action<RaceParticipant> OnMiracleStarted;
     public static event Action<RaceParticipant> OnFinished;
-    public static event Action<RaceParticipant> OnStaminaDepleted;
+    public static event Action<RaceParticipant> OnStaminaDepleted; // 終盤にバテて目に見えて減速し始めた
     // 抜いた走者, 抜かれた走者, 抜いた走者の新しい順位(1始まり)
     public static event Action<RaceParticipant, RaceParticipant, int> OnOvertake;
 

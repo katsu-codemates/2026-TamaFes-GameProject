@@ -34,6 +34,7 @@ public class RaceSimulator
         participant.isSpurting = false;
         participant.isAccident = false;
         participant.isMiracle = false;
+        participant.fatigueFactor = 1f;
     }
 
     /// <summary>
@@ -112,6 +113,7 @@ public class RaceSimulator
             float t = (raceTuning.fatigueThreshold - staminaRatio) / raceTuning.fatigueThreshold;
             fatigueFactor = Mathf.Lerp(1f, raceTuning.minFatigueFactor, t);
         }
+        participant.fatigueFactor = fatigueFactor;
 
         // スパート中なら速度をその分を足す
         float spurtBonus = 0f;

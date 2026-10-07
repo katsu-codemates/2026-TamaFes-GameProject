@@ -129,12 +129,13 @@ public class AnimalRacerView : MonoBehaviour
         }
         wasMiracle = participant.isMiracle;
 
-        // スタミナ切れ：終盤かつスパート中でないときにスタミナが0なら一度だけ通知する。
-        // （中盤ではスタミナ0でも減速しないため、画面と実況がずれないよう終盤に限定。
-        //   スパート中に0になった場合は、スパート終了時に通知される）
+        // スタミナ切れ：終盤かつスパート中でないときに、バテで目に見えて減速し始めたら一度だけ通知する。
+        // （減速は終盤にしか起きないため終盤に限定。スパート中に減速域へ入った場合は、スパート終了時に通知される。
+        //   minFatigueFactorがfatigueCommentFactorより大きい設定でも、最大まで減速したら通知されるようにする）
+        float commentFactor = Mathf.Max(raceTuning.fatigueCommentFactor, raceTuning.minFatigueFactor);
         if (!notifiedStaminaDepleted
             && participant.progress >= participant.latePhaseStart
-            && participant.currentStamina <= 0f
+            && participant.fatigueFactor <= commentFactor
             && !participant.isSpurting)
         {
             notifiedStaminaDepleted = true;
@@ -143,13 +144,23 @@ public class AnimalRacerView : MonoBehaviour
             {
                 RaceEventBus.RaiseStaminaDepleted(participant);
             }
-            Debug.Log($"{participant.animalData.animalName}がスタミナ切れ！");
+            Debug.Log($"{participant.animalData.animalName}がバテて減速！ fatigueFactor={participant.fatigueFactor:F2}");
         }
     }
 
+    /// <summary>
+    /// ゲーム画面（メインカメラ）に映っているか。
+    /// spriteRenderer.isVisibleはEditorのSceneビューに映っているだけでもtrueになるため、ビューポート座標で判定する。
+    /// </summary>
     public bool IsOnScreen()
     {
-        return spriteRenderer.isVisible;
+        Camera cam = Camera.main;
+        if (cam == null || spriteRenderer == null) return false;
+
+        Vector3 viewportPos = cam.WorldToViewportPoint(spriteRenderer.bounds.center);
+        return viewportPos.z > 0f
+            && viewportPos.x >= 0f && viewportPos.x <= 1f
+            && viewportPos.y >= 0f && viewportPos.y <= 1f;
     }
 
     public RaceParticipant GetParticipant()

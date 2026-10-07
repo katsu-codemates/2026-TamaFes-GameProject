@@ -36,7 +36,7 @@ public class RaceManager : MonoBehaviour
     private List<AnimalRacerView> racerViews = new List<AnimalRacerView>();
     private Dictionary<RaceParticipant, AnimalRacerView> viewByParticipant = new Dictionary<RaceParticipant, AnimalRacerView>();
 
-    // 追い抜き判定用の「確定順位」。進行度の差がovertakeMargin以上ついたときだけ入れ替える
+    // 追い抜き判定用の「確定順位」。トラック上の差がovertakeMarginDistance以上ついたときだけ入れ替える
     private List<RaceParticipant> confirmedOrder = new List<RaceParticipant>();
     private float overtakeCheckTimer;
 
@@ -105,7 +105,7 @@ public class RaceManager : MonoBehaviour
 
     /// <summary>
     /// 確定順位を更新し、追い抜きが起きたらRaceEventBusで通知する。
-    /// 隣り合う走者同士で、後ろの走者がovertakeMargin以上前に出たときだけ入れ替える（ばたつき防止）。
+    /// 隣り合う走者同士で、後ろの走者がovertakeMarginDistance以上前に出たときだけ入れ替える（ばたつき防止）。
     /// </summary>
     private void UpdateOvertakes()
     {
@@ -119,6 +119,8 @@ public class RaceManager : MonoBehaviour
             return;
         }
 
+        float margin = raceTuning.overtakeMarginDistance / RaceTrack.TrackLength;
+
         bool swapped = true;
         while (swapped)
         {
@@ -127,7 +129,7 @@ public class RaceManager : MonoBehaviour
             {
                 RaceParticipant front = confirmedOrder[i];
                 RaceParticipant back = confirmedOrder[i + 1];
-                if (back.progress - front.progress < raceTuning.overtakeMargin) continue;
+                if (back.progress - front.progress < margin) continue;
 
                 confirmedOrder[i] = back;
                 confirmedOrder[i + 1] = front;
@@ -136,10 +138,22 @@ public class RaceManager : MonoBehaviour
                 // 画面に映っている走者同士の追い抜きだけを実況する
                 if (!back.isFinished && !front.isFinished && IsOnScreen(back) && IsOnScreen(front))
                 {
-                    RaceEventBus.RaiseOvertake(back, front, i + 1);
+                    // 確定順位ではなく、実際の進行度から求めた現在の順位を通知する
+                    RaceEventBus.RaiseOvertake(back, front, GetCurrentRank(back));
                 }
             }
         }
+    }
+
+    // ゴール済みも含めた、実際の進行度による現在の順位(1始まり)
+    private int GetCurrentRank(RaceParticipant target)
+    {
+        int rank = 1;
+        foreach (var p in participants)
+        {
+            if (p != target && p.progress > target.progress) rank++;
+        }
+        return rank;
     }
 
     private bool IsOnScreen(RaceParticipant participant)

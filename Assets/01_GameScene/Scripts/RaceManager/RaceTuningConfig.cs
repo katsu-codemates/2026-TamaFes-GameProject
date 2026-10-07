@@ -51,7 +51,10 @@ public class RaceTuningConfig : ScriptableObject
     public float miracleBoostMax = 1.6f;
 
     [Header("実況：追い抜き判定")]
-    public float overtakeMargin = 0.01f; // この進行度差以上前に出たら追い抜きとみなす（入れ替わりのばたつき防止）
+    public float overtakeMarginDistance = 3f; // トラック上でこの距離以上前に出たら追い抜きとみなす（入れ替わりのばたつき防止）
     public float overtakeStartProgress = 0.1f; // 先頭がこの進行度に達するまでは追い抜きを実況しない（スタート直後の団子状態）
-    public float overtakeCheckInterval = 0.2f; // 追い抜き判定を行う間隔（秒）
+    public float overtakeCheckInterval = 0.1f; // 追い抜き判定を行う間隔（秒）
+
+    [Header("実況：バテ")]
+    public float fatigueCommentFactor = 0.95f; // バテによる速度倍率がこれ以下になったら（目に見えて減速したら）実況する
 }
