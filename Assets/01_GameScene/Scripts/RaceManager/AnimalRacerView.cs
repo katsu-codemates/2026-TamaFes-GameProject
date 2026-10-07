@@ -138,12 +138,11 @@ public class AnimalRacerView : MonoBehaviour
         }
         wasMiracle = participant.isMiracle;
 
-        // スタミナ切れ：終盤かつスパート中でないときにスタミナが0なら一度だけ通知する。
-        // （中盤ではスタミナ0でも減速しないため、画面と実況がずれないよう終盤に限定。
-        //   スパート中に0になった場合は、スパート終了時に通知される）
+        // スタミナ切れ：バテによって実際に減速し始めたタイミングで一度だけ通知する。
+        // （減速はRaceSimulatorの終盤処理でスタミナ比率がfatigueThresholdを切ったときに始まる。
+        //   スパート中はボーナスで減速が打ち消されて見えないため、スパート終了時に通知される）
         if (!notifiedStaminaDepleted
-            && participant.progress >= participant.latePhaseStart
-            && participant.currentStamina <= 0f
+            && participant.isFatigued
             && !participant.isSpurting)
         {
             notifiedStaminaDepleted = true;

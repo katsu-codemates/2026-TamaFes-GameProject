@@ -33,6 +33,9 @@ public class RaceParticipant
     public float  spurtTimer;
     public float spurtBonusValue;
 
+    // 終盤：バテ
+    public bool isFatigued; // スタミナ低下によるバテで実際に減速しているか(RaceSimulatorが毎フレーム更新)
+
     // 運：アクシデント
     public bool isAccident;
     public float accidentTimer;
