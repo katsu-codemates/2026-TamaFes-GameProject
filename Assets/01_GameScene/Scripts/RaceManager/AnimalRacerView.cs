@@ -15,12 +15,13 @@ public class AnimalRacerView : MonoBehaviour
     [Header("見た目・演出用の子オブジェクト")]
     [SerializeField] private Transform visualRoot;
     [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField] private GameObject spurtFrare;
+    [SerializeField] private GameObject spurtFlare;
+    [SerializeField] private GameObject fatigueSweat;
 
     private RaceParticipant participant;
     private RaceTuningConfig raceTuning;
     private int totalParticipantCount;
-    private bool nortifiedFinish;
+    private bool notifiedFinish;
     private float postFinishSpeed; // ゴール後に走り続ける速度
 
     // 前フレームの状態を覚えておき、状態が変化したときだけ演出する
@@ -35,7 +36,8 @@ public class AnimalRacerView : MonoBehaviour
         this.raceTuning = raceTuning;
         this.totalParticipantCount = totalParticipantCount;
         debugParticipant = participant;
-        spurtFrare.SetActive(false);
+        spurtFlare.SetActive(false);
+        fatigueSweat.SetActive(false);
 
         RaceSimulator.Initialize(participant, raceTuning);
         Debug.Log($"Initialized:{participant.animalData.animalName}");
@@ -79,10 +81,11 @@ public class AnimalRacerView : MonoBehaviour
 
         HandleEffectTransitions();
 
-        if (participant.isFinished && !nortifiedFinish)
+        if (participant.isFinished && !notifiedFinish)
         {
-            nortifiedFinish = true;
-            spurtFrare.SetActive(false);
+            notifiedFinish = true;
+            spurtFlare.SetActive(false);
+            fatigueSweat.SetActive(false);
             postFinishSpeed = participant.currentSpeed * raceTuning.postFinishSpeedRatio;
             RaceManager.Instance.NotifyFinished(participant);
         }
@@ -99,7 +102,7 @@ public class AnimalRacerView : MonoBehaviour
             visualRoot.DOKill();
             visualRoot.DOLocalRotate(new Vector3(0, 0, 0), 0f);
             visualRoot.DOPunchScale(Vector3.one * 1f, duration: 0.35f, vibrato: 6, elasticity: 0.5f);
-            spurtFrare.SetActive(true);
+            spurtFlare.SetActive(true);
 
             if (IsOnScreen())
             {
@@ -152,6 +155,7 @@ public class AnimalRacerView : MonoBehaviour
                 RaceEventBus.RaiseStaminaDepleted(participant);
             }
             Debug.Log($"{participant.animalData.animalName}がスタミナ切れ！");
+            fatigueSweat.SetActive(true);
         }
     }
 

@@ -254,6 +254,7 @@ MonoBehaviour:
     isSpurting: 0
     spurtTimer: 0
     spurtBonusValue: 0
+    isFatigued: 0
     isAccident: 0
     accidentTimer: 0
     accidentSlowFactor: 0
@@ -262,8 +263,8 @@ MonoBehaviour:
     miracleBoost: 0
   visualRoot: {fileID: 8375356882016031643}
   spriteRenderer: {fileID: 5671381133940499860}
-  spurtFrare: {fileID: 343465367678617436}
-  fatigue: {fileID: 9071873583459035375}
+  spurtFlare: {fileID: 343465367678617436}
+  fatigueSweat: {fileID: 9071873583459035375}
 --- !u!1 &9071873583459035375
 GameObject:
   m_ObjectHideFlags: 0
