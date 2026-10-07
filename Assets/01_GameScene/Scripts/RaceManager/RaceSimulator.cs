@@ -112,6 +112,7 @@ public class RaceSimulator
             float t = (raceTuning.fatigueThreshold - staminaRatio) / raceTuning.fatigueThreshold;
             fatigueFactor = Mathf.Lerp(1f, raceTuning.minFatigueFactor, t);
         }
+        participant.isFatigued = fatigueFactor < 1f;
 
         // スパート中なら速度をその分を足す
         float spurtBonus = 0f;
