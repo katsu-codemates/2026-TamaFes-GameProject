@@ -62,4 +62,26 @@ public static class ImageCache
         texture.LoadImage(bytes);
         return texture;
     }
+
+    /// <summary>
+    /// 保存済みのキャッシュファイルをすべて削除する
+    /// </summary>
+    public static void ClearAll()
+    {
+        try
+        {
+            if (Directory.Exists(CacheDirectory))
+            {
+                Directory.Delete(CacheDirectory, true);
+            }
+        }
+        catch (IOException e)
+        {
+            Debug.LogError($"画像キャッシュの削除に失敗しました: {e.Message}");
+        }
+        catch (System.UnauthorizedAccessException e)
+        {
+            Debug.LogError($"画像キャッシュの削除に失敗しました: {e.Message}");
+        }
+    }
 }
