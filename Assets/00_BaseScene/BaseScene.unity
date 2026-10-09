@@ -2512,7 +2512,7 @@ MonoBehaviour:
   container: {fileID: 480020835}
   loadingInterval: 10
   isDevelopment: 0
-  remoteEndpointUrl: https://tamasai-app-server.koki-tominaga.workers.dev/api/images
+  remoteEndpointUrl: https://tamasai-app-server-v2.koki-tominaga.workers.dev/api/images
   testImageNames:
   - "\u30CB\u30EF\u30C8\u30EA.png"
   - "\u30A6\u30DE.png"

@@ -166,14 +166,19 @@ public class IllustrationManager : MonoBehaviour
         animalData.animalName = data.title;
         animalData.imageBase64 = data.image;
         animalData.createdAt = data.createdAt;
+        animalData.speed = data.speed;
+        animalData.power = data.power;
+        animalData.wisdom = data.intelligence;
+        animalData.luck = data.fortune;
+        animalData.stamina = data.stamina;
         // 他のデータも設定する...
-            // 仮実装ーーーーー
-                float[] x = DebugSetParam();
-                animalData.speed = x[0];
-                animalData.power = x[1];
-                animalData.wisdom = x[2];
-                animalData.luck = x[3];
-                animalData.stamina = x[4];
+            // // 仮実装ーーーーー
+            //     float[] x = DebugSetParam();
+            //     animalData.speed = x[0];
+            //     animalData.power = x[1];
+            //     animalData.wisdom = x[2];
+            //     animalData.luck = x[3];
+            //     animalData.stamina = x[4];
 
         holder.Data = animalData;
 
