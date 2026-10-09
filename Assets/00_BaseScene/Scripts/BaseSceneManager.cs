@@ -5,8 +5,14 @@ using UnityEngine.SceneManagement;
 
 public class BaseSceneManager : MonoBehaviour
 {
+    [SerializeField] private AudioManager audioManager;
     [SerializeField] private IllustrationManager illustrationManager;
     [SerializeField] private AnimalRoster animalRoster;
+
+    private void Start()
+    {
+        audioManager.PlayBgm(BgmId.Base);
+    }
 
     public void OnRaceStartButtonClicked()
     {

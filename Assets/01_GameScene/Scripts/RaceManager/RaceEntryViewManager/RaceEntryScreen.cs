@@ -25,6 +25,7 @@ public class RaceEntryScreen : MonoBehaviour
 
     private void Start()
     {
+        AudioManager.Instance.PlayBgm(BgmId.Entry);
         raceManager.SelectParticipants(new List<AnimalData>(animalRoster.Animals));
         DisplayEntries(raceManager.Participants);
         StartCoroutine(CountdownRoutine());

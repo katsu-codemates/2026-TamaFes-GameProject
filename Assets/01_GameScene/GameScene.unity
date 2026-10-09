@@ -6299,6 +6299,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RaceEntryScreen
   animalRoster: {fileID: 11400000, guid: e9f80f43031c17e49b6cad951fd7b158, type: 2}
   raceManager: {fileID: 1725942744}
+  audioManager: {fileID: 606930424}
   entryCardPrefab: {fileID: 266699871885056408, guid: c61ff78996b4cf148afbb36f6e715c5a, type: 3}
   cardContainer: {fileID: 997729283}
   countdownText: {fileID: 63235356}

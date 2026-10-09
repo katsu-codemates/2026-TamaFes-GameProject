@@ -168,6 +168,7 @@ public class AnimalIdleAnimation : MonoBehaviour
         int biteCount = Random.Range(minBiteCount, maxBiteCount);
         for (int i = 0; i < biteCount; i++)
         {
+            AudioManager.Instance.PlaySe(SeId.Eating);
             yield return transform.DOPunchPosition(Vector3.down * 0.3f, eatingDuration, 1, 0.5f)
                 .SetLink(gameObject).WaitForCompletion();
         }
@@ -200,6 +201,7 @@ public class AnimalIdleAnimation : MonoBehaviour
         // Billboardがtransformの向きを毎フレーム上書きするため、横になる間だけ止める
         if (billboard != null) billboard.enabled = false;
 
+        AudioManager.Instance.PlaySe(SeId.Sleep);
         yield return transform.DORotate(new Vector3(0f, 0f, 90f), 0.5f, RotateMode.LocalAxisAdd)
             .SetLink(gameObject).WaitForCompletion();
         spriteRenderer.color = new Color(originalColor.r * 0.6f, originalColor.g * 0.6f, originalColor.b * 0.6f, originalColor.a);
@@ -278,6 +280,7 @@ public class AnimalIdleAnimation : MonoBehaviour
         Color originalColor = spriteRenderer.color;
         for (int i = 0; i < clashCount; i++)
         {
+            AudioManager.Instance.PlaySe(SeId.Attack);
             yield return transform.DOShakePosition(0.3f, 0.3f, 10, 90, false, true)
                 .SetLink(gameObject).WaitForCompletion();
             spriteRenderer.color = Color.red;

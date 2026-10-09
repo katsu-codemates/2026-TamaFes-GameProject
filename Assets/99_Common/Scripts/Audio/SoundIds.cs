@@ -7,6 +7,8 @@ public enum BgmId
     None = 0,
     Base = 1,
     Race = 2,
+    Entry = 3,
+    Result = 4,
 }
 
 /// <summary>
@@ -21,4 +23,7 @@ public enum SeId
     Finish = 3,
     Accident = 4,
     Miracle = 5,
+    Eating = 6,
+    Sleep = 7,
+    Attack = 8,
 }
