@@ -74,7 +74,7 @@ public class RaceManager : MonoBehaviour
         selectedAnimals = selectedAnimals.OrderBy(a => Random.value).ToList();
 
         participants = selectedAnimals
-            .Select((animalData, index) => new RaceParticipant { animalData = animalData, laneIndex = index })
+            .Select((animalData, index) => new RaceParticipant(animalData, index, raceTuning))
             .ToList();
 
         return selectedAnimals;

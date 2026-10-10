@@ -48,4 +48,17 @@ public class RaceParticipant
     public bool isMiracle;
     public float miracleTimer;
     public float miracleBoost;
+
+    public RaceParticipant(AnimalData animalData, int laneIndex, RaceTuningConfig raceTuning)
+    {
+        this.animalData = animalData;
+        this.laneIndex = laneIndex;
+
+        // 個体差を少し加える
+        animalData.speed += UnityEngine.Random.Range(0f, raceTuning.speedVariation); 
+        animalData.power += UnityEngine.Random.Range(0f, raceTuning.powerVariation);
+        animalData.wisdom += UnityEngine.Random.Range(0f, raceTuning.wisdomVariation);
+        animalData.luck += UnityEngine.Random.Range(0f, raceTuning.luckVariation);
+        animalData.stamina += UnityEngine.Random.Range(0f, raceTuning.staminaVariation);
+    }
 }

@@ -57,4 +57,11 @@ public class RaceTuningConfig : ScriptableObject
     public float overtakeMargin = 0.01f; // この進行度差以上前に出たら追い抜きとみなす（入れ替わりのばたつき防止）
     public float overtakeStartProgress = 0.1f; // 先頭がこの進行度に達するまでは追い抜きを実況しない（スタート直後の団子状態）
     public float overtakeCheckInterval = 0.2f; // 追い抜き判定を行う間隔（秒）
+
+    [Header("個体差")]
+    public float speedVariation = 0.99f; // 最高速度の個体差幅
+    public float powerVariation = 0.99f; // 加速度の個体差
+    public float wisdomVariation = 0.99f; // 賢さの個体差
+    public float luckVariation = 0.99f; // 運の個体差
+    public float staminaVariation = 0.99f; // スタミナの個体差
 }
