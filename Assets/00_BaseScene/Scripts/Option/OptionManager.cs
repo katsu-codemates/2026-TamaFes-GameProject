@@ -27,6 +27,9 @@ public class OptionManager : MonoBehaviour
     [Header("Escキーでオプションを閉じるか")]
     [SerializeField] private bool closeWithEscape = true;
 
+    [Header("クリック防止")]
+    [SerializeField] private GameObject[] clickBlockers;
+
     public bool IsOpen => optionPanel != null && optionPanel.IsShown;
 
     private void Update()
@@ -208,6 +211,22 @@ public class OptionManager : MonoBehaviour
         if (toast != null)
         {
             toast.Show(message);
+        }
+    }
+
+    public void SetClickBlockerActive(int index)
+    {
+        if (clickBlockers != null && index < clickBlockers.Length)
+        {
+            clickBlockers[index].SetActive(true);
+        }
+    }
+
+    public void SetClickBlockerInactive(int index)
+    {
+        if (clickBlockers != null && index < clickBlockers.Length)
+        {
+            clickBlockers[index].SetActive(false);
         }
     }
 }
