@@ -36,6 +36,16 @@ public class AudioManager : MonoBehaviour
     // 無音扱いにする下限の音量(dB)
     private const float MinVolumeDb = -80f;
 
+    // 音量設定を保存するPlayerPrefsのキー(BaseScene/GameSceneのAudioManagerで共通)
+    private const string MasterVolumeKey = "Volume.Master";
+    private const string BgmVolumeKey = "Volume.Bgm";
+    private const string SeVolumeKey = "Volume.Se";
+
+    // Inspectorで設定した初期音量。保存済み設定のリセット時に使う
+    private float defaultMasterVolume;
+    private float defaultBgmVolume;
+    private float defaultSeVolume;
+
     // クロスフェード用に2本持ち、交互に使う
     private AudioSource[] bgmSources;
     private int activeBgmIndex;
@@ -61,6 +71,14 @@ public class AudioManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+        // Inspectorの初期音量を退避してから、保存済みの音量があれば読み込む
+        defaultMasterVolume = masterVolume;
+        defaultBgmVolume = bgmVolume;
+        defaultSeVolume = seVolume;
+        masterVolume = PlayerPrefs.GetFloat(MasterVolumeKey, masterVolume);
+        bgmVolume = PlayerPrefs.GetFloat(BgmVolumeKey, bgmVolume);
+        seVolume = PlayerPrefs.GetFloat(SeVolumeKey, seVolume);
 
         bgmSources = new AudioSource[2];
         for (int i = 0; i < bgmSources.Length; i++)
@@ -352,6 +370,7 @@ public class AudioManager : MonoBehaviour
     {
         masterVolume = Mathf.Clamp01(volume);
         ApplyVolume(masterVolumeParam, masterVolume);
+        SaveVolume(MasterVolumeKey, masterVolume);
     }
 
     /// <summary>BGMの音量を設定する(0〜1)。</summary>
@@ -359,6 +378,7 @@ public class AudioManager : MonoBehaviour
     {
         bgmVolume = Mathf.Clamp01(volume);
         ApplyVolume(bgmVolumeParam, bgmVolume);
+        SaveVolume(BgmVolumeKey, bgmVolume);
     }
 
     /// <summary>SEの音量を設定する(0〜1)。</summary>
@@ -366,6 +386,31 @@ public class AudioManager : MonoBehaviour
     {
         seVolume = Mathf.Clamp01(volume);
         ApplyVolume(seVolumeParam, seVolume);
+        SaveVolume(SeVolumeKey, seVolume);
+    }
+
+    /// <summary>
+    /// 保存済みの音量設定を削除し、Inspectorで設定した初期音量に戻す。
+    /// </summary>
+    public void ResetVolumesToDefault()
+    {
+        PlayerPrefs.DeleteKey(MasterVolumeKey);
+        PlayerPrefs.DeleteKey(BgmVolumeKey);
+        PlayerPrefs.DeleteKey(SeVolumeKey);
+        PlayerPrefs.Save();
+
+        masterVolume = defaultMasterVolume;
+        bgmVolume = defaultBgmVolume;
+        seVolume = defaultSeVolume;
+        ApplyVolume(masterVolumeParam, masterVolume);
+        ApplyVolume(bgmVolumeParam, bgmVolume);
+        ApplyVolume(seVolumeParam, seVolume);
+    }
+
+    private static void SaveVolume(string key, float volume)
+    {
+        PlayerPrefs.SetFloat(key, volume);
+        PlayerPrefs.Save();
     }
 
     // 0〜1の音量をdBに変換してAudioMixerに反映する

@@ -146,6 +146,16 @@ public class AnimalActionScheduler : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// 餌場・寝床の予約をすべて解除する。動物を一斉に破棄したとき(画像の再読み込みなど)に、
+    /// 行動中に破棄された動物の予約が残り続けないようにするために使う。
+    /// </summary>
+    public void ReleaseAllSpots()
+    {
+        foreach (var spot in feedingSpots) spot.InUse = false;
+        foreach (var spot in bedSpots) spot.InUse = false;
+    }
+
     private void ReleaseSpot(List<ActionSpot> spots, int spotIndex)
     {
         if (spotIndex >= 0 && spotIndex < spots.Count)

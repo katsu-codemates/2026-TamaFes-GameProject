@@ -252,8 +252,49 @@ public class IllustrationManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 表示中の動物をすべて破棄し、画像一覧を取得し直して並べ直す。
+    /// </summary>
+    public void ReloadAllIllustrations()
+    {
+        // 選択中の動物が破棄されるとカメラのフォーカスが外れなくなるため、先に選択を解除する
+        if (selectionManager != null)
+        {
+            selectionManager.Unselect();
+        }
+
+        if (repeatCoroutine != null)
+        {
+            StopCoroutine(repeatCoroutine);
+            repeatCoroutine = null;
+        }
+
+        // AnimalIdleAnimation.OnDestroyでTweenの停止とスケジューラからの登録解除が行われる
+        foreach (var go in displayedIllustrations.Values)
+        {
+            if (go != null)
+            {
+                Destroy(go);
+            }
+        }
+        displayedIllustrations.Clear();
+        registeredAnimals.Clear();
+
+        // 食事中・睡眠中に破棄された動物の餌場・寝床の予約を解除する
+        if (actionScheduler != null)
+        {
+            actionScheduler.ReleaseAllSpots();
+        }
+
+        Debug.Log("動物画像を読み込み直します");
+        repeatCoroutine = StartCoroutine(RepeatDisplay());
+    }
+
     private void OnDestroy()
     {
-        StopCoroutine(repeatCoroutine);
+        if (repeatCoroutine != null)
+        {
+            StopCoroutine(repeatCoroutine);
+        }
     }
 }
