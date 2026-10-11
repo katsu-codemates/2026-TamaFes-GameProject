@@ -41,6 +41,7 @@ public class TestImageProvider : IImageProvider
             imageDataList[i] = new ImageData
             {
                 title = filenames[i],
+                creatorName = "テストさくしゃ", // 作者検索の動作確認用
                 image = System.IO.Path.Combine(Application.streamingAssetsPath, "TestImages", filenames[i])
             };
         }
