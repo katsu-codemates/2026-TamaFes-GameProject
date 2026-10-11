@@ -26,4 +26,6 @@ public enum SeId
     Eating = 6,
     Sleep = 7,
     Attack = 8,
+    Jump = 9,
+    HighJump = 10,
 }

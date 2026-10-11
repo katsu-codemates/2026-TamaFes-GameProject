@@ -183,6 +183,7 @@ public class AnimalIdleAnimation : MonoBehaviour
             hop.Insert(0f, transform.DOScale(Vector3.Scale(originalScale, new Vector3(0.9f, 1.15f, 1f)), hopDuration * 0.5f));
             hop.Insert(hopDuration * 0.5f, transform.DOScale(originalScale, hopDuration * 0.5f));
             jumpTween = hop;
+            AudioManager.Instance.PlaySe(SeId.Jump);
             yield return hop.WaitForCompletion();
         }
 
@@ -197,6 +198,7 @@ public class AnimalIdleAnimation : MonoBehaviour
         finalJump.Insert(0f, transform.DORotate(new Vector3(0f, 0f, 360f), finalJumpDuration * 0.8f, RotateMode.LocalAxisAdd)
             .SetEase(Ease.OutQuad));
         jumpTween = finalJump;
+        AudioManager.Instance.PlaySe(SeId.HighJump);
         yield return finalJump.WaitForCompletion();
 
         if (billboard != null) billboard.enabled = true;
