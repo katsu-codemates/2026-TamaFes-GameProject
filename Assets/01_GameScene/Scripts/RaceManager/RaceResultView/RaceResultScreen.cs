@@ -33,6 +33,9 @@ public class RaceResultScreen : MonoBehaviour
     [SerializeField] private float rowSlideDistance = 300f;
     [SerializeField] private float rowSlideDuration = 0.35f;
 
+    [Header("2位以下の一覧の自動スクロール(未設定なら自動スクロールしない)")]
+    [SerializeField] private RaceResultAutoScroller autoScroller;
+
     private void Awake()
     {
         if (screenRoot != null)
@@ -79,6 +82,12 @@ public class RaceResultScreen : MonoBehaviour
         }
 
         PlayRowsAppear(rows, rowsDelay);
+
+        if (autoScroller != null)
+        {
+            // 全行が出そろってから自動スクロールを始める
+            autoScroller.StartAutoScroll(rowsDelay + rows.Count * rowInterval + rowSlideDuration);
+        }
     }
 
     /// <summary>
