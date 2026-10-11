@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: -1478178510758078535}
   - component: {fileID: 9019276930512493167}
   - component: {fileID: 7517819579269573834}
+  - component: {fileID: 5312406871935518264}
   m_Layer: 3
   m_Name: AnimalSprite
   m_TagString: Untagged
@@ -151,8 +152,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 322f1bb8e38473846a6cad2b741d2174, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimalsClickDetector
-  animalOutlineColor: {r: 1, g: 1, b: 0, a: 1}
-  outlineDistance: {x: 3, y: 3}
 --- !u!114 &-1478178510758078535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189,3 +188,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebb11d554d8628143b54ee14b323e200, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimalIdleanimation
+  eatWeight: 10
+  sleepWeight: 10
+  fightWeight: 10
+  celebrateWeight: 30
+  eatingDuration: 0.3
+  maxBiteCount: 6
+  minBiteCount: 3
+  breathingDuration: 1
+  minSleepingDuration: 3
+  maxSleepingDuration: 6
+  minClashCount: 3
+  maxClashCount: 5
+  minHopCount: 3
+  maxHopCount: 5
+  hopHeight: 0.8
+  hopDuration: 0.35
+  finalJumpHeight: 2
+  finalJumpDuration: 0.9
+  celebrateColor: {r: 1, g: 0.92, b: 0.5, a: 1}
+  sleepZInterval: 0.8
+--- !u!114 &5312406871935518264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1893108964408875296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c464a6a54384c73bb3f3a3da2eabb17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimalEmoteEffect
+  crumbSprite: {fileID: 21300000, guid: 231e1d06f56c4bed88932043bf312578, type: 3}
+  sleepSprite: {fileID: 21300000, guid: 6f96aca222224ade88ba420f2b2ab140, type: 3}
+  angerSprite: {fileID: 21300000, guid: b89f99dcb2194a3491044c68591950c2, type: 3}
+  noteSprite: {fileID: 21300000, guid: a503f23da0554d4cb18b5f1fb7747d1f, type: 3}
+  minCrumbCount: 3
+  maxCrumbCount: 5
+  crumbSize: 0.5
+  crumbSpread: 0.9
+  crumbJumpHeight: 5
+  crumbDuration: 0.6
+  crumbColors:
+  - {r: 0.62, g: 0.42, b: 0.22, a: 1}
+  - {r: 0.85, g: 0.68, b: 0.38, a: 1}
+  - {r: 0.95, g: 0.85, b: 0.45, a: 1}
+  sleepSize: 2
+  sleepRise: 1.2
+  sleepDuration: 1.8
+  angerSize: 3
+  angerDuration: 0.6
+  noteSize: 2
+  noteRise: 1.2
+  noteSway: 0.25
+  noteDuration: 1.2
+  towardCameraOffset: 0.3
