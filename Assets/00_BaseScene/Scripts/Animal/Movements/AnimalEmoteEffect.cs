@@ -179,6 +179,8 @@ public class AnimalEmoteEffect : MonoBehaviour
 
         var renderer = go.AddComponent<SpriteRenderer>();
         renderer.sprite = sprite;
+        // BillboardはLookAtで+Zをカメラに向けるため、スプライトを裏側から見ることになり左右が反転する。それを打ち消す
+        renderer.flipX = true;
         renderer.sharedMaterial = ownerRenderer.sharedMaterial;
         renderer.sortingLayerID = ownerRenderer.sortingLayerID;
         renderer.sortingOrder = ownerRenderer.sortingOrder + 1;
