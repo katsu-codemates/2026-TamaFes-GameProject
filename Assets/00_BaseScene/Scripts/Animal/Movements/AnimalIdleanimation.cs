@@ -36,6 +36,10 @@ public class AnimalIdleAnimation : MonoBehaviour
     [SerializeField] private float finalJumpDuration = 0.9f;
     [SerializeField] private Color celebrateColor = new Color(1f, 0.92f, 0.5f, 1f);
 
+    [Header("エフェクト")]
+    [Tooltip("眠っている間に「Z」を出す間隔（秒）")]
+    [SerializeField] private float sleepZInterval = 0.8f;
+
     Tween idleTween;
     Tween jumpTween;
     SpriteRenderer spriteRenderer;
@@ -43,6 +47,7 @@ public class AnimalIdleAnimation : MonoBehaviour
     Coroutine randomMoveCoroutine;
     AnimalActionScheduler animalActionScheduler;
     AnimalDataHolder dataHolder;
+    AnimalEmoteEffect emoteEffect;
 
     public bool IsBusy { get; set; }
 
@@ -51,6 +56,7 @@ public class AnimalIdleAnimation : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         billboard = GetComponent<Billboard>();
         dataHolder = GetComponent<AnimalDataHolder>();
+        emoteEffect = GetComponent<AnimalEmoteEffect>();
         animalActionScheduler.Register(this);
         IdleMotion();
         randomMoveCoroutine = StartCoroutine(RandomMove());
@@ -184,6 +190,7 @@ public class AnimalIdleAnimation : MonoBehaviour
             hop.Insert(hopDuration * 0.5f, transform.DOScale(originalScale, hopDuration * 0.5f));
             jumpTween = hop;
             AudioManager.Instance.PlaySe(SeId.Jump);
+            if (emoteEffect != null) emoteEffect.PlayNote();
             yield return hop.WaitForCompletion();
         }
 
@@ -199,6 +206,11 @@ public class AnimalIdleAnimation : MonoBehaviour
             .SetEase(Ease.OutQuad));
         jumpTween = finalJump;
         AudioManager.Instance.PlaySe(SeId.HighJump);
+        if (emoteEffect != null)
+        {
+            emoteEffect.PlayNote();
+            emoteEffect.PlayNote();
+        }
         yield return finalJump.WaitForCompletion();
 
         if (billboard != null) billboard.enabled = true;
@@ -248,6 +260,7 @@ public class AnimalIdleAnimation : MonoBehaviour
         for (int i = 0; i < biteCount; i++)
         {
             AudioManager.Instance.PlaySe(SeId.Eating);
+            if (emoteEffect != null) emoteEffect.PlayCrumbs();
             yield return transform.DOPunchPosition(Vector3.down * 0.3f, eatingDuration, 1, 0.5f)
                 .SetLink(gameObject).WaitForCompletion();
         }
@@ -289,7 +302,16 @@ public class AnimalIdleAnimation : MonoBehaviour
             .SetLoops(-1, LoopType.Yoyo)
             .SetLink(gameObject);
 
-        yield return new WaitForSeconds(Random.Range(minSleepingDuration, maxSleepingDuration));
+        // 眠っている間は一定間隔で「Z」を出す
+        float sleepingDuration = Random.Range(minSleepingDuration, maxSleepingDuration);
+        float sleptTime = 0f;
+        while (sleptTime < sleepingDuration)
+        {
+            if (emoteEffect != null) emoteEffect.PlaySleepZ();
+            float wait = Mathf.Min(Mathf.Max(sleepZInterval, 0.1f), sleepingDuration - sleptTime);
+            yield return new WaitForSeconds(wait);
+            sleptTime += wait;
+        }
 
         breathingTween.Kill();
         transform.localScale = originalScale;
@@ -360,6 +382,7 @@ public class AnimalIdleAnimation : MonoBehaviour
         for (int i = 0; i < clashCount; i++)
         {
             AudioManager.Instance.PlaySe(SeId.Attack);
+            if (emoteEffect != null) emoteEffect.PlayAnger();
             yield return transform.DOShakePosition(0.3f, 0.3f, 10, 90, false, true)
                 .SetLink(gameObject).WaitForCompletion();
             spriteRenderer.color = Color.red;

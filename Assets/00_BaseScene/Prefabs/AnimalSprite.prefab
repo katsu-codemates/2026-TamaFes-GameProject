@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: -1478178510758078535}
   - component: {fileID: 9019276930512493167}
   - component: {fileID: 7517819579269573834}
+  - component: {fileID: 5312406871935518264}
   m_Layer: 3
   m_Name: AnimalSprite
   m_TagString: Untagged
@@ -189,3 +190,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebb11d554d8628143b54ee14b323e200, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimalIdleanimation
+--- !u!114 &5312406871935518264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1893108964408875296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c464a6a54384c73bb3f3a3da2eabb17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimalEmoteEffect
+  crumbSprite: {fileID: 21300000, guid: 231e1d06f56c4bed88932043bf312578, type: 3}
+  sleepSprite: {fileID: 21300000, guid: 6f96aca222224ade88ba420f2b2ab140, type: 3}
+  angerSprite: {fileID: 21300000, guid: b89f99dcb2194a3491044c68591950c2, type: 3}
+  noteSprite: {fileID: 21300000, guid: a503f23da0554d4cb18b5f1fb7747d1f, type: 3}
