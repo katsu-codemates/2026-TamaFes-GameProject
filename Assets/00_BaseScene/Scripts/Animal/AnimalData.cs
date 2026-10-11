@@ -5,6 +5,7 @@ using UnityEngine;
 public class AnimalData
 {
     public string animalName;
+    public string creatorName; // 作者名
     public string imageBase64;
     public string createdAt;
 

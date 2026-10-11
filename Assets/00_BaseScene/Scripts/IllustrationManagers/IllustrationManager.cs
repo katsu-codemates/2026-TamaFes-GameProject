@@ -164,6 +164,7 @@ public class IllustrationManager : MonoBehaviour
         // int cutName = data.title.Length - 4;
         // animalData.animalName = data.title.Substring(0, cutName); // ".png"を引く
         animalData.animalName = data.title;
+        animalData.creatorName = data.creatorName;
         animalData.imageBase64 = data.image;
         animalData.createdAt = data.createdAt;
         animalData.speed = data.speed;
@@ -193,6 +194,25 @@ public class IllustrationManager : MonoBehaviour
     public List<AnimalData> GetRegisteredAnimals()
     {
         return registeredAnimals;
+    }
+
+    /// <summary>
+    /// 画面に表示中の動物を返す。検索などで動物のGameObjectが必要なときに使う。
+    /// </summary>
+    public List<AnimalDataHolder> GetDisplayedAnimals()
+    {
+        var animals = new List<AnimalDataHolder>();
+        foreach (var go in displayedIllustrations.Values)
+        {
+            if (go == null) continue;
+
+            var holder = go.GetComponent<AnimalDataHolder>();
+            if (holder != null && holder.Data != null)
+            {
+                animals.Add(holder);
+            }
+        }
+        return animals;
     }
 
     float[] DebugSetParam()
