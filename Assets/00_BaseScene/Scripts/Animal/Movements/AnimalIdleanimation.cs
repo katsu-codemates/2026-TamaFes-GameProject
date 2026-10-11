@@ -27,6 +27,15 @@ public class AnimalIdleAnimation : MonoBehaviour
     [SerializeField] private int maxClashCount = 3;
     [SerializeField] private int minClashCount = 5;
 
+    [Header("演出（喜ぶ）")]
+    [SerializeField] private int minHopCount = 3;
+    [SerializeField] private int maxHopCount = 5;
+    [SerializeField] private float hopHeight = 0.8f;
+    [SerializeField] private float hopDuration = 0.35f;
+    [SerializeField] private float finalJumpHeight = 2f;
+    [SerializeField] private float finalJumpDuration = 0.9f;
+    [SerializeField] private Color celebrateColor = new Color(1f, 0.92f, 0.5f, 1f);
+
     Tween idleTween;
     Tween jumpTween;
     SpriteRenderer spriteRenderer;
@@ -144,8 +153,76 @@ public class AnimalIdleAnimation : MonoBehaviour
 
     IEnumerator DoCelebrate()
     {
-        // TODO: 喜ぶモーションを実装する。それまでは通常移動で代替する
-        yield return DoWander();
+        // 演出中にけんか相手として予約されないようにする
+        IsBusy = true;
+        Vector3 originalPosition = transform.position;
+        Vector3 originalScale = transform.localScale;
+        Color originalColor = spriteRenderer.color;
+        bool originalFlipX = spriteRenderer.flipX;
+
+        // 喜んでいる間は金色っぽく明滅させる。
+        // 選択時の透過演出（アルファ変更）を潰さないよう、RGBだけを変える
+        Tween glowTween = DOTween.To(() => 0f, t =>
+            {
+                Color c = Color.Lerp(originalColor, celebrateColor, t);
+                c.a = spriteRenderer.color.a;
+                spriteRenderer.color = c;
+            }, 1f, 0.25f)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetLink(gameObject);
+
+        // その場で左右を向きながら小刻みに跳ねる（溜め→伸び→着地のつぶれ）
+        int hopCount = Random.Range(minHopCount, maxHopCount + 1);
+        for (int i = 0; i < hopCount; i++)
+        {
+            yield return SquashAndStretch(originalScale, new Vector3(1.15f, 0.85f, 1f), hopDuration * 0.3f);
+
+            spriteRenderer.flipX = !spriteRenderer.flipX;
+            Sequence hop = DOTween.Sequence().SetLink(gameObject);
+            hop.Append(transform.DOJump(originalPosition, hopHeight, 1, hopDuration));
+            hop.Insert(0f, transform.DOScale(Vector3.Scale(originalScale, new Vector3(0.9f, 1.15f, 1f)), hopDuration * 0.5f));
+            hop.Insert(hopDuration * 0.5f, transform.DOScale(originalScale, hopDuration * 0.5f));
+            jumpTween = hop;
+            yield return hop.WaitForCompletion();
+        }
+
+        // 締めに大きくジャンプして一回転する
+        yield return SquashAndStretch(originalScale, new Vector3(1.25f, 0.75f, 1f), 0.2f);
+
+        // Billboardがtransformの向きを毎フレーム上書きするため、回転する間だけ止める
+        if (billboard != null) billboard.enabled = false;
+
+        Sequence finalJump = DOTween.Sequence().SetLink(gameObject);
+        finalJump.Append(transform.DOJump(originalPosition, finalJumpHeight, 1, finalJumpDuration));
+        finalJump.Insert(0f, transform.DORotate(new Vector3(0f, 0f, 360f), finalJumpDuration * 0.8f, RotateMode.LocalAxisAdd)
+            .SetEase(Ease.OutQuad));
+        jumpTween = finalJump;
+        yield return finalJump.WaitForCompletion();
+
+        if (billboard != null) billboard.enabled = true;
+
+        // 着地の余韻
+        yield return transform.DOPunchScale(Vector3.Scale(originalScale, new Vector3(0.2f, -0.2f, 0f)), 0.4f, 6, 0.5f)
+            .SetLink(gameObject).WaitForCompletion();
+
+        glowTween.Kill();
+        transform.position = originalPosition;
+        transform.localScale = originalScale;
+        spriteRenderer.color = new Color(originalColor.r, originalColor.g, originalColor.b, spriteRenderer.color.a);
+        spriteRenderer.flipX = originalFlipX;
+
+        IsBusy = false;
+    }
+
+    /// <summary>
+    /// ジャンプ前の「溜め」として一瞬つぶれてから元の大きさに戻る。
+    /// </summary>
+    private IEnumerator SquashAndStretch(Vector3 originalScale, Vector3 squashRatio, float duration)
+    {
+        yield return transform.DOScale(Vector3.Scale(originalScale, squashRatio), duration * 0.5f)
+            .SetEase(Ease.OutQuad).SetLink(gameObject).WaitForCompletion();
+        yield return transform.DOScale(originalScale, duration * 0.5f)
+            .SetEase(Ease.InQuad).SetLink(gameObject).WaitForCompletion();
     }
 
     IEnumerator DoEat()
