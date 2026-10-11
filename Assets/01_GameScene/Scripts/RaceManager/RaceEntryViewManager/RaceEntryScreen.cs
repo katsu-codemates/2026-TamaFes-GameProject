@@ -24,12 +24,6 @@ public class RaceEntryScreen : MonoBehaviour
     [Tooltip("カード同士の間隔(セルの短い辺に対する割合)")]
     [SerializeField, Range(0f, 0.3f)] private float cardSpacingRatio = 0.06f;
 
-    [Header("名前用フォント(全文字対応のためダイナミックフォントを実行時に生成)")]
-    [Tooltip("名前に使う元フォント(.ttf/.otf)。未設定ならカードのフォントをそのまま使う")]
-    [SerializeField] private Font nameSourceFont;
-    [Tooltip("元フォントに無い文字を探すOSフォント(見つからないものは無視される)")]
-    [SerializeField] private string[] osFallbackFontFamilies = { "Yu Gothic UI", "Meiryo", "Segoe UI Symbol", "Segoe UI", "Arial Unicode MS" };
-
     [Header("開始方法")]
     [Tooltip("ONならカウントダウンで自動開始、OFFならクリックで開始")]
     [SerializeField] private bool useCountdown = false;
@@ -71,19 +65,13 @@ public class RaceEntryScreen : MonoBehaviour
     // 出場番号順(=レーン順)に並べる
     private void DisplayEntries(IReadOnlyList<RaceParticipant> participants)
     {
-        TMP_FontAsset nameFont = null;
 
         foreach (var participant in participants)
         {
             GameObject card = Instantiate(entryCardPrefab, cardContainer);
             RaceEntryCardView view = card.GetComponent<RaceEntryCardView>();
 
-            if (nameFont == null)
-            {
-                nameFont = GetOrCreateNameFont(view.NameTemplateMaterial);
-            }
-
-            view.Setup(participant, nameFont);
+            view.Setup(participant);
         }
 
         FitGridToContainer(participants.Count);
@@ -135,52 +123,6 @@ public class RaceEntryScreen : MonoBehaviour
         grid.cellSize = new Vector2(cellW, cellH);
         grid.spacing = new Vector2(spacing, spacing);
         grid.childAlignment = TextAnchor.MiddleCenter;
-    }
-
-    /// <summary>
-    /// 名前表示用のダイナミックフォントを作る。
-    /// 事前生成(Static)のフォントアセットだと収録していない漢字や記号が□になるため、
-    /// 元フォントから必要な文字をその場で追加できるダイナミックフォントを使う。
-    /// </summary>
-    private TMP_FontAsset GetOrCreateNameFont(Material templateMaterial)
-    {
-        if (cachedNameFont != null) return cachedNameFont;
-        if (nameSourceFont == null) return null;
-
-        TMP_FontAsset fontAsset = TMP_FontAsset.CreateFontAsset(
-            nameSourceFont, 90, 9, GlyphRenderMode.SDFAA, 2048, 2048,
-            AtlasPopulationMode.Dynamic, enableMultiAtlasSupport: true);
-
-        if (fontAsset == null)
-        {
-            Debug.LogWarning($"名前用ダイナミックフォントの生成に失敗しました(font = {nameSourceFont.name})");
-            return null;
-        }
-
-        // ビルドに含まれているシェーダーを使う(実行時生成のマテリアルはビルドに含まれないシェーダーを参照することがある)
-        if (templateMaterial != null && fontAsset.material != null)
-        {
-            fontAsset.material.shader = templateMaterial.shader;
-        }
-
-        // 元フォントにも無い文字はOSのフォントから探す
-        fontAsset.fallbackFontAssetTable = new List<TMP_FontAsset>();
-        foreach (string family in osFallbackFontFamilies)
-        {
-            if (string.IsNullOrEmpty(family)) continue;
-
-            TMP_FontAsset fallback = TMP_FontAsset.CreateFontAsset(family, "Regular");
-            if (fallback == null) continue;
-
-            if (templateMaterial != null && fallback.material != null)
-            {
-                fallback.material.shader = templateMaterial.shader;
-            }
-            fontAsset.fallbackFontAssetTable.Add(fallback);
-        }
-
-        cachedNameFont = fontAsset;
-        return cachedNameFont;
     }
 
     private IEnumerator ClickToStartRoutine()

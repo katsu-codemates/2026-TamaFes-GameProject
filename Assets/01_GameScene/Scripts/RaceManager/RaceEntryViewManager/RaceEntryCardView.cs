@@ -17,14 +17,9 @@ public class RaceEntryCardView : MonoBehaviour
     public Material NameTemplateMaterial => nameText != null ? nameText.fontSharedMaterial : null;
 
     /// <param name="nameFont">名前に使うフォント。nullならプレハブ設定のまま</param>
-    public void Setup(RaceParticipant participant, TMP_FontAsset nameFont = null)
+    public void Setup(RaceParticipant participant)
     {
         AnimalData data = participant.animalData;
-
-        if (nameFont != null)
-        {
-            nameText.font = nameFont;
-        }
 
         EntryNumberFormatter.Apply(participant, nameText, entryNumberText);
 
