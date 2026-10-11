@@ -1148,8 +1148,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -230}
+  m_SizeDelta: {x: 0, y: -460}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &260775450
 MonoBehaviour:
@@ -1168,11 +1168,11 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
+  m_ChildAlignment: 1
   m_StartCorner: 0
   m_StartAxis: 1
   m_CellSize: {x: 860, y: 100}
-  m_Spacing: {x: 0, y: 0}
+  m_Spacing: {x: 0, y: 10}
   m_Constraint: 2
   m_ConstraintCount: 10
 --- !u!1 &278431340
@@ -3606,7 +3606,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.87169814, g: 0.87169814, b: 0.87169814, a: 0.85882354}
+  m_Color: {r: 0.05, g: 0.07, b: 0.2, a: 0.9}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -7275,6 +7275,41 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7801752766500784734, guid: 1edc8edd23df2104f8fc0c0f70ac52fd, type: 3}
   m_PrefabInstance: {fileID: 1979538649}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1991819500
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1991819501}
+  m_Layer: 0
+  m_Name: WinnerArea
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1991819501
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991819500}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1991819437}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -40}
+  m_SizeDelta: {x: 1100, y: 380}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &1991819436
 GameObject:
   m_ObjectHideFlags: 0
@@ -7305,6 +7340,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1035303131}
+  - {fileID: 1991819501}
   - {fileID: 260775449}
   - {fileID: 690251564}
   m_Father: {fileID: 2114060301}
@@ -7329,6 +7365,12 @@ MonoBehaviour:
   screenRoot: {fileID: 1991819436}
   resultRowPrefab: {fileID: 3376137778422800919, guid: 202e811feffd4af4aabb59d9f0aa3ff5, type: 3}
   rowContainer: {fileID: 260775449}
+  winnerCardPrefab: {fileID: 3296940290206858242, guid: 24771442bad641e0839c1fd5f8023594, type: 3}
+  winnerContainer: {fileID: 1991819501}
+  rowsStartDelay: 0.5
+  rowInterval: 0.12
+  rowSlideDistance: 300
+  rowSlideDuration: 0.35
 --- !u!1001 &2000583185
 PrefabInstance:
   m_ObjectHideFlags: 0
