@@ -20,12 +20,12 @@ public class AnimalIdleAnimation : MonoBehaviour
 
     [Header("演出（眠る）")]
     [SerializeField] private float breathingDuration = 1f;
-    [SerializeField] private float maxSleepingDuration = 3f;
-    [SerializeField] private float minSleepingDuration = 6f;
+    [SerializeField] private float minSleepingDuration = 3f;
+    [SerializeField] private float maxSleepingDuration = 6f;
 
     [Header("演出（けんか")]
-    [SerializeField] private int maxClashCount = 3;
-    [SerializeField] private int minClashCount = 5;
+    [SerializeField] private int minClashCount = 3;
+    [SerializeField] private int maxClashCount = 5;
 
     [Header("演出（喜ぶ）")]
     [SerializeField] private int minHopCount = 3;
@@ -377,7 +377,7 @@ public class AnimalIdleAnimation : MonoBehaviour
         jumpTween = transform.DOJump(approachPosition, 1f, 1, 1f).SetLink(gameObject);
         yield return jumpTween.WaitForCompletion();
 
-        int clashCount = Random.Range(minClashCount, maxClashCount);
+        int clashCount = Random.Range(minClashCount, maxClashCount + 1);
         Color originalColor = spriteRenderer.color;
         for (int i = 0; i < clashCount; i++)
         {
