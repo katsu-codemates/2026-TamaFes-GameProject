@@ -1171,25 +1171,11 @@ MonoBehaviour:
     m_Bottom: 30
   m_ChildAlignment: 1
   m_StartCorner: 0
-  m_StartAxis: 1
+  m_StartAxis: 0
   m_CellSize: {x: 860, y: 100}
   m_Spacing: {x: 0, y: 10}
   m_Constraint: 1
   m_ConstraintCount: 2
---- !u!114 &1991819517
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 260775448}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
-  m_HorizontalFit: 0
-  m_VerticalFit: 2
 --- !u!1 &278431340
 GameObject:
   m_ObjectHideFlags: 0
@@ -5455,8 +5441,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1465333974}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0023711873, y: 0.7073583, z: -0.002372906, w: 0.70684725}
-  m_LocalPosition: {x: 2536.2078, y: -2.644453, z: 44.999958}
+  m_LocalRotation: {x: 0.20960951, y: -0.07502944, z: 0.01613404, w: 0.97476876}
+  m_LocalPosition: {x: 4961.663, y: 49.492287, z: -117.31557}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6314,7 +6300,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RaceEntryScreen
   animalRoster: {fileID: 11400000, guid: e9f80f43031c17e49b6cad951fd7b158, type: 2}
   raceManager: {fileID: 1725942744}
-  audioManager: {fileID: 606930424}
   entryCardPrefab: {fileID: 266699871885056408, guid: c61ff78996b4cf148afbb36f6e715c5a, type: 3}
   cardContainer: {fileID: 997729283}
   countdownText: {fileID: 63235356}
@@ -7290,6 +7275,68 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7801752766500784734, guid: 1edc8edd23df2104f8fc0c0f70ac52fd, type: 3}
   m_PrefabInstance: {fileID: 1979538649}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1991819436
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1991819437}
+  - component: {fileID: 1991819438}
+  m_Layer: 0
+  m_Name: ResultView
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1991819437
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991819436}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1035303131}
+  - {fileID: 1991819501}
+  - {fileID: 690251564}
+  - {fileID: 1991819511}
+  m_Father: {fileID: 2114060301}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1991819438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991819436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 208e87e7463d4004dbe8c9a5b5871d60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RaceResultScreen
+  screenRoot: {fileID: 1991819436}
+  resultRowPrefab: {fileID: 3376137778422800919, guid: 202e811feffd4af4aabb59d9f0aa3ff5, type: 3}
+  rowContainer: {fileID: 260775449}
+  winnerCardPrefab: {fileID: 3296940290206858242, guid: 24771442bad641e0839c1fd5f8023594, type: 3}
+  winnerContainer: {fileID: 1991819501}
+  rowsStartDelay: 0.5
+  rowInterval: 0.12
+  rowSlideDistance: 300
+  rowSlideDuration: 0.35
+  autoScroller: {fileID: 1991819516}
 --- !u!1 &1991819500
 GameObject:
   m_ObjectHideFlags: 0
@@ -7465,68 +7512,20 @@ MonoBehaviour:
   waitAtEnds: 2
   resumeAfterIdle: 4
   clickThroughButton: {fileID: 690251565}
---- !u!1 &1991819436
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1991819437}
-  - component: {fileID: 1991819438}
-  m_Layer: 0
-  m_Name: ResultView
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1991819437
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1991819436}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1035303131}
-  - {fileID: 1991819501}
-  - {fileID: 690251564}
-  - {fileID: 1991819511}
-  m_Father: {fileID: 2114060301}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1991819438
+--- !u!114 &1991819517
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1991819436}
+  m_GameObject: {fileID: 260775448}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 208e87e7463d4004dbe8c9a5b5871d60, type: 3}
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RaceResultScreen
-  screenRoot: {fileID: 1991819436}
-  resultRowPrefab: {fileID: 3376137778422800919, guid: 202e811feffd4af4aabb59d9f0aa3ff5, type: 3}
-  rowContainer: {fileID: 260775449}
-  winnerCardPrefab: {fileID: 3296940290206858242, guid: 24771442bad641e0839c1fd5f8023594, type: 3}
-  winnerContainer: {fileID: 1991819501}
-  rowsStartDelay: 0.5
-  rowInterval: 0.12
-  rowSlideDistance: 300
-  rowSlideDuration: 0.35
-  autoScroller: {fileID: 1991819516}
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1001 &2000583185
 PrefabInstance:
   m_ObjectHideFlags: 0
