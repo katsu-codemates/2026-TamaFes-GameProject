@@ -13,9 +13,19 @@ public class RaceEntryCardView : MonoBehaviour
     [Header("出場番号専用のテキスト(未設定なら名前の前に番号を付ける)")]
     [SerializeField] private TextMeshProUGUI entryNumberText;
 
-    public void Setup(RaceParticipant participant)
+    /// <summary>名前テキストに元々設定されているマテリアル(ダイナミックフォント生成時のシェーダー参照用)</summary>
+    public Material NameTemplateMaterial => nameText != null ? nameText.fontSharedMaterial : null;
+
+    /// <param name="nameFont">名前に使うフォント。nullならプレハブ設定のまま</param>
+    public void Setup(RaceParticipant participant, TMP_FontAsset nameFont = null)
     {
         AnimalData data = participant.animalData;
+
+        if (nameFont != null)
+        {
+            nameText.font = nameFont;
+        }
+
         EntryNumberFormatter.Apply(participant, nameText, entryNumberText);
 
         // 既存のImageLoaderを使用する。
