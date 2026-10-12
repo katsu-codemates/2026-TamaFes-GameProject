@@ -2,7 +2,7 @@ using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
-/// 待機モーション中に表示する簡単なエフェクト（食べかす・Zzz・怒りマーク・音符）。
+/// 待機モーション中に表示する簡単なエフェクト（食べかす・Zzz・怒りマーク・音符・新規登場のキラキラとNEW!）。
 /// 動物と同じく単一画像をDOTweenで動かし、終わったら破棄する。
 /// エフェクトは動物の子にしない（寝転んだときの回転や呼吸のスケールの影響を受けないようにするため）。
 /// </summary>
@@ -14,6 +14,8 @@ public class AnimalEmoteEffect : MonoBehaviour
     [SerializeField] private Sprite sleepSprite;
     [SerializeField] private Sprite angerSprite;
     [SerializeField] private Sprite noteSprite;
+    [SerializeField] private Sprite sparkleSprite;
+    [SerializeField] private Sprite newBadgeSprite;
 
     [Header("食べかす")]
     [SerializeField] private int minCrumbCount = 3;
@@ -43,6 +45,17 @@ public class AnimalEmoteEffect : MonoBehaviour
     [SerializeField] private float noteRise = 1.2f;
     [SerializeField] private float noteSway = 0.25f;
     [SerializeField] private float noteDuration = 1.2f;
+
+    [Header("新規登場（キラキラ）")]
+    [SerializeField] private int sparkleCount = 6;
+    [SerializeField] private float sparkleSize = 1.2f;
+    [SerializeField] private float sparkleDuration = 0.9f;
+
+    [Header("新規登場（NEW!）")]
+    [SerializeField] private float newBadgeSize = 1.5f;
+    [Tooltip("頭のてっぺんからどれだけ上に出すか")]
+    [SerializeField] private float newBadgeOffset = 0.5f;
+    [SerializeField] private float newBadgeBob = 0.2f;
 
     [Header("共通")]
     [Tooltip("動物の画像に隠れないよう、カメラ側へずらす距離")]
@@ -167,6 +180,90 @@ public class AnimalEmoteEffect : MonoBehaviour
         seq.Insert(0f, note.transform.DOScale(endScale, noteDuration * 0.25f).SetEase(Ease.OutBack));
         seq.Insert(noteDuration * 0.6f, note.DOFade(0f, noteDuration * 0.4f));
         seq.OnComplete(() => Destroy(note.gameObject));
+    }
+
+    /// <summary>
+    /// 体の周りにキラキラがポンと出て、瞬きながら小さくなって消える。新規登場の演出用。
+    /// </summary>
+    public void PlaySparkles()
+    {
+        if (sparkleSprite == null) return;
+
+        Bounds bounds = ownerRenderer.bounds;
+        Vector3 right = CameraRight();
+
+        for (int i = 0; i < sparkleCount; i++)
+        {
+            // 体の輪郭あたりにぐるっと散らす
+            float angle = (i + Random.Range(-0.3f, 0.3f)) / Mathf.Max(sparkleCount, 1) * Mathf.PI * 2f;
+            Vector3 origin = bounds.center
+                + right * Mathf.Cos(angle) * bounds.extents.x * Random.Range(0.8f, 1.2f)
+                + Vector3.up * Mathf.Sin(angle) * bounds.extents.y * Random.Range(0.8f, 1.2f);
+            float size = sparkleSize * Random.Range(0.7f, 1.3f);
+            SpriteRenderer sparkle = Spawn(sparkleSprite, origin, size, Color.white);
+
+            Vector3 endScale = sparkle.transform.localScale;
+            sparkle.transform.localScale = Vector3.zero;
+            float delay = Random.Range(0f, sparkleDuration * 0.3f);
+            float duration = sparkleDuration * Random.Range(0.8f, 1.2f);
+
+            // Billboardが回転を毎フレーム上書きするため、回転は使わず拡大縮小で瞬かせる
+            Sequence seq = DOTween.Sequence().SetLink(sparkle.gameObject);
+            seq.AppendInterval(delay);
+            seq.Append(sparkle.transform.DOScale(endScale, duration * 0.35f).SetEase(Ease.OutBack, 3f));
+            seq.Append(sparkle.transform.DOScale(endScale * 0.6f, duration * 0.15f));
+            seq.Append(sparkle.transform.DOScale(endScale, duration * 0.15f));
+            seq.Append(sparkle.transform.DOScale(0f, duration * 0.35f).SetEase(Ease.InQuad));
+            seq.Insert(delay + duration * 0.65f, sparkle.DOFade(0f, duration * 0.35f));
+            seq.OnComplete(() => Destroy(sparkle.gameObject));
+        }
+    }
+
+    /// <summary>
+    /// 頭上に「NEW!」をポンと出し、ふわふわさせながらduration秒表示して消す。
+    /// 動物は演出のあとすぐ歩き出すので、表示中は毎フレーム頭上に追従させる。
+    /// </summary>
+    public void PlayNewBadge(float duration)
+    {
+        if (newBadgeSprite == null) return;
+
+        SpriteRenderer badge = Spawn(newBadgeSprite, BadgePosition(0f), newBadgeSize, Color.white);
+        Vector3 endScale = badge.transform.localScale;
+        badge.transform.localScale = Vector3.zero;
+        Color baseColor = badge.color;
+        baseColor.a = 1f;
+
+        float popDuration = 0.35f;
+        float fadeDuration = 0.4f;
+        float total = Mathf.Max(duration, popDuration + fadeDuration);
+
+        // 位置とアルファを毎フレーム更新する（エフェクトは動物の子にしない方針なので手動で追従させる）
+        Tween follow = DOTween.To(() => 0f, elapsed =>
+            {
+                if (badge == null) return;
+                float bob = Mathf.Sin(elapsed * Mathf.PI * 2f) * newBadgeBob;
+                badge.transform.position = BadgePosition(bob);
+                // 選択時に他の動物が半透明になっている場合は合わせる。最後はフェードアウトする
+                float fade = Mathf.Clamp01((total - elapsed) / fadeDuration);
+                badge.color = new Color(baseColor.r, baseColor.g, baseColor.b, ownerRenderer.color.a * fade);
+            }, total, total)
+            .SetEase(Ease.Linear);
+
+        // 動物が破棄されたらNEW!も一緒に消えるよう、動物側にリンクする
+        Sequence seq = DOTween.Sequence().SetLink(gameObject);
+        seq.Append(badge.transform.DOScale(endScale, popDuration).SetEase(Ease.OutBack, 3f));
+        seq.Insert(0f, follow);
+        seq.OnKill(() =>
+        {
+            if (badge != null) Destroy(badge.gameObject);
+        });
+    }
+
+    private Vector3 BadgePosition(float bob)
+    {
+        Bounds bounds = ownerRenderer.bounds;
+        Vector3 top = new Vector3(bounds.center.x, bounds.max.y, bounds.center.z);
+        return top + Vector3.up * (newBadgeOffset + newBadgeSize * 0.5f + bob) + TowardCamera();
     }
 
     /// <summary>

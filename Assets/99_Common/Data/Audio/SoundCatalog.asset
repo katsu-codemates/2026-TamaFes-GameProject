@@ -63,3 +63,7 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 7e88a76b772c44d4980a8c7e023a0132, type: 3}
     volume: 0.5
     pitchRange: {x: 1, y: 1}
+  - id: 11
+    clip: {fileID: 8300000, guid: 9a72382cf5b12cf4fb306cfec0bd3a39, type: 3}
+    volume: 0.5
+    pitchRange: {x: 1, y: 1}
