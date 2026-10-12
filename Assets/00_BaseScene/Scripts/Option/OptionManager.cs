@@ -37,6 +37,8 @@ public class OptionManager : MonoBehaviour
 
     public bool IsOpen => optionPanel != null && optionPanel.IsShown;
 
+    private bool isSyncingMaxDisplayCountSlider = false;
+
     private void Update()
     {
         if (!closeWithEscape || !IsOpen) return;
@@ -147,7 +149,7 @@ public class OptionManager : MonoBehaviour
     /// <summary>表示上限スライダー用(onValueChangedのDynamic floatで設定する)。</summary>
     public void OnMaxDisplayCountChanged(float value)
     {
-        if (illustrationManager == null) return;
+        if (illustrationManager == null || isSyncingMaxDisplayCountSlider) return;
 
         illustrationManager.SetMaxDisplayCount(Mathf.RoundToInt(value));
         UpdateMaxDisplayCountLabel();
@@ -160,11 +162,13 @@ public class OptionManager : MonoBehaviour
 
         if (maxDisplayCountSlider != null)
         {
+            isSyncingMaxDisplayCountSlider = true;
             maxDisplayCountSlider.wholeNumbers = true;
             maxDisplayCountSlider.minValue = illustrationManager.MinMaxDisplayCount;
             maxDisplayCountSlider.maxValue = illustrationManager.MaxMaxDisplayCount;
             maxDisplayCountSlider.SetValueWithoutNotify(illustrationManager.MaxDisplayCount);
         }
+        isSyncingMaxDisplayCountSlider = false;
         UpdateMaxDisplayCountLabel();
     }
 
