@@ -192,6 +192,8 @@ MonoBehaviour:
   masterVolumeSlider: {fileID: 2119871453603364417}
   bgmVolumeSlider: {fileID: 696223987897605459}
   seVolumeSlider: {fileID: 5397442115210566018}
+  maxDisplayCountSlider: {fileID: 3295463340737005663}
+  maxDisplayCountLabel: {fileID: 5524908958819481269}
   closeWithEscape: 1
   clickBlockers:
   - {fileID: 1498242133900892418}
@@ -576,6 +578,34 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 4735894449806694111, guid: 40924b4f0c217b549be0b723369963cc, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4735894449806694111, guid: 40924b4f0c217b549be0b723369963cc, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4735894449806694111, guid: 40924b4f0c217b549be0b723369963cc, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2638112921316142133}
+    - target: {fileID: 4735894449806694111, guid: 40924b4f0c217b549be0b723369963cc, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4735894449806694111, guid: 40924b4f0c217b549be0b723369963cc, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnMaxDisplayCountChanged
+      objectReference: {fileID: 0}
+    - target: {fileID: 4735894449806694111, guid: 40924b4f0c217b549be0b723369963cc, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: OptionManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 4735894449806694111, guid: 40924b4f0c217b549be0b723369963cc, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 5114805274125765721, guid: 40924b4f0c217b549be0b723369963cc, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 0
@@ -894,6 +924,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
+--- !u!114 &3295463340737005663 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4735894449806694111, guid: 40924b4f0c217b549be0b723369963cc, type: 3}
+  m_PrefabInstance: {fileID: 7782942104741437056}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
 --- !u!114 &5140196511754409412 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3123024126723853124, guid: 40924b4f0c217b549be0b723369963cc, type: 3}
@@ -916,6 +957,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
+--- !u!114 &5524908958819481269 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2355096692468328501, guid: 40924b4f0c217b549be0b723369963cc, type: 3}
+  m_PrefabInstance: {fileID: 7782942104741437056}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!224 &5615160173332227893 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2445347904851294645, guid: 40924b4f0c217b549be0b723369963cc, type: 3}

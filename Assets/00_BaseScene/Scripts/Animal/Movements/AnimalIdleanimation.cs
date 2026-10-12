@@ -49,6 +49,10 @@ public class AnimalIdleAnimation : MonoBehaviour
     AnimalDataHolder dataHolder;
     AnimalEmoteEffect emoteEffect;
 
+    // 予約中の餌場・寝床の番号。行動中に破棄されたとき(表示上限で消されたときなど)に予約を解除するために覚えておく
+    int reservedFeedingSpotIndex = -1;
+    int reservedBedSpotIndex = -1;
+
     public bool IsBusy { get; set; }
 
     void Start()
@@ -242,6 +246,7 @@ public class AnimalIdleAnimation : MonoBehaviour
     IEnumerator DoEat()
     {
         Transform spot = animalActionScheduler.TryReserveFeedingSpot(out int spotIndex);
+        reservedFeedingSpotIndex = spotIndex;
         if (spot == null)
         {
             // 餌場が空いていなければ通常移動で代替する
@@ -269,12 +274,14 @@ public class AnimalIdleAnimation : MonoBehaviour
         yield return jumpTween.WaitForCompletion();
 
         animalActionScheduler.ReleaseFeedingSpot(spotIndex);
+        reservedFeedingSpotIndex = -1;
         IsBusy = false;
     }
 
     IEnumerator DoSleep()
     {
         Transform spot = animalActionScheduler.TryReserveBedSpot(out int spotIndex);
+        reservedBedSpotIndex = spotIndex;
         if (spot == null)
         {
             // 寝床が空いていなければ通常移動で代替する
@@ -325,6 +332,7 @@ public class AnimalIdleAnimation : MonoBehaviour
         yield return jumpTween.WaitForCompletion();
 
         animalActionScheduler.ReleaseBedSpot(spotIndex);
+        reservedBedSpotIndex = -1;
         IsBusy = false;
     }
 
@@ -415,6 +423,10 @@ public class AnimalIdleAnimation : MonoBehaviour
         if (animalActionScheduler != null)
         {
             animalActionScheduler.Unregister(this);
+
+            // 食事中・睡眠中に破棄された場合、餌場・寝床の予約が残らないように解除する
+            if (reservedFeedingSpotIndex >= 0) animalActionScheduler.ReleaseFeedingSpot(reservedFeedingSpotIndex);
+            if (reservedBedSpotIndex >= 0) animalActionScheduler.ReleaseBedSpot(reservedBedSpotIndex);
         }
     }
 }
