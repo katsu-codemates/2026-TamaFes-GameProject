@@ -35,6 +35,9 @@ public class OptionManager : MonoBehaviour
     [Header("クリック防止")]
     [SerializeField] private GameObject[] clickBlockers;
 
+    // スライダーの範囲を設定している最中かどうか。範囲の変更でもonValueChangedが発火するため、その間は無視する
+    private bool isSyncingMaxDisplayCountSlider;
+
     public bool IsOpen => optionPanel != null && optionPanel.IsShown;
 
     private void Update()
@@ -147,7 +150,7 @@ public class OptionManager : MonoBehaviour
     /// <summary>表示上限スライダー用(onValueChangedのDynamic floatで設定する)。</summary>
     public void OnMaxDisplayCountChanged(float value)
     {
-        if (illustrationManager == null) return;
+        if (illustrationManager == null || isSyncingMaxDisplayCountSlider) return;
 
         illustrationManager.SetMaxDisplayCount(Mathf.RoundToInt(value));
         UpdateMaxDisplayCountLabel();
@@ -160,10 +163,14 @@ public class OptionManager : MonoBehaviour
 
         if (maxDisplayCountSlider != null)
         {
+            // wholeNumbers/minValue/maxValueを変えるとスライダーの値が丸められてonValueChangedが発火し、
+            // 保存済みの上限が最小値で上書きされてしまうため、設定中はコールバックを無視する
+            isSyncingMaxDisplayCountSlider = true;
             maxDisplayCountSlider.wholeNumbers = true;
             maxDisplayCountSlider.minValue = illustrationManager.MinMaxDisplayCount;
             maxDisplayCountSlider.maxValue = illustrationManager.MaxMaxDisplayCount;
             maxDisplayCountSlider.SetValueWithoutNotify(illustrationManager.MaxDisplayCount);
+            isSyncingMaxDisplayCountSlider = false;
         }
         UpdateMaxDisplayCountLabel();
     }
