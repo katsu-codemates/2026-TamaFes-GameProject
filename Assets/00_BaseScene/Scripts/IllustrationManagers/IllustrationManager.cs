@@ -63,9 +63,12 @@ public class IllustrationManager : MonoBehaviour
     private IEnumerator RepeatDisplay()
     {
         var wait = new WaitForSeconds(loadingInterval);
+        // シーン開始（または再読み込み）直後の1回目は、まとめて並べるだけで登場演出は出さない
+        bool isInitialLoad = true;
         while(true)
         {
-            yield return LoadAnyDisplayAll();
+            yield return LoadAnyDisplayAll(isInitialLoad);
+            isInitialLoad = false;
             Debug.Log("表示中の動物の数:" + displayedIllustrations.Count);
             
             yield return wait;
@@ -73,7 +76,7 @@ public class IllustrationManager : MonoBehaviour
         }
     }
 
-    private IEnumerator LoadAnyDisplayAll()
+    private IEnumerator LoadAnyDisplayAll(bool isInitialLoad)
     {
         ImageData[] imageList = null;
         string errorMessage = null;
@@ -98,14 +101,18 @@ public class IllustrationManager : MonoBehaviour
             }
 
             // 新しい画像を表示する
-            yield return DisplayImage(imageData);
+            yield return DisplayImage(imageData, isInitialLoad);
         }
     }
 
-    private IEnumerator DisplayImage(ImageData imageData)
+    private IEnumerator DisplayImage(ImageData imageData, bool isInitialLoad)
     {
         Sprite sprite = null;
         string errorMessage = null;
+
+        // ImageLoaderが読み込み時にキャッシュを保存するので、読み込む前に判定する。
+        // キャッシュが無い＝この端末で初めて読み込まれた動物（アプリを再起動しても初回扱いにはならない）
+        bool isFirstLoad = !ImageCache.ExistsCacheFile(imageData.createdAt);
 
         // ImageLoaderを使ってImageDataからSpriteを取得する
         yield return ImageLoader.LoadSpriteFromBase64(
@@ -142,6 +149,12 @@ public class IllustrationManager : MonoBehaviour
         if (animation != null)
         {
             animation.Initialize(actionScheduler);
+
+            // 新しく追加された動物だと分かるように登場演出を付ける
+            if (isFirstLoad && !isInitialLoad)
+            {
+                animation.RequestEntrance();
+            }
         }
 
         go.transform.localPosition = new Vector3(

@@ -36,6 +36,17 @@ public class AnimalIdleAnimation : MonoBehaviour
     [SerializeField] private float finalJumpDuration = 0.9f;
     [SerializeField] private Color celebrateColor = new Color(1f, 0.92f, 0.5f, 1f);
 
+    [Header("演出（新規登場）")]
+    [Tooltip("着地点からどれだけ上から落ちてくるか")]
+    [SerializeField] private float entranceDropHeight = 6f;
+    [SerializeField] private float entranceDropDuration = 0.8f;
+    [SerializeField] private Color entranceGlowColor = new Color(1f, 1f, 0.75f, 1f);
+    [Tooltip("着地後に明滅する回数")]
+    [SerializeField] private int entranceGlowCount = 3;
+    [Tooltip("頭上の「NEW!」を表示しておく時間（秒）。演出が終わって歩き出した後も追従して残る")]
+    [SerializeField] private float newBadgeDuration = 5f;
+    [SerializeField] private SeId entranceSe = SeId.HighJump;
+
     [Header("エフェクト")]
     [Tooltip("眠っている間に「Z」を出す間隔（秒）")]
     [SerializeField] private float sleepZInterval = 0.8f;
@@ -48,6 +59,7 @@ public class AnimalIdleAnimation : MonoBehaviour
     AnimalActionScheduler animalActionScheduler;
     AnimalDataHolder dataHolder;
     AnimalEmoteEffect emoteEffect;
+    bool playEntranceOnStart;
 
     public bool IsBusy { get; set; }
 
@@ -58,13 +70,85 @@ public class AnimalIdleAnimation : MonoBehaviour
         dataHolder = GetComponent<AnimalDataHolder>();
         emoteEffect = GetComponent<AnimalEmoteEffect>();
         animalActionScheduler.Register(this);
-        IdleMotion();
-        randomMoveCoroutine = StartCoroutine(RandomMove());
+        if (playEntranceOnStart)
+        {
+            randomMoveCoroutine = StartCoroutine(EntranceThenRandomMove());
+        }
+        else
+        {
+            IdleMotion();
+            randomMoveCoroutine = StartCoroutine(RandomMove());
+        }
     }
 
     public void Initialize(AnimalActionScheduler animalActionScheduler)
     {
         this.animalActionScheduler = animalActionScheduler;
+    }
+
+    /// <summary>
+    /// 新しく追加された動物として、表示開始時に登場演出を再生させる。Start()より前に呼ぶこと。
+    /// </summary>
+    public void RequestEntrance()
+    {
+        playEntranceOnStart = true;
+    }
+
+    IEnumerator EntranceThenRandomMove()
+    {
+        yield return DoEntrance();
+        IdleMotion();
+        // 同じコルーチン内で続けて実行するので、OnDestroyのStopCoroutineで一緒に止まる
+        yield return RandomMove();
+    }
+
+    /// <summary>
+    /// 空から落ちてきて着地し、キラキラ光って「NEW!」を出す。
+    /// </summary>
+    IEnumerator DoEntrance()
+    {
+        // 演出中にけんか相手として予約されないようにする
+        IsBusy = true;
+        Vector3 landingPosition = transform.position;
+        Vector3 originalScale = transform.localScale;
+        Color originalColor = spriteRenderer.color;
+
+        // 上空から落下する（落ちる間は縦に伸ばして勢いを出す）
+        transform.position = landingPosition + Vector3.up * entranceDropHeight;
+        transform.localScale = Vector3.Scale(originalScale, new Vector3(0.85f, 1.2f, 1f));
+        jumpTween = transform.DOMove(landingPosition, entranceDropDuration)
+            .SetEase(Ease.InQuad)
+            .SetLink(gameObject);
+        yield return jumpTween.WaitForCompletion();
+
+        AudioManager.Instance.PlaySe(entranceSe);
+        if (emoteEffect != null)
+        {
+            emoteEffect.PlaySparkles();
+            emoteEffect.PlayNewBadge(newBadgeDuration);
+        }
+
+        // 着地のつぶれ
+        transform.localScale = originalScale;
+        yield return SquashAndStretch(originalScale, new Vector3(1.35f, 0.65f, 1f), 0.3f);
+
+        // 光るように明滅させる。
+        // 選択時の透過演出（アルファ変更）を潰さないよう、RGBだけを変える
+        Tween glowTween = DOTween.To(() => 0f, t =>
+            {
+                Color c = Color.Lerp(originalColor, entranceGlowColor, t);
+                c.a = spriteRenderer.color.a;
+                spriteRenderer.color = c;
+            }, 1f, 0.2f)
+            .SetLoops(Mathf.Max(entranceGlowCount, 1) * 2, LoopType.Yoyo)
+            .SetLink(gameObject);
+        yield return glowTween.WaitForCompletion();
+
+        transform.position = landingPosition;
+        transform.localScale = originalScale;
+        spriteRenderer.color = new Color(originalColor.r, originalColor.g, originalColor.b, spriteRenderer.color.a);
+
+        IsBusy = false;
     }
 
     void IdleMotion()

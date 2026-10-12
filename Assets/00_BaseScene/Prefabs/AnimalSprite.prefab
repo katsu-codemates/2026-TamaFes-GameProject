@@ -224,6 +224,8 @@ MonoBehaviour:
   sleepSprite: {fileID: 21300000, guid: 6f96aca222224ade88ba420f2b2ab140, type: 3}
   angerSprite: {fileID: 21300000, guid: b89f99dcb2194a3491044c68591950c2, type: 3}
   noteSprite: {fileID: 21300000, guid: a503f23da0554d4cb18b5f1fb7747d1f, type: 3}
+  sparkleSprite: {fileID: 21300000, guid: dfca16e077714bfab879f4317b25eac0, type: 3}
+  newBadgeSprite: {fileID: 21300000, guid: 793941228cc943c9a7f93da7e341f205, type: 3}
   minCrumbCount: 3
   maxCrumbCount: 5
   crumbSize: 0.5
