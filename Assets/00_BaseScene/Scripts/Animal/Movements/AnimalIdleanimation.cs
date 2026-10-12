@@ -45,7 +45,7 @@ public class AnimalIdleAnimation : MonoBehaviour
     [SerializeField] private int entranceGlowCount = 3;
     [Tooltip("頭上の「NEW!」を表示しておく時間（秒）。演出が終わって歩き出した後も追従して残る")]
     [SerializeField] private float newBadgeDuration = 5f;
-    [SerializeField] private SeId entranceSe = SeId.HighJump;
+    [SerializeField] private SeId entranceSe = SeId.Landing;
 
     [Header("エフェクト")]
     [Tooltip("眠っている間に「Z」を出す間隔（秒）")]

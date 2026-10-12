@@ -28,4 +28,5 @@ public enum SeId
     Attack = 8,
     Jump = 9,
     HighJump = 10,
+    Landing = 11,
 }

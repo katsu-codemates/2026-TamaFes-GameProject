@@ -133,6 +133,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AnimalDataHolder
   Data:
     animalName: 
+    creatorName: 
     imageBase64: 
     createdAt: 
     speed: 0
@@ -207,6 +208,12 @@ MonoBehaviour:
   finalJumpHeight: 2
   finalJumpDuration: 0.9
   celebrateColor: {r: 1, g: 0.92, b: 0.5, a: 1}
+  entranceDropHeight: 6
+  entranceDropDuration: 0.8
+  entranceGlowColor: {r: 1, g: 1, b: 0.75, a: 1}
+  entranceGlowCount: 3
+  newBadgeDuration: 5
+  entranceSe: 11
   sleepZInterval: 0.8
 --- !u!114 &5312406871935518264
 MonoBehaviour:
@@ -245,4 +252,10 @@ MonoBehaviour:
   noteRise: 1.2
   noteSway: 0.25
   noteDuration: 1.2
+  sparkleCount: 6
+  sparkleSize: 1.2
+  sparkleDuration: 0.9
+  newBadgeSize: 1.5
+  newBadgeOffset: 0.5
+  newBadgeBob: 0.2
   towardCameraOffset: 0.3
