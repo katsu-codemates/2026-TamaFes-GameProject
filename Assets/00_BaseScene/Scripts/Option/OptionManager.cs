@@ -1,9 +1,10 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
 /// BaseSceneのオプション画面を管理するクラス。
-/// 音量設定・キャッシュクリア・動物画像の再読み込み・ゲーム終了を行う。
+/// 音量設定・動物の表示上限・キャッシュクリア・動物画像の再読み込み・ゲーム終了を行う。
 /// ボタンのonClickやスライダーのonValueChangedには、Inspectorから各publicメソッドを設定する。
 /// </summary>
 public class OptionManager : MonoBehaviour
@@ -23,6 +24,10 @@ public class OptionManager : MonoBehaviour
     [SerializeField] private Slider masterVolumeSlider;
     [SerializeField] private Slider bgmVolumeSlider;
     [SerializeField] private Slider seVolumeSlider;
+
+    [Header("動物の表示上限スライダー (最小・最大値はIllustrationManagerの設定で上書きされる)")]
+    [SerializeField] private Slider maxDisplayCountSlider;
+    [SerializeField] private TextMeshProUGUI maxDisplayCountLabel;
 
     [Header("Escキーでオプションを閉じるか")]
     [SerializeField] private bool closeWithEscape = true;
@@ -69,6 +74,7 @@ public class OptionManager : MonoBehaviour
         }
 
         SyncVolumeSliders();
+        SyncMaxDisplayCountSlider();
         optionPanel.Show();
     }
 
@@ -136,12 +142,47 @@ public class OptionManager : MonoBehaviour
 
     #endregion
 
+    #region 動物の表示上限
+
+    /// <summary>表示上限スライダー用(onValueChangedのDynamic floatで設定する)。</summary>
+    public void OnMaxDisplayCountChanged(float value)
+    {
+        if (illustrationManager == null) return;
+
+        illustrationManager.SetMaxDisplayCount(Mathf.RoundToInt(value));
+        UpdateMaxDisplayCountLabel();
+    }
+
+    // スライダーの範囲と位置を現在の表示上限に合わせる。onValueChangedは発火させない
+    private void SyncMaxDisplayCountSlider()
+    {
+        if (illustrationManager == null) return;
+
+        if (maxDisplayCountSlider != null)
+        {
+            maxDisplayCountSlider.wholeNumbers = true;
+            maxDisplayCountSlider.minValue = illustrationManager.MinMaxDisplayCount;
+            maxDisplayCountSlider.maxValue = illustrationManager.MaxMaxDisplayCount;
+            maxDisplayCountSlider.SetValueWithoutNotify(illustrationManager.MaxDisplayCount);
+        }
+        UpdateMaxDisplayCountLabel();
+    }
+
+    private void UpdateMaxDisplayCountLabel()
+    {
+        if (maxDisplayCountLabel == null || illustrationManager == null) return;
+
+        maxDisplayCountLabel.text = $"{illustrationManager.MaxDisplayCount}";
+    }
+
+    #endregion
+
     #region キャッシュクリア
 
     /// <summary>キャッシュクリアボタン用。確認ダイアログを出してから削除する。</summary>
     public void OnClearCacheButtonClicked()
     {
-        Confirm("キャッシュ（画像・レース履歴・音量設定）を\n削除しますか？", ClearCache);
+        Confirm("キャッシュ（画像・レース履歴・音量設定・表示上限）を\n削除しますか？", ClearCache);
     }
 
     private void ClearCache()
@@ -153,6 +194,11 @@ public class OptionManager : MonoBehaviour
             audioManager.ResetVolumesToDefault();
         }
         SyncVolumeSliders();
+        if (illustrationManager != null)
+        {
+            illustrationManager.ResetMaxDisplayCountToDefault();
+        }
+        SyncMaxDisplayCountSlider();
 
         Debug.Log("キャッシュを削除しました");
         ShowToast("キャッシュを削除しました");

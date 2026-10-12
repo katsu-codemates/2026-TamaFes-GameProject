@@ -35,6 +35,18 @@ public class IllustrationManager : MonoBehaviour
     [Header("表示座標の最大絶対値")]
     [SerializeField] private float displayPositionSqu = 5f; // 一片の長さがこの値の二倍である正方形の領域に表示する。
 
+    [Header("動物の表示上限(オプションで変更でき、PlayerPrefsに保存される)")]
+    [SerializeField] private int defaultMaxDisplayCount = 30;
+    [SerializeField] private int minMaxDisplayCount = 1;
+    [SerializeField] private int maxMaxDisplayCount = 100;
+
+    [Header("表示上限を変えてから一覧を取得し直すまでの待ち時間（秒）")]
+    [Tooltip("スライダーを動かしている間に何度も通信しないようにするため")]
+    [SerializeField] private float limitChangeReloadDelay = 1f;
+
+    // 表示上限を保存するPlayerPrefsのキー
+    private const string MaxDisplayCountKey = "MaxDisplayAnimalCount";
+
     // imageNameと表示中のGameObjectの対応を保持する辞書。生成済みの画像を管理し、二重生成の防止や後で消すのに使う。
     private readonly Dictionary<string, GameObject> displayedIllustrations = new Dictionary<string, GameObject>();
 
@@ -43,6 +55,16 @@ public class IllustrationManager : MonoBehaviour
 
     private IImageProvider imageProvider;
     private Coroutine repeatCoroutine;
+    private int maxDisplayCount;
+
+    public int MaxDisplayCount => maxDisplayCount;
+    public int MinMaxDisplayCount => minMaxDisplayCount;
+    public int MaxMaxDisplayCount => maxMaxDisplayCount;
+
+    private void Awake()
+    {
+        maxDisplayCount = ClampMaxDisplayCount(PlayerPrefs.GetInt(MaxDisplayCountKey, defaultMaxDisplayCount));
+    }
 
     private void Start()
     {
@@ -60,8 +82,13 @@ public class IllustrationManager : MonoBehaviour
         repeatCoroutine = StartCoroutine(RepeatDisplay());
     }
 
-    private IEnumerator RepeatDisplay()
+    private IEnumerator RepeatDisplay(float initialDelay = 0f)
     {
+        if (initialDelay > 0f)
+        {
+            yield return new WaitForSeconds(initialDelay);
+        }
+
         var wait = new WaitForSeconds(loadingInterval);
         // シーン開始（または再読み込み）直後の1回目は、まとめて並べるだけで登場演出は出さない
         bool isInitialLoad = true;
@@ -92,7 +119,38 @@ public class IllustrationManager : MonoBehaviour
             yield break;
         }
 
+        // 作成日時が新しい順に表示上限の数だけ選ぶ。createdAtはISO形式なので文字列の比較で日時順になる
+        var targets = new List<ImageData>();
         foreach (var imageData in imageList)
+        {
+            if (string.IsNullOrEmpty(imageData.createdAt))
+            {
+                Debug.LogWarning($"createdAtが空の画像はスキップします: {imageData.title}");
+                continue;
+            }
+            targets.Add(imageData);
+        }
+        targets.Sort((a, b) => string.CompareOrdinal(b.createdAt, a.createdAt));
+        if (targets.Count > maxDisplayCount)
+        {
+            targets.RemoveRange(maxDisplayCount, targets.Count - maxDisplayCount);
+        }
+
+        // 表示対象から外れた動物(新しい動物に押し出された古い動物など)を消す
+        var targetIds = new HashSet<string>();
+        foreach (var imageData in targets)
+        {
+            targetIds.Add(imageData.createdAt);
+        }
+        foreach (var imageId in new List<string>(displayedIllustrations.Keys))
+        {
+            if (!targetIds.Contains(imageId))
+            {
+                RemoveIllustration(imageId);
+            }
+        }
+
+        foreach (var imageData in targets)
         {
             // 既に表示済みならスキップ
             if (displayedIllustrations.ContainsKey(imageData.createdAt))
@@ -106,6 +164,92 @@ public class IllustrationManager : MonoBehaviour
     }
 
     private IEnumerator DisplayImage(ImageData imageData, bool isInitialLoad)
+    /// <summary>
+    /// 表示中の動物を1体消す。レースの出走候補からも外す。
+    /// </summary>
+    private void RemoveIllustration(string imageId)
+    {
+        if (!displayedIllustrations.TryGetValue(imageId, out var go))
+        {
+            return;
+        }
+
+        if (go != null)
+        {
+            var holder = go.GetComponent<AnimalDataHolder>();
+
+            // 選択中の動物が破棄されるとカメラのフォーカスが外れなくなるため、先に選択を解除する
+            if (selectionManager != null && holder != null && selectionManager.SelectedAnimal == holder)
+            {
+                selectionManager.Unselect();
+            }
+            if (holder != null && holder.Data != null)
+            {
+                registeredAnimals.Remove(holder.Data);
+            }
+
+            // AnimalIdleAnimation.OnDestroyでTweenの停止・スケジューラからの登録解除・餌場や寝床の予約解除が行われる
+            Destroy(go);
+        }
+
+        displayedIllustrations.Remove(imageId);
+    }
+
+    /// <summary>
+    /// 表示上限を古い動物から削って守る。通信せずにすぐ反映できる。
+    /// </summary>
+    private void TrimToMaxDisplayCount()
+    {
+        if (displayedIllustrations.Count <= maxDisplayCount) return;
+
+        var imageIds = new List<string>(displayedIllustrations.Keys);
+        imageIds.Sort(string.CompareOrdinal); // 古い順
+        int removeCount = imageIds.Count - maxDisplayCount;
+        for (int i = 0; i < removeCount; i++)
+        {
+            RemoveIllustration(imageIds[i]);
+        }
+    }
+
+    private int ClampMaxDisplayCount(int count)
+    {
+        return Mathf.Clamp(count, minMaxDisplayCount, maxMaxDisplayCount);
+    }
+
+    /// <summary>
+    /// 表示上限を変更して保存する。減らした場合は古い動物からすぐに消し、
+    /// 増やした場合は少し待ってから一覧を取得し直して足りない分を表示する。
+    /// </summary>
+    public void SetMaxDisplayCount(int count)
+    {
+        count = ClampMaxDisplayCount(count);
+        if (count == maxDisplayCount) return;
+
+        maxDisplayCount = count;
+        PlayerPrefs.SetInt(MaxDisplayCountKey, maxDisplayCount);
+        PlayerPrefs.Save();
+
+        TrimToMaxDisplayCount();
+
+        // スライダー操作中に何度も通信しないよう、取得のやり直しは待ち時間を置いてから行う
+        if (repeatCoroutine != null)
+        {
+            StopCoroutine(repeatCoroutine);
+        }
+        repeatCoroutine = StartCoroutine(RepeatDisplay(limitChangeReloadDelay));
+    }
+
+    /// <summary>
+    /// 保存した表示上限を削除して初期値に戻す(キャッシュクリア用)。
+    /// </summary>
+    public void ResetMaxDisplayCountToDefault()
+    {
+        PlayerPrefs.DeleteKey(MaxDisplayCountKey);
+        PlayerPrefs.Save();
+        SetMaxDisplayCount(defaultMaxDisplayCount);
+    }
+
+    private IEnumerator DisplayImage(ImageData imageData)
     {
         Sprite sprite = null;
         string errorMessage = null;
