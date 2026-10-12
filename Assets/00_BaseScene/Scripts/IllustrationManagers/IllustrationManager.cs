@@ -163,7 +163,6 @@ public class IllustrationManager : MonoBehaviour
         }
     }
 
-    private IEnumerator DisplayImage(ImageData imageData, bool isInitialLoad)
     /// <summary>
     /// 表示中の動物を1体消す。レースの出走候補からも外す。
     /// </summary>
@@ -249,8 +248,7 @@ public class IllustrationManager : MonoBehaviour
         SetMaxDisplayCount(defaultMaxDisplayCount);
     }
 
-    private IEnumerator DisplayImage(ImageData imageData)
-    {
+    private IEnumerator DisplayImage(ImageData imageData, bool isInitialLoad)    {
         Sprite sprite = null;
         string errorMessage = null;
 
