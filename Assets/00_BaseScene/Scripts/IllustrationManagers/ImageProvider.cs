@@ -41,6 +41,8 @@ public class TestImageProvider : IImageProvider
             imageDataList[i] = new ImageData
             {
                 title = filenames[i],
+                // 表示中の動物を見分けるキーと「新しい順」の並び替えに使う。後ろにある画像ほど新しい扱いにする
+                createdAt = $"test-{i:D4}-{filenames[i]}",
                 creatorName = "テストさくしゃ", // 作者検索の動作確認用
                 image = System.IO.Path.Combine(Application.streamingAssetsPath, "TestImages", filenames[i])
             };
