@@ -172,7 +172,7 @@ public class OptionManager : MonoBehaviour
     {
         if (maxDisplayCountLabel == null || illustrationManager == null) return;
 
-        maxDisplayCountLabel.text = $"{illustrationManager.MaxDisplayCount}体";
+        maxDisplayCountLabel.text = $"{illustrationManager.MaxDisplayCount}";
     }
 
     #endregion
