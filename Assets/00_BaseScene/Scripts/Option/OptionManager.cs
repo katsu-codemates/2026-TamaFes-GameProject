@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// BaseSceneのオプション画面を管理するクラス。
-/// 音量設定・動物の表示上限・キャッシュクリア・動物画像の再読み込み・ゲーム終了を行う。
+/// 音量設定・動物の表示上限・カメラ操作設定・キャッシュクリア・動物画像の再読み込み・ゲーム終了を行う。
 /// ボタンのonClickやスライダーのonValueChangedには、Inspectorから各publicメソッドを設定する。
 /// </summary>
 public class OptionManager : MonoBehaviour
@@ -29,6 +29,16 @@ public class OptionManager : MonoBehaviour
     [SerializeField] private Slider maxDisplayCountSlider;
     [SerializeField] private TextMeshProUGUI maxDisplayCountLabel;
 
+    [Header("カメラ感度スライダー (最小・最大値はCameraMoverの設定で上書きされる)")]
+    [SerializeField] private Slider cameraMouseSensitivitySlider;
+    [SerializeField] private TextMeshProUGUI cameraMouseSensitivityLabel;
+    [SerializeField] private Slider cameraKeySensitivitySlider;
+    [SerializeField] private TextMeshProUGUI cameraKeySensitivityLabel;
+
+    [Header("カメラ反転トグル")]
+    [SerializeField] private Toggle cameraInvertHorizontalToggle;
+    [SerializeField] private Toggle cameraInvertVerticalToggle;
+
     [Header("Escキーでオプションを閉じるか")]
     [SerializeField] private bool closeWithEscape = true;
 
@@ -38,6 +48,7 @@ public class OptionManager : MonoBehaviour
     public bool IsOpen => optionPanel != null && optionPanel.IsShown;
 
     private bool isSyncingMaxDisplayCountSlider = false;
+    private bool isSyncingCameraSettingsUI = false;
 
     private void Update()
     {
@@ -77,6 +88,7 @@ public class OptionManager : MonoBehaviour
 
         SyncVolumeSliders();
         SyncMaxDisplayCountSlider();
+        SyncCameraSettingsUI();
         optionPanel.Show();
     }
 
@@ -181,12 +193,79 @@ public class OptionManager : MonoBehaviour
 
     #endregion
 
+    #region カメラ操作
+
+    /// <summary>カメラ感度(マウス)スライダー用(onValueChangedのDynamic floatで設定する)。</summary>
+    public void OnCameraMouseSensitivityChanged(float value)
+    {
+        if (cameraMover == null || isSyncingCameraSettingsUI) return;
+
+        cameraMover.SetMouseSensitivityMultiplier(value);
+        UpdateCameraSensitivityLabels();
+    }
+
+    /// <summary>カメラ感度(WASD)スライダー用(onValueChangedのDynamic floatで設定する)。</summary>
+    public void OnCameraKeySensitivityChanged(float value)
+    {
+        if (cameraMover == null || isSyncingCameraSettingsUI) return;
+
+        cameraMover.SetKeySensitivityMultiplier(value);
+        UpdateCameraSensitivityLabels();
+    }
+
+    /// <summary>カメラ左右反転トグル用(onValueChangedのDynamic boolで設定する)。</summary>
+    public void OnCameraInvertHorizontalChanged(bool isOn)
+    {
+        if (cameraMover != null && !isSyncingCameraSettingsUI) cameraMover.SetInvertHorizontal(isOn);
+    }
+
+    /// <summary>カメラ上下反転トグル用(onValueChangedのDynamic boolで設定する)。</summary>
+    public void OnCameraInvertVerticalChanged(bool isOn)
+    {
+        if (cameraMover != null && !isSyncingCameraSettingsUI) cameraMover.SetInvertVertical(isOn);
+    }
+
+    // スライダー・トグルを現在のカメラ設定に合わせる。onValueChangedは発火させない
+    private void SyncCameraSettingsUI()
+    {
+        if (cameraMover == null) return;
+
+        // minValue/maxValueの変更で値がクランプされるとonValueChangedが発火するため、その間は保存しない
+        isSyncingCameraSettingsUI = true;
+        SyncCameraSensitivitySlider(cameraMouseSensitivitySlider, cameraMover.MouseSensitivityMultiplier);
+        SyncCameraSensitivitySlider(cameraKeySensitivitySlider, cameraMover.KeySensitivityMultiplier);
+        if (cameraInvertHorizontalToggle != null) cameraInvertHorizontalToggle.SetIsOnWithoutNotify(cameraMover.InvertHorizontal);
+        if (cameraInvertVerticalToggle != null) cameraInvertVerticalToggle.SetIsOnWithoutNotify(cameraMover.InvertVertical);
+        isSyncingCameraSettingsUI = false;
+        UpdateCameraSensitivityLabels();
+    }
+
+    private void SyncCameraSensitivitySlider(Slider slider, float value)
+    {
+        if (slider == null) return;
+
+        slider.wholeNumbers = false;
+        slider.minValue = cameraMover.MinSensitivityMultiplier;
+        slider.maxValue = cameraMover.MaxSensitivityMultiplier;
+        slider.SetValueWithoutNotify(value);
+    }
+
+    private void UpdateCameraSensitivityLabels()
+    {
+        if (cameraMover == null) return;
+
+        if (cameraMouseSensitivityLabel != null) cameraMouseSensitivityLabel.text = $"x{cameraMover.MouseSensitivityMultiplier:0.0}";
+        if (cameraKeySensitivityLabel != null) cameraKeySensitivityLabel.text = $"x{cameraMover.KeySensitivityMultiplier:0.0}";
+    }
+
+    #endregion
+
     #region キャッシュクリア
 
     /// <summary>キャッシュクリアボタン用。確認ダイアログを出してから削除する。</summary>
     public void OnClearCacheButtonClicked()
     {
-        Confirm("キャッシュ（画像・レース履歴・音量設定・表示上限）を\n削除しますか？", ClearCache);
+        Confirm("キャッシュ（画像・レース履歴・音量設定・表示上限・カメラ設定）を\n削除しますか？", ClearCache);
     }
 
     private void ClearCache()
@@ -203,6 +282,11 @@ public class OptionManager : MonoBehaviour
             illustrationManager.ResetMaxDisplayCountToDefault();
         }
         SyncMaxDisplayCountSlider();
+        if (cameraMover != null)
+        {
+            cameraMover.ResetSettingsToDefault();
+        }
+        SyncCameraSettingsUI();
 
         Debug.Log("キャッシュを削除しました");
         ShowToast("キャッシュを削除しました");
