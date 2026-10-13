@@ -29,6 +29,19 @@ public class CameraMover : MonoBehaviour
 	[SerializeField]
 	private bool _invertVerticalRotationControl = false;
 
+    [Header("オプション画面から変更する感度倍率(PlayerPrefsに保存される)")]
+    //マウス操作（回転・ドラッグ移動・ホイールズーム）の感度倍率
+    [SerializeField]
+    private float _mouseSensitivityMultiplier = 1.0f;
+    //キー操作（WASD・QE）の移動速度倍率
+    [SerializeField]
+    private float _keySensitivityMultiplier = 1.0f;
+    //感度倍率の下限・上限
+    [SerializeField]
+    private float _minSensitivityMultiplier = 0.2f;
+    [SerializeField]
+    private float _maxSensitivityMultiplier = 3.0f;
+
     [Header("可動範囲の制限")]
     //可動範囲の基準にする床
     [SerializeField]
@@ -66,6 +79,35 @@ public class CameraMover : MonoBehaviour
     private bool _uiMessageActiv;
     //可動範囲（床の大きさから算出）
     private float _minX, _maxX, _minY, _maxY, _minZ, _maxZ;
+
+    //カメラ設定を保存するPlayerPrefsのキー
+    private const string MouseSensitivityKey = "CameraMouseSensitivity";
+    private const string KeySensitivityKey = "CameraKeySensitivity";
+    private const string InvertHorizontalKey = "CameraInvertHorizontal";
+    private const string InvertVerticalKey = "CameraInvertVertical";
+
+    //Inspectorで設定した初期値（キャッシュクリア時にここへ戻す）
+    private float _defaultMouseSensitivityMultiplier;
+    private float _defaultKeySensitivityMultiplier;
+    private bool _defaultInvertHorizontal;
+    private bool _defaultInvertVertical;
+
+    public float MouseSensitivityMultiplier => _mouseSensitivityMultiplier;
+    public float KeySensitivityMultiplier => _keySensitivityMultiplier;
+    public float MinSensitivityMultiplier => _minSensitivityMultiplier;
+    public float MaxSensitivityMultiplier => _maxSensitivityMultiplier;
+    public bool InvertHorizontal => _invertHorizontalRotationControl;
+    public bool InvertVertical => _invertVerticalRotationControl;
+
+    void Awake()
+    {
+        _defaultMouseSensitivityMultiplier = _mouseSensitivityMultiplier;
+        _defaultKeySensitivityMultiplier = _keySensitivityMultiplier;
+        _defaultInvertHorizontal = _invertHorizontalRotationControl;
+        _defaultInvertVertical = _invertVerticalRotationControl;
+
+        LoadSettings();
+    }
 
     void Start ()
 	{
@@ -173,9 +215,9 @@ public class CameraMover : MonoBehaviour
 			float y = (_startMousePos.y - Input.mousePosition.y) / Screen.height;
 
 			//回転開始角度 ＋ マウスの変化量 * マウス感度 * 反転
-			float eulerX = _presentCamRotation.x + y * _mouseSensitive * invertVertical;
+			float eulerX = _presentCamRotation.x + y * _mouseSensitive * _mouseSensitivityMultiplier * invertVertical;
 			eulerX = Mathf.Clamp(eulerX, _minPitchAngle, _maxPitchAngle); // 真上・真下・反転を防ぐ
-			float eulerY = _presentCamRotation.y + x * _mouseSensitive * invertHorizontal;
+			float eulerY = _presentCamRotation.y + x * _mouseSensitive * _mouseSensitivityMultiplier * invertHorizontal;
 
 			_camTransform.rotation = Quaternion.Euler(eulerX, eulerY, 0);
 		}
@@ -196,8 +238,8 @@ public class CameraMover : MonoBehaviour
 			float x = (_startMousePos.x - Input.mousePosition.x) / (Screen.width * 0.1f);
 			float y = (_startMousePos.y - Input.mousePosition.y) / (Screen.height * 0.1f);
 
-            x = x * _positionStep;
-            y = y * _positionStep;
+            x = x * _positionStep * _mouseSensitivityMultiplier;
+            y = y * _positionStep * _mouseSensitivityMultiplier;
 
             Vector3 velocity = _camTransform.rotation * new Vector3(x, y, 0);
             velocity = velocity + _presentCamPos;
@@ -210,7 +252,7 @@ public class CameraMover : MonoBehaviour
 		float scroll = Input.mouseScrollDelta.y;
 		Vector3 campos = _camTransform.position;
 
-		campos += _camTransform.forward * scroll * _positionStep * 0.5f;
+		campos += _camTransform.forward * scroll * _positionStep * _mouseSensitivityMultiplier * 0.5f;
 
 		_camTransform.position = campos;
 	}
@@ -219,16 +261,81 @@ public class CameraMover : MonoBehaviour
 	private void CameraPositionKeyControl()
 	{
         Vector3 campos = _camTransform.position;
-		
-		if (Input.GetKey(KeyCode.D)) { campos += _camTransform.right * Time.deltaTime * _positionStep; }
-		if (Input.GetKey(KeyCode.A)) { campos -= _camTransform.right * Time.deltaTime * _positionStep; }
-		if (Input.GetKey(KeyCode.E)) { campos += _camTransform.up * Time.deltaTime * _positionStep; }
-		if (Input.GetKey(KeyCode.Q)) { campos -= _camTransform.up * Time.deltaTime * _positionStep; }
-		if (Input.GetKey(KeyCode.W)) { campos += _camTransform.forward * Time.deltaTime * _positionStep; }
-		if (Input.GetKey(KeyCode.S)) { campos -= _camTransform.forward * Time.deltaTime * _positionStep; }
+        float step = Time.deltaTime * _positionStep * _keySensitivityMultiplier;
+
+		if (Input.GetKey(KeyCode.D)) { campos += _camTransform.right * step; }
+		if (Input.GetKey(KeyCode.A)) { campos -= _camTransform.right * step; }
+		if (Input.GetKey(KeyCode.E)) { campos += _camTransform.up * step; }
+		if (Input.GetKey(KeyCode.Q)) { campos -= _camTransform.up * step; }
+		if (Input.GetKey(KeyCode.W)) { campos += _camTransform.forward * step; }
+		if (Input.GetKey(KeyCode.S)) { campos -= _camTransform.forward * step; }
 
 		_camTransform.position = campos;
 	}
+
+    #region オプション画面からの設定
+
+    //マウス感度の倍率を設定する
+    public void SetMouseSensitivityMultiplier(float value)
+    {
+        _mouseSensitivityMultiplier = ClampSensitivityMultiplier(value);
+        PlayerPrefs.SetFloat(MouseSensitivityKey, _mouseSensitivityMultiplier);
+        PlayerPrefs.Save();
+    }
+
+    //キー操作（WASD・QE）の移動速度の倍率を設定する
+    public void SetKeySensitivityMultiplier(float value)
+    {
+        _keySensitivityMultiplier = ClampSensitivityMultiplier(value);
+        PlayerPrefs.SetFloat(KeySensitivityKey, _keySensitivityMultiplier);
+        PlayerPrefs.Save();
+    }
+
+    //左右のカメラ回転を反転するか設定する
+    public void SetInvertHorizontal(bool invert)
+    {
+        _invertHorizontalRotationControl = invert;
+        PlayerPrefs.SetInt(InvertHorizontalKey, invert ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    //上下のカメラ回転を反転するか設定する
+    public void SetInvertVertical(bool invert)
+    {
+        _invertVerticalRotationControl = invert;
+        PlayerPrefs.SetInt(InvertVerticalKey, invert ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    //保存したカメラ設定を消してInspectorの初期値に戻す
+    public void ResetSettingsToDefault()
+    {
+        PlayerPrefs.DeleteKey(MouseSensitivityKey);
+        PlayerPrefs.DeleteKey(KeySensitivityKey);
+        PlayerPrefs.DeleteKey(InvertHorizontalKey);
+        PlayerPrefs.DeleteKey(InvertVerticalKey);
+        PlayerPrefs.Save();
+
+        _mouseSensitivityMultiplier = ClampSensitivityMultiplier(_defaultMouseSensitivityMultiplier);
+        _keySensitivityMultiplier = ClampSensitivityMultiplier(_defaultKeySensitivityMultiplier);
+        _invertHorizontalRotationControl = _defaultInvertHorizontal;
+        _invertVerticalRotationControl = _defaultInvertVertical;
+    }
+
+    private void LoadSettings()
+    {
+        _mouseSensitivityMultiplier = ClampSensitivityMultiplier(PlayerPrefs.GetFloat(MouseSensitivityKey, _mouseSensitivityMultiplier));
+        _keySensitivityMultiplier = ClampSensitivityMultiplier(PlayerPrefs.GetFloat(KeySensitivityKey, _keySensitivityMultiplier));
+        _invertHorizontalRotationControl = PlayerPrefs.GetInt(InvertHorizontalKey, _invertHorizontalRotationControl ? 1 : 0) != 0;
+        _invertVerticalRotationControl = PlayerPrefs.GetInt(InvertVerticalKey, _invertVerticalRotationControl ? 1 : 0) != 0;
+    }
+
+    private float ClampSensitivityMultiplier(float value)
+    {
+        return Mathf.Clamp(value, _minSensitivityMultiplier, _maxSensitivityMultiplier);
+    }
+
+    #endregion
 
     //UIメッセージの表示
     private IEnumerator DisplayUiMessage()
