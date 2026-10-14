@@ -189,6 +189,13 @@ public class CameraMover : MonoBehaviour
 		// カメラ操作が無効化されている間（動物へのフォーカス中など）は何もしない
 		if (!enabled) return;
 
+		ForceResetCameraToDefault();
+	}
+
+	//enabledに関係なく位置・回転を初期状態に戻す
+	//オプション画面表示中はOptionManagerがCameraMoverを無効化しているため、オプションのリセットボタンからはこちらを使う
+	public void ForceResetCameraToDefault()
+	{
 		_camTransform.position = _initialCamPosition;
 		_camTransform.rotation = _initialCamRotation;
 		Debug.Log("Cam Reset : pos=" + _initialCamPosition + " rot=" + _initialCamRotation);

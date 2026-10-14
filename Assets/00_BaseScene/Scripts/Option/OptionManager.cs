@@ -225,6 +225,16 @@ public class OptionManager : MonoBehaviour
         if (cameraMover != null && !isSyncingCameraSettingsUI) cameraMover.SetInvertVertical(isOn);
     }
 
+    /// <summary>カメラ位置リセットボタン用。カメラを初期位置・初期角度に戻す。</summary>
+    public void OnResetCameraButtonClicked()
+    {
+        if (cameraMover == null) return;
+
+        // オプション表示中はCameraMoverが無効化されているので、enabledを見ない方のリセットを呼ぶ
+        cameraMover.ForceResetCameraToDefault();
+        ShowToast("カメラの位置を元に戻しました");
+    }
+
     // スライダー・トグルを現在のカメラ設定に合わせる。onValueChangedは発火させない
     private void SyncCameraSettingsUI()
     {
