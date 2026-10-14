@@ -71,6 +71,11 @@ public class CameraMover : MonoBehaviour
     //カメラ回転の始点情報
     private Vector3 _presentCamRotation;
     private Vector3 _presentCamPos;
+    //ドラッグが有効な状態で開始されたか（無効中に押されたボタンを、有効化後にドラッグとして扱わないため）
+    private bool _isRotateDragging;
+    private bool _isSlideDragging;
+    //最後に有効化されたフレーム（そのフレームのクリックはフォーカス解除などに使われたものなので無視する）
+    private int _enabledFrame = -1;
     //初期状態 Rotation
     private Quaternion _initialCamRotation;
     //初期状態 Position
@@ -109,6 +114,27 @@ public class CameraMover : MonoBehaviour
         LoadSettings();
     }
 
+    void OnEnable()
+    {
+        _enabledFrame = Time.frameCount;
+        CancelDrag();
+    }
+
+    void OnDisable()
+    {
+        CancelDrag();
+    }
+
+    //ドラッグ状態を破棄する
+    private void CancelDrag()
+    {
+        _isRotateDragging = false;
+        _isSlideDragging = false;
+    }
+
+    //このフレームでドラッグを開始してよいか
+    private bool CanStartDrag => Time.frameCount != _enabledFrame;
+
     void Start ()
 	{
 		_camTransform = this.gameObject.transform;
@@ -132,6 +158,10 @@ public class CameraMover : MonoBehaviour
 			CameraZoomMouseControl(); //カメラのズーム　マウス
             CameraPositionKeyControl(); //カメラのローカル移動 キー
             ClampCameraPosition(); //可動範囲の制限
+        }
+        else
+        {
+            CancelDrag();
         }
 	}
 
@@ -205,8 +235,9 @@ public class CameraMover : MonoBehaviour
 	{
 		float invertVertical = _invertVerticalRotationControl ? -1.0f : 1.0f;
 		float invertHorizontal = _invertHorizontalRotationControl ? -1.0f : 1.0f;
-		if (Input.GetMouseButtonDown(0))
+		if (Input.GetMouseButtonDown(0) && CanStartDrag)
 		{
+			_isRotateDragging = true;
 			_startMousePos = Input.mousePosition;
 			//eulerAngles.xは[0,360)で返るため、-80〜80等の範囲でクランプできるよう(-180,180]に正規化して保存する
 			float rawX = _camTransform.transform.eulerAngles.x;
@@ -214,7 +245,12 @@ public class CameraMover : MonoBehaviour
 			_presentCamRotation.y = _camTransform.transform.eulerAngles.y;
 		}
 
-		if (Input.GetMouseButton(0))
+		if (!Input.GetMouseButton(0))
+		{
+			_isRotateDragging = false;
+		}
+
+		if (_isRotateDragging)
 		{
 			//(移動開始座標 - マウスの現在座標) / 解像度 で正規化
 			float x = (_startMousePos.x - Input.mousePosition.x) / Screen.width;
@@ -232,13 +268,19 @@ public class CameraMover : MonoBehaviour
 	//カメラの移動 マウス
 	private void CameraSlideMouseControl()
 	{
-		if (Input.GetMouseButtonDown(1))
+		if (Input.GetMouseButtonDown(1) && CanStartDrag)
 		{
+			_isSlideDragging = true;
 			_startMousePos = Input.mousePosition;
 			_presentCamPos = _camTransform.position;
 		}
 
-		if (Input.GetMouseButton(1))
+		if (!Input.GetMouseButton(1))
+		{
+			_isSlideDragging = false;
+		}
+
+		if (_isSlideDragging)
 		{
 			//(移動開始座標 - マウスの現在座標) / 解像度 で正規化
 			float x = (_startMousePos.x - Input.mousePosition.x) / (Screen.width * 0.1f);
