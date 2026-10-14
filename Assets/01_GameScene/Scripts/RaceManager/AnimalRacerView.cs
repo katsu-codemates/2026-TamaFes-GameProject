@@ -54,7 +54,7 @@ public class AnimalRacerView : MonoBehaviour
                 if (spriteRenderer != null)
                 {
                     spriteRenderer.sprite = loadedSprite;
-                    spriteRenderer.flipX = true;
+                    spriteRenderer.flipX = false;
                 }
             },
             onError: (error) =>
