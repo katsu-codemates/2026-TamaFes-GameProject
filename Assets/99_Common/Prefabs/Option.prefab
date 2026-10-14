@@ -192,7 +192,6 @@ MonoBehaviour:
   masterVolumeSlider: {fileID: 2119871453603364417}
   bgmVolumeSlider: {fileID: 696223987897605459}
   seVolumeSlider: {fileID: 5397442115210566018}
-  maxDisplayCountSlider: {fileID: 3295463340737005663}
   maxDisplayCountLabel: {fileID: 5524908958819481269}
   cameraMouseSensitivitySlider: {fileID: 2050304885911830726}
   cameraMouseSensitivityLabel: {fileID: 7736738376066244416}

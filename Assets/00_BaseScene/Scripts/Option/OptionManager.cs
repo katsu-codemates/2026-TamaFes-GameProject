@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// BaseSceneのオプション画面を管理するクラス。
-/// 音量設定・動物の表示上限・カメラ操作設定・キャッシュクリア・動物画像の再読み込み・ゲーム終了を行う。
+/// 音量設定・動物の表示上限・出走数・カメラ操作設定・キャッシュクリア・動物画像の再読み込み・ゲーム終了を行う。
 /// ボタンのonClickやスライダーのonValueChangedには、Inspectorから各publicメソッドを設定する。
 /// </summary>
 public class OptionManager : MonoBehaviour
@@ -25,9 +25,15 @@ public class OptionManager : MonoBehaviour
     [SerializeField] private Slider bgmVolumeSlider;
     [SerializeField] private Slider seVolumeSlider;
 
-    [Header("動物の表示上限スライダー (最小・最大値はIllustrationManagerの設定で上書きされる)")]
-    [SerializeField] private Slider maxDisplayCountSlider;
+    [Header("動物の表示上限 (最小・最大値はIllustrationManagerの設定に従う)")]
+    [SerializeField] private Button maxDisplayCountMinusButton;
+    [SerializeField] private Button maxDisplayCountPlusButton;
     [SerializeField] private TextMeshProUGUI maxDisplayCountLabel;
+
+    [Header("出走数 (最小・最大値はRacerCountSettingの定数に従う)")]
+    [SerializeField] private Button racerCountMinusButton;
+    [SerializeField] private Button racerCountPlusButton;
+    [SerializeField] private TextMeshProUGUI racerCountLabel;
 
     [Header("カメラ感度スライダー (最小・最大値はCameraMoverの設定で上書きされる)")]
     [SerializeField] private Slider cameraMouseSensitivitySlider;
@@ -47,7 +53,6 @@ public class OptionManager : MonoBehaviour
 
     public bool IsOpen => optionPanel != null && optionPanel.IsShown;
 
-    private bool isSyncingMaxDisplayCountSlider = false;
     private bool isSyncingCameraSettingsUI = false;
 
     private void Update()
@@ -87,7 +92,8 @@ public class OptionManager : MonoBehaviour
         }
 
         SyncVolumeSliders();
-        SyncMaxDisplayCountSlider();
+        UpdateMaxDisplayCountUI();
+        UpdateRacerCountUI();
         SyncCameraSettingsUI();
         optionPanel.Show();
     }
@@ -158,37 +164,83 @@ public class OptionManager : MonoBehaviour
 
     #region 動物の表示上限
 
-    /// <summary>表示上限スライダー用(onValueChangedのDynamic floatで設定する)。</summary>
-    public void OnMaxDisplayCountChanged(float value)
+    /// <summary>表示上限のプラスボタン用。</summary>
+    public void IncreaseMaxDisplayCount()
     {
-        if (illustrationManager == null || isSyncingMaxDisplayCountSlider) return;
-
-        illustrationManager.SetMaxDisplayCount(Mathf.RoundToInt(value));
-        UpdateMaxDisplayCountLabel();
+        ChangeMaxDisplayCount(1);
     }
 
-    // スライダーの範囲と位置を現在の表示上限に合わせる。onValueChangedは発火させない
-    private void SyncMaxDisplayCountSlider()
+    /// <summary>表示上限のマイナスボタン用。</summary>
+    public void DecreaseMaxDisplayCount()
+    {
+        ChangeMaxDisplayCount(-1);
+    }
+
+    private void ChangeMaxDisplayCount(int delta)
     {
         if (illustrationManager == null) return;
 
-        if (maxDisplayCountSlider != null)
-        {
-            isSyncingMaxDisplayCountSlider = true;
-            maxDisplayCountSlider.wholeNumbers = true;
-            maxDisplayCountSlider.minValue = illustrationManager.MinMaxDisplayCount;
-            maxDisplayCountSlider.maxValue = illustrationManager.MaxMaxDisplayCount;
-            maxDisplayCountSlider.SetValueWithoutNotify(illustrationManager.MaxDisplayCount);
-        }
-        isSyncingMaxDisplayCountSlider = false;
-        UpdateMaxDisplayCountLabel();
+        illustrationManager.SetMaxDisplayCount(illustrationManager.MaxDisplayCount + delta);
+        UpdateMaxDisplayCountUI();
     }
 
-    private void UpdateMaxDisplayCountLabel()
+    // ラベルを現在の表示上限に合わせ、最小値ならマイナス・最大値ならプラスを押せなくする
+    private void UpdateMaxDisplayCountUI()
     {
-        if (maxDisplayCountLabel == null || illustrationManager == null) return;
+        if (illustrationManager == null) return;
 
-        maxDisplayCountLabel.text = $"{illustrationManager.MaxDisplayCount}";
+        UpdateStepperUI(
+            illustrationManager.MaxDisplayCount,
+            illustrationManager.MinMaxDisplayCount,
+            illustrationManager.MaxMaxDisplayCount,
+            maxDisplayCountMinusButton,
+            maxDisplayCountPlusButton,
+            maxDisplayCountLabel);
+    }
+
+    #endregion
+
+    #region 出走数
+
+    /// <summary>出走数のプラスボタン用。</summary>
+    public void IncreaseRacerCount()
+    {
+        ChangeRacerCount(1);
+    }
+
+    /// <summary>出走数のマイナスボタン用。</summary>
+    public void DecreaseRacerCount()
+    {
+        ChangeRacerCount(-1);
+    }
+
+    private void ChangeRacerCount(int delta)
+    {
+        RacerCountSetting.Set(RacerCountSetting.Get() + delta);
+        UpdateRacerCountUI();
+    }
+
+    // ラベルを現在の出走数に合わせ、最小値ならマイナス・最大値ならプラスを押せなくする
+    private void UpdateRacerCountUI()
+    {
+        UpdateStepperUI(
+            RacerCountSetting.Get(),
+            RacerCountSetting.Min,
+            RacerCountSetting.Max,
+            racerCountMinusButton,
+            racerCountPlusButton,
+            racerCountLabel);
+    }
+
+    #endregion
+
+    #region プラス・マイナスボタン共通
+
+    private void UpdateStepperUI(int value, int min, int max, Button minusButton, Button plusButton, TextMeshProUGUI label)
+    {
+        if (minusButton != null) minusButton.interactable = value > min;
+        if (plusButton != null) plusButton.interactable = value < max;
+        if (label != null) label.text = $"{value}";
     }
 
     #endregion
@@ -274,7 +326,7 @@ public class OptionManager : MonoBehaviour
     /// <summary>キャッシュクリアボタン用。確認ダイアログを出してから削除する。</summary>
     public void OnClearCacheButtonClicked()
     {
-        Confirm("キャッシュ（画像・レース履歴・音量設定・表示上限・カメラ設定）を\n削除しますか？", ClearCache);
+        Confirm("キャッシュ（画像・レース履歴・音量設定・表示上限・出走数・カメラ設定）を\n削除しますか？", ClearCache);
     }
 
     private void ClearCache()
@@ -290,7 +342,9 @@ public class OptionManager : MonoBehaviour
         {
             illustrationManager.ResetMaxDisplayCountToDefault();
         }
-        SyncMaxDisplayCountSlider();
+        UpdateMaxDisplayCountUI();
+        RacerCountSetting.ResetToDefault();
+        UpdateRacerCountUI();
         if (cameraMover != null)
         {
             cameraMover.ResetSettingsToDefault();

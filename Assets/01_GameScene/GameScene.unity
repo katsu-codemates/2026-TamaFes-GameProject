@@ -6779,7 +6779,6 @@ MonoBehaviour:
   raceCommentator: {fileID: 1725942746}
   raceSoundDirector: {fileID: 1725942749}
   raceResultScreen: {fileID: 1991819438}
-  racerCount: 20
 --- !u!114 &1725942746
 MonoBehaviour:
   m_ObjectHideFlags: 0
