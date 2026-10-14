@@ -697,23 +697,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2050304885911830726, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2050304885911830726, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2050304885911830726, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 330585543}
+      objectReference: {fileID: 1380263282}
     - target: {fileID: 2050304885911830726, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2050304885911830726, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnCameraMouseSensitivityChanged
+      objectReference: {fileID: 0}
+    - target: {fileID: 2050304885911830726, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: UnityEngine.GameObject, UnityEngine
+      value: OptionManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 2050304885911830726, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 2638112921316142133, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
       propertyPath: cameraMover
@@ -890,6 +898,34 @@ PrefabInstance:
     - target: {fileID: 6719260990842637008, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
       propertyPath: m_AnchorMin.x
       value: 0.474
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994414875071219583, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994414875071219583, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994414875071219583, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 330585548}
+    - target: {fileID: 6994414875071219583, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994414875071219583, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ResetCameraToDefault
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994414875071219583, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: CameraMover, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994414875071219583, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 7079949035443477289, guid: 3f791ca210ae9cc46ae21e9b07c41763, type: 3}
       propertyPath: m_AnchorMax.x
@@ -1084,6 +1120,10 @@ MonoBehaviour:
   _mouseSensitive: 90
   _invertHorizontalRotationControl: 0
   _invertVerticalRotationControl: 1
+  _mouseSensitivityMultiplier: 1
+  _keySensitivityMultiplier: 1
+  _minSensitivityMultiplier: 0.2
+  _maxSensitivityMultiplier: 3
   _floorReference: {fileID: 1878038790}
   _boundsMarginMultiplier: 1.3
   _minHeightAboveFloor: 1

@@ -225,6 +225,15 @@ public class OptionManager : MonoBehaviour
         if (cameraMover != null && !isSyncingCameraSettingsUI) cameraMover.SetInvertVertical(isOn);
     }
 
+    /// <summary>カメラ位置リセットボタン用</summary>
+    public void ResetCameraPosition()
+    {
+        if (cameraMover != null)
+        {
+            cameraMover.ForcedResetCameraToDefault();
+        }
+    }
+
     // スライダー・トグルを現在のカメラ設定に合わせる。onValueChangedは発火させない
     private void SyncCameraSettingsUI()
     {
