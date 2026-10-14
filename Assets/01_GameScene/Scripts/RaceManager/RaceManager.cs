@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
+using System;
 
 /// <summary>
 /// レースの進行を管理するクラス。
@@ -32,6 +32,7 @@ public class RaceManager : MonoBehaviour
 
     [Header("結果画面")]
     [SerializeField] private RaceResultScreen raceResultScreen;
+    [SerializeField] private float resultScreenDelay = 2f;
 
     [Header("出走数")]
     [SerializeField] private int racerCount = 5;
@@ -66,12 +67,12 @@ public class RaceManager : MonoBehaviour
         // 出走回数が少ない動物を優先して抽選する（同じ回数の中ではランダム）
         List<AnimalData> selectedAnimals = allAnimals
             .OrderBy(a => RaceHistoryStore.GetRaceCount(a.AnimalId))
-            .ThenBy(a => Random.value)
+            .ThenBy(a => UnityEngine.Random.value)
             .Take(racerCount)
             .ToList();
 
         // 出走回数順のままだとレーンが偏るので、レーン割り当て前にシャッフルする
-        selectedAnimals = selectedAnimals.OrderBy(a => Random.value).ToList();
+        selectedAnimals = selectedAnimals.OrderBy(a => UnityEngine.Random.value).ToList();
 
         participants = selectedAnimals
             .Select((animalData, index) => new RaceParticipant(animalData, index, raceTuning))
@@ -178,14 +179,15 @@ public class RaceManager : MonoBehaviour
 
         if (finishedOrder.Count == participants.Count)
         {
-            OnRaceComplete();
+            StartCoroutine(OnRaceComplete());
         }
     }
 
-    private void OnRaceComplete()
+    private System.Collections.IEnumerator OnRaceComplete()
     {
         // 結果画面へ
         Debug.Log("レース終了");
+        yield return new WaitForSeconds(resultScreenDelay);
         RaceHistoryStore.RecordRace(finishedOrder);
         if (raceSoundDirector != null) raceSoundDirector.StopCheer();
         if (raceResultScreen != null)
