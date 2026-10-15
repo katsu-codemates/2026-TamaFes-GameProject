@@ -30,6 +30,9 @@ public class RaceManager : MonoBehaviour
     [Header("画面に合わせたSE演出")]
     [SerializeField] private RaceSoundDirector raceSoundDirector;
 
+    [Header("ミニマップ(レース全体の進行バー)")]
+    [SerializeField] private RaceMinimap raceMinimap;
+
     [Header("結果画面")]
     [SerializeField] private RaceResultScreen raceResultScreen;
     [SerializeField] private float resultScreenDelay = 2f;
@@ -101,6 +104,8 @@ public class RaceManager : MonoBehaviour
             racerViews.Add(racerView);
             viewByParticipant[participant] = racerView;
         }
+
+        if (raceMinimap != null) raceMinimap.SetParticipants(participants);
 
         Debug.Log("レーススタート");
         audioManager.PlaySe(SeId.Start);
@@ -190,6 +195,7 @@ public class RaceManager : MonoBehaviour
         yield return new WaitForSeconds(resultScreenDelay);
         RaceHistoryStore.RecordRace(finishedOrder);
         if (raceSoundDirector != null) raceSoundDirector.StopCheer();
+        if (raceMinimap != null) raceMinimap.Hide();
         if (raceResultScreen != null)
         {
             raceResultScreen.Show(finishedOrder);
