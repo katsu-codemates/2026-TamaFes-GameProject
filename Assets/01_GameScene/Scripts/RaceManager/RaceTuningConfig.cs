@@ -32,20 +32,21 @@ public class RaceTuningConfig : ScriptableObject
 
     [Header("終盤：スパート")]
     public float spurtMinStaminaRatio = 0.35f; // これ以上スタミナが残っていないとスパートしない
-    public float suprtBaseChance = 0.4f; // 発動確率
+    public float spurtBaseChance = 0.4f; // 発動確率
     public float spurtBonusRange = 4f; // スパート時の速度ボーナス幅（スタミナで変動）
     public float spurtDuration = 2.5f; // スパート持続時間
     public float spurtConsumption = 0.5f; // スパート時スタミナ減少倍率
 
     [Header("運：アクシデント")]
-    public float baseAccidentChancePerSeccond = 0.02f; // 運0の場合の発生率（秒あたり）
-    public float luckReducttionFactor = 0.8f; // 運による軽減効果(0~1)
+    public float baseAccidentChancePerSecond = 0.02f; // 運0の場合の発生率（秒あたり）
+    public float luckReductionFactor = 0.8f; // 運による軽減効果(0~1)
     public float accidentDuration = 1.0f; // よろけている時間(秒)
     public float accidentSlowMin = 0.5f; // 減速倍率の範囲
     public float accidentSlowMax = 0.7f;
 
     [Header("運：ミラクル")]
-    public float miracleChancePerSecond = 0.004f;
+    public float miracleChancePerSecond = 0.0001f; // 運0の場合の発生率（秒あたり）
+    public float miracleLuckFactor = 0.5f; // 運による発生率増加効果(0~1)
     public float miracleDuration = 1.0f;
     public float miracleBoostMin = 1.3f;
     public float miracleBoostMax = 1.6f;

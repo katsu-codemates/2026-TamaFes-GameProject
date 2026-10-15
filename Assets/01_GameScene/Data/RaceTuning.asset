@@ -27,16 +27,17 @@ MonoBehaviour:
   fatigueThreshold: 0.3
   minFatigueFactor: 0.6
   spurtMinStaminaRatio: 0.5
-  suprtBaseChance: 0.4
+  spurtBaseChance: 0.4
   spurtBonusRange: 15
   spurtDuration: 15
   spurtConsumption: 0.6
-  baseAccidentChancePerSeccond: 0.04
-  luckReducttionFactor: 0.99
+  baseAccidentChancePerSecond: 0.08
+  luckReductionFactor: 1.2
   accidentDuration: 1.2
   accidentSlowMin: 0.5
   accidentSlowMax: 0.9
   miracleChancePerSecond: 0.004
+  miracleLuckFactor: 0.5
   miracleDuration: 1
   miracleBoostMin: 1.3
   miracleBoostMax: 1.6
@@ -44,3 +45,8 @@ MonoBehaviour:
   overtakeMargin: 0.0015
   overtakeStartProgress: 0.1
   overtakeCheckInterval: 0.2
+  speedVariation: 0.99
+  powerVariation: 0.99
+  wisdomVariation: 0.99
+  luckVariation: 0.99
+  staminaVariation: 0.99

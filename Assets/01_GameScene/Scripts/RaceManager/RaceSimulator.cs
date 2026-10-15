@@ -174,7 +174,7 @@ public class RaceSimulator
         float luckNorm = participant.animalData.luck / 100f;
 
         // アクシデント（運が高いほど発生しにくい）
-        float accidentChance = raceTuning.baseAccidentChancePerSeccond * (1f - luckNorm * raceTuning.luckReducttionFactor);
+        float accidentChance = raceTuning.baseAccidentChancePerSecond * (1f - luckNorm * raceTuning.luckReductionFactor);
         if (Random.value < accidentChance * deltaTime) // deltaTimeをかけることで、毎フレームではなく毎秒の抽選
         {
             participant.isAccident = true;
@@ -184,7 +184,8 @@ public class RaceSimulator
         }
 
         // ミラクル（運に関係なく全員共通の確率で発生）
-        if (Random.value < raceTuning.miracleChancePerSecond * deltaTime)
+        float miracleChance = raceTuning.miracleChancePerSecond * (1f + luckNorm * raceTuning.miracleLuckFactor);
+        if (Random.value < miracleChance * deltaTime)
         {
             participant.isMiracle = true;
             participant.miracleTimer = raceTuning.miracleDuration;
