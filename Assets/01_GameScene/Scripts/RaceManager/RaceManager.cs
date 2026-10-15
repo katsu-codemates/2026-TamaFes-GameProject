@@ -37,9 +37,6 @@ public class RaceManager : MonoBehaviour
     [SerializeField] private RaceResultScreen raceResultScreen;
     [SerializeField] private float resultScreenDelay = 2f;
 
-    [Header("出走数")]
-    [SerializeField] private int racerCount = 5;
-
     private List<RaceParticipant> participants = new List<RaceParticipant>();
     private List<RaceParticipant> finishedOrder = new List<RaceParticipant>();
     private List<AnimalRacerView> racerViews = new List<AnimalRacerView>();
@@ -67,6 +64,9 @@ public class RaceManager : MonoBehaviour
     /// </summary>
     public List<AnimalData> SelectParticipants(List<AnimalData> allAnimals)
     {
+        // 出走数はBaseSceneのオプション画面で設定した値を使う
+        int racerCount = RacerCountSetting.Get();
+
         // 出走回数が少ない動物を優先して抽選する（同じ回数の中ではランダム）
         List<AnimalData> selectedAnimals = allAnimals
             .OrderBy(a => RaceHistoryStore.GetRaceCount(a.AnimalId))

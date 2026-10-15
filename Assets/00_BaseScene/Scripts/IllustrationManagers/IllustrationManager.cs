@@ -230,7 +230,7 @@ public class IllustrationManager : MonoBehaviour
 
         TrimToMaxDisplayCount();
 
-        // スライダー操作中に何度も通信しないよう、取得のやり直しは待ち時間を置いてから行う
+        // ボタンの連打・長押し中に何度も通信しないよう、取得のやり直しは待ち時間を置いてから行う
         if (repeatCoroutine != null)
         {
             StopCoroutine(repeatCoroutine);
