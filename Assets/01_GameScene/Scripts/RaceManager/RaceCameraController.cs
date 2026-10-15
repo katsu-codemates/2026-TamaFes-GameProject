@@ -4,8 +4,10 @@ using Unity.Cinemachine;
 using System.Collections;
 
 /// <summary>
-/// レースの先頭集団を追従するカメラの制御クラス。
-/// 先頭が独走しているときは、先頭と後続集団のショットを交互にカットで切り替える。
+/// レースの走者を追従するカメラの制御クラス。
+/// カメラの距離を変えて（寄り引き）なるべく全員を画面に収める。
+/// 最大まで引いても入りきらないときは、1位から入るだけ映す前方ショットと、
+/// 入りきらなかった走者を映す後続ショットを交互にカットで切り替える。
 /// </summary>
 public class RaceCameraController : MonoBehaviour
 {
@@ -37,33 +39,37 @@ public class RaceCameraController : MonoBehaviour
     [Header("斜め上から見下ろす角度。固定")]
     [SerializeField] private Vector3 fixedAngles = new Vector3(35f, -135f, 0f);
 
-    [Header("先頭からどれだけ後方に位置するか")]
-    [SerializeField] private float distanceBehind = 10f;
+    [Header("寄り引き：最も寄った時のカメラ距離（少頭数・密集時）")]
+    [SerializeField] private float minDistance = 25f;
+
+    [Header("寄り引き：最も引いた時のカメラ距離。これで入りきらない走者は後続ショットで映す")]
+    [SerializeField] private float maxDistance = 120f;
+
+    [Header("寄り引き：画面端の余白（画角に掛ける率。小さいほど余白が大きい）")]
+    [Range(0.3f, 1f)]
+    [SerializeField] private float screenMargin = 0.85f;
+
+    [Header("寄り引き：動物の絵の大きさ分の余白（ワールド単位）")]
+    [SerializeField] private float racerPadding = 2f;
+
+    [Header("寄り引き：引く／寄る時の滑らかさ（寄りは遅めにして往復を防ぐ）")]
+    [SerializeField] private float zoomOutSmoothTime = 0.4f;
+    [SerializeField] private float zoomInSmoothTime = 1.0f;
 
     [Header("カメラの高さ")]
     [SerializeField] private float height = 5f;
 
-
-
     [Header("カメラの追従の滑らかさ")]
     [SerializeField] private float smoothTime = 0.3f;
 
-    [Header("ショット切替：1位と2位の差がこの距離以下なら集団の中心を追う")]
-    [SerializeField] private float groupFramingDistance = 25f;
+    [Header("ショット切替：全員がこの率×最大距離に収まったら全員ショットに戻る（ちらつき防止のため1未満）")]
+    [Range(0.5f, 1f)]
+    [SerializeField] private float regroupDistanceRatio = 0.85f;
 
-    [Header("ショット切替：独走状態から集団追従に戻る距離（ちらつき防止のため上より小さく）")]
-    [SerializeField] private float groupReenterDistance = 18f;
-
-    [Header("ショット切替：独走時に各ショットを映す秒数")]
+    [Header("ショット切替：入りきらない時に前方／後続の各ショットを映す秒数")]
     [SerializeField] private float leaderShotDuration = 4f;
     [SerializeField] private float chaserShotDuration = 3f;
     public float ChaserShotDuration => chaserShotDuration;
-
-    [Header("ショット切替：2位からこの距離以内の走者を後続集団として映す")]
-    [SerializeField] private float chaserGroupRange = 25f;
-
-    [Header("ショット切替：集団として映す最大人数")]
-    [SerializeField] private int maxGroupSize = 3;
 
     [Header("カメラ位置の優先度")]
     [SerializeField] private int basePriority=10;
@@ -84,6 +90,9 @@ public class RaceCameraController : MonoBehaviour
     [SerializeField] private float slowMotionDuration = 0.5f;
 
     private Vector3 velocity;
+    private Vector3 smoothedCenter;
+    private float currentDistance = -1f;
+    private float distanceVelocity;
     private Vector3 focusVelocity;
     private List<RaceParticipant> participants;
     private RaceParticipant focusedParticipant;
@@ -107,11 +116,11 @@ public class RaceCameraController : MonoBehaviour
     // 追従カメラのショット種別
     private enum ShotMode
     {
-        Group,  // 先頭集団の中心を追う
-        Leader, // 独走中：先頭を映す
-        Chaser, // 独走中：後続集団を映す
+        All,    // 全員が収まる：全員を映す
+        Front,  // 入りきらない：1位から入るだけ映す
+        Chaser, // 入りきらない：前方ショットに入らなかった走者から入るだけ映す
     }
-    private ShotMode currentShot = ShotMode.Group;
+    private ShotMode currentShot = ShotMode.All;
     private float shotTimer;
     private readonly List<RaceParticipant> ranking = new List<RaceParticipant>();
     private static readonly System.Comparison<RaceParticipant> ByProgressDesc =
@@ -155,8 +164,10 @@ public class RaceCameraController : MonoBehaviour
     {
         participants = list;
         hasTriggeredGoalCamera=false;
-        currentShot = ShotMode.Group;
+        currentShot = ShotMode.All;
         shotTimer = 0f;
+        // 初回フレームは目標位置へ即座に合わせる
+        currentDistance = -1f;
     }
 
     private void OnEnable()
@@ -197,32 +208,41 @@ public class RaceCameraController : MonoBehaviour
             TriggerGoalCamera();
         }
 
-        // 独走状態かどうかでショットを決める。切り替わった瞬間はカットで映像を切り替える
+        // 全員が収まるかどうかでショットを決める。切り替わった瞬間はカットで映像を切り替える
         bool isCut = UpdateShotMode();
+        int startRank, endRank;
+        GetShotRange(out startRank, out endRank);
         if (isCut && currentShot == ShotMode.Chaser && !hasTriggeredGoalCamera)
         {
-            OnChaserShotStarted?.Invoke(GetGroupMembers(1, chaserGroupRange));
+            OnChaserShotStarted?.Invoke(GetMembers(startRank, endRank));
         }
-        Vector3 shotCenter = GetShotCenter();
 
-        Quaternion fixedRotation=Quaternion.Euler(fixedAngles);
-        Vector3 targetPosition=shotCenter
-            -(fixedRotation*Vector3.forward)
-            *distanceBehind
-            +Vector3.up*height;
+        Vector3 shotCenter;
+        float requiredDistance = GetRequiredDistance(startRank, endRank, out shotCenter);
+        float targetDistance = Mathf.Clamp(requiredDistance, minDistance, maxDistance);
 
-        Transform camTransform = followVCam.transform;
-        if (isCut)
+        if (isCut || currentDistance < 0f)
         {
             // 差が大きいとパンでは映像が流れて見づらいため、瞬時に切り替える
-            camTransform.position = targetPosition;
+            smoothedCenter = shotCenter;
+            currentDistance = targetDistance;
             velocity = Vector3.zero;
+            distanceVelocity = 0f;
             followVCam.PreviousStateIsValid = false;
         }
         else
         {
-            camTransform.position = Vector3.SmoothDamp(camTransform.position, targetPosition, ref velocity, smoothTime);
+            smoothedCenter = Vector3.SmoothDamp(smoothedCenter, shotCenter, ref velocity, smoothTime);
+            // 引くときは見切れないよう速めに、寄るときはゆっくり
+            float zoomSmooth = targetDistance > currentDistance ? zoomOutSmoothTime : zoomInSmoothTime;
+            currentDistance = Mathf.SmoothDamp(currentDistance, targetDistance, ref distanceVelocity, zoomSmooth);
         }
+
+        Quaternion fixedRotation = Quaternion.Euler(fixedAngles);
+        Transform camTransform = followVCam.transform;
+        camTransform.position = smoothedCenter
+            - (fixedRotation * Vector3.forward) * currentDistance
+            + Vector3.up * height;
         camTransform.rotation = fixedRotation;
 
         // focus実行中
@@ -264,7 +284,7 @@ public class RaceCameraController : MonoBehaviour
     }
 
     /// <summary>
-    /// 1位と2位の差に応じてショットを更新する。
+    /// 全員が画面に収まるかどうかに応じてショットを更新する。
     /// カット（瞬時の切り替え）が必要なフレームならtrueを返す。
     /// </summary>
     private bool UpdateShotMode()
@@ -272,82 +292,136 @@ public class RaceCameraController : MonoBehaviour
         if (ranking.Count < 2) return false;
 
         ShotMode previousShot = currentShot;
-        float leaderGap = GetGap(0, 1);
+        Vector3 unused;
+        float allDistance = GetRequiredDistance(0, ranking.Count, out unused);
 
-        if (currentShot == ShotMode.Group)
+        if (currentShot == ShotMode.All)
         {
-            if (leaderGap > groupFramingDistance)
+            if (allDistance > maxDistance)
             {
-                // 独走開始：まずは先頭を映す
-                currentShot = ShotMode.Leader;
+                // 入りきらなくなった：まずは前方を映す（寄るだけなのでカットしない）
+                currentShot = ShotMode.Front;
                 shotTimer = 0f;
             }
         }
-        else if (leaderGap < groupReenterDistance)
+        else if (allDistance <= maxDistance * regroupDistanceRatio)
         {
-            // 差が縮まったので集団追従に戻る
-            currentShot = ShotMode.Group;
+            // 十分に縮まったので全員ショットに戻る
+            currentShot = ShotMode.All;
+        }
+        else if (currentShot == ShotMode.Chaser && GetFittingEndRank(0) >= ranking.Count)
+        {
+            // 前方ショットだけで全員入るようになったので、後続ショットを打ち切る
+            currentShot = ShotMode.Front;
+            shotTimer = 0f;
         }
         else
         {
             shotTimer += Time.deltaTime;
-            float duration = currentShot == ShotMode.Leader ? leaderShotDuration : chaserShotDuration;
+            float duration = currentShot == ShotMode.Front ? leaderShotDuration : chaserShotDuration;
             if (shotTimer >= duration)
             {
-                currentShot = currentShot == ShotMode.Leader ? ShotMode.Chaser : ShotMode.Leader;
+                if (currentShot == ShotMode.Chaser)
+                {
+                    currentShot = ShotMode.Front;
+                }
+                else if (GetFittingEndRank(0) < ranking.Count)
+                {
+                    // 前方ショットに入りきらない走者がいる時だけ後続ショットへ
+                    currentShot = ShotMode.Chaser;
+                }
                 shotTimer = 0f;
             }
         }
 
-        // 後続ショットへの出入りは距離が大きいのでカット。先頭⇔集団は近いのでSmoothDampで繋ぐ
+        // 後続ショットへの出入りは距離が大きいのでカット。全員⇔前方は近いのでSmoothDampで繋ぐ
         return currentShot != previousShot
             && (currentShot == ShotMode.Chaser || previousShot == ShotMode.Chaser);
     }
 
-    // 現在のショットでカメラが追う中心点
-    private Vector3 GetShotCenter()
+    /// <summary>
+    /// 現在のショットに映す走者の順位範囲 [startRank, endRank) を返す。
+    /// </summary>
+    private void GetShotRange(out int startRank, out int endRank)
     {
         switch (currentShot)
         {
-            case ShotMode.Leader:
-                return GetGroupCenter(0, 0f);
+            case ShotMode.Front:
+                startRank = 0;
+                endRank = GetFittingEndRank(0);
+                return;
             case ShotMode.Chaser:
-                return GetGroupCenter(1, chaserGroupRange);
+                // 前方ショットに入らなかった最上位から
+                startRank = Mathf.Min(GetFittingEndRank(0), ranking.Count - 1);
+                endRank = GetFittingEndRank(startRank);
+                return;
             default:
-                return GetGroupCenter(0, groupFramingDistance);
+                startRank = 0;
+                endRank = ranking.Count;
+                return;
         }
     }
 
     /// <summary>
-    /// 順位startRank（0始まり）の走者と、そこからrange以内にいる後続の走者（最大maxGroupSize人）の中心座標を返す。
+    /// 順位startRank（0始まり）から順に走者を足していき、最大距離に収まる直前の順位（排他）を返す。最低1人は含む。
     /// </summary>
-    private Vector3 GetGroupCenter(int startRank, float range)
+    private int GetFittingEndRank(int startRank)
     {
-        Vector3 sum = Vector3.zero;
-        int count = 0;
-        for (int i = startRank; i < ranking.Count && count < Mathf.Max(1, maxGroupSize); i++)
+        Vector3 unused;
+        int end = startRank + 1;
+        while (end < ranking.Count && GetRequiredDistance(startRank, end + 1, out unused) <= maxDistance)
         {
-            if (i > startRank && GetGap(startRank, i) > range) break;
-
-            RaceParticipant p = ranking[i];
-            sum += RaceTrack.GetWorldPosition(p.progress, p.laneIndex, participants.Count);
-            count++;
+            end++;
         }
-        return sum / count;
+        return end;
     }
-    
+
     /// <summary>
-    /// GetGroupCenterと同じ条件で、ショットに映る走者の一覧を返す。
+    /// 順位 [startRank, endRank) の走者全員を画面に収めるのに必要なカメラ距離を返す。
+    /// centerには走者の範囲の中心（カメラが追う点）を返す。
     /// </summary>
-    private List<RaceParticipant> GetGroupMembers(int startRank, float range)
+    private float GetRequiredDistance(int startRank, int endRank, out Vector3 center)
     {
-        var members = new List<RaceParticipant>();
-        for (int i = startRank; i < ranking.Count && members.Count < Mathf.Max(1, maxGroupSize); i++)
+        int count = participants.Count;
+        Vector3 min = Vector3.positiveInfinity;
+        Vector3 max = Vector3.negativeInfinity;
+        for (int i = startRank; i < endRank; i++)
         {
-            if (i > startRank && GetGap(startRank, i) > range) break;
-            members.Add(ranking[i]);
+            Vector3 p = RaceTrack.GetWorldPosition(ranking[i].progress, ranking[i].laneIndex, count);
+            min = Vector3.Min(min, p);
+            max = Vector3.Max(max, p);
         }
-        return members;
+        center = (min + max) * 0.5f;
+
+        // 画角（縦・横）の半分のtan。余白の分だけ狭く見積もる
+        float tanV = Mathf.Tan(followVCam.Lens.FieldOfView * 0.5f * Mathf.Deg2Rad) * screenMargin;
+        Camera outputCamera = brain != null ? brain.OutputCamera : null;
+        float aspect = outputCamera != null ? outputCamera.aspect : 16f / 9f;
+        float tanH = tanV * aspect;
+
+        // カメラ位置 = center - forward*D + up*height なので、
+        // カメラ座標での走者位置は a + (0,0,D)（a = R^-1 * (p - center - up*height)）。
+        // 画面内に入る条件 |a.x| <= tanH*(a.z+D), |a.y| <= tanV*(a.z+D) からDの下限を求める
+        Quaternion inverseRotation = Quaternion.Inverse(Quaternion.Euler(fixedAngles));
+        Vector3 offset = center + Vector3.up * height;
+        float required = 0f;
+        for (int i = startRank; i < endRank; i++)
+        {
+            Vector3 p = RaceTrack.GetWorldPosition(ranking[i].progress, ranking[i].laneIndex, count);
+            Vector3 a = inverseRotation * (p - offset);
+            float byWidth = (Mathf.Abs(a.x) + racerPadding) / tanH - a.z;
+            float byHeight = (Mathf.Abs(a.y) + racerPadding) / tanV - a.z;
+            required = Mathf.Max(required, Mathf.Max(byWidth, byHeight));
+        }
+        return required;
+    }
+
+    /// <summary>
+    /// 順位 [startRank, endRank) の走者の一覧を返す（順位順）。
+    /// </summary>
+    private List<RaceParticipant> GetMembers(int startRank, int endRank)
+    {
+        return ranking.GetRange(startRank, endRank - startRank);
     }
 
     private void SetPriority(CinemachineCamera vCam,int priority)
