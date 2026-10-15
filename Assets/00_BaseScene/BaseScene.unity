@@ -6333,8 +6333,12 @@ MonoBehaviour:
   feedingSpotTransforms:
   - {fileID: 1148754209}
   - {fileID: 1207936682}
+  - {fileID: 1016741060}
+  - {fileID: 184781410}
   bedSpotTransforms:
   - {fileID: 1967533834}
+  - {fileID: 1117157341}
+  - {fileID: 2092790356}
   fightOpponentMaxDistance: 6
 --- !u!114 &2014937668
 MonoBehaviour:
