@@ -112,7 +112,7 @@ public class RaceMinimap : MonoBehaviour
             var label = tick.GetComponentInChildren<TextMeshProUGUI>();
             if (label != null)
             {
-                label.text = string.Format(tickLabelFormat, Mathf.RoundToInt(meters), Mathf.RoundToInt(RaceTrack.TrackLength - meters));
+                label.text = string.Format(tickLabelFormat, Mathf.RoundToInt(meters), Mathf.RoundToInt((RaceTrack.TrackLength - meters) / 10));
             }
 
             ticks.Add(tick.gameObject);
