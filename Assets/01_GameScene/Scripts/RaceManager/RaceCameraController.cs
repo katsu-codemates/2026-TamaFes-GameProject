@@ -5,7 +5,8 @@ using System.Collections;
 
 /// <summary>
 /// レースの先頭集団を追従するカメラの制御クラス。
-/// 先頭が独走しているときは、先頭と後続集団のショットを交互にカットで切り替える。
+/// 先頭集団のショットに映りきらない走者がいるときは、先頭集団と後続集団のショットを交互にカットで切り替える。
+/// 後続ショットは「先頭集団ショットに映っていない最上位の走者」から始め、切り替えのたびに順に後ろの集団へ回していく。
 /// </summary>
 public class RaceCameraController : MonoBehaviour
 {
@@ -48,18 +49,15 @@ public class RaceCameraController : MonoBehaviour
     [Header("カメラの追従の滑らかさ")]
     [SerializeField] private float smoothTime = 0.3f;
 
-    [Header("ショット切替：1位と2位の差がこの距離以下なら集団の中心を追う")]
+    [Header("ショット切替：1位からこの距離以内の走者を先頭集団として映す")]
     [SerializeField] private float groupFramingDistance = 25f;
 
-    [Header("ショット切替：独走状態から集団追従に戻る距離（ちらつき防止のため上より小さく）")]
-    [SerializeField] private float groupReenterDistance = 18f;
-
-    [Header("ショット切替：独走時に各ショットを映す秒数")]
+    [Header("ショット切替：先頭集団と後続集団のショットを映す秒数")]
     [SerializeField] private float leaderShotDuration = 4f;
     [SerializeField] private float chaserShotDuration = 3f;
     public float ChaserShotDuration => chaserShotDuration;
 
-    [Header("ショット切替：2位からこの距離以内の走者を後続集団として映す")]
+    [Header("ショット切替：後続ショットの基準走者からこの距離以内の走者を後続集団として映す")]
     [SerializeField] private float chaserGroupRange = 25f;
 
     [Header("ショット切替：集団として映す最大人数")]
@@ -107,12 +105,15 @@ public class RaceCameraController : MonoBehaviour
     // 追従カメラのショット種別
     private enum ShotMode
     {
-        Group,  // 先頭集団の中心を追う
-        Leader, // 独走中：先頭を映す
-        Chaser, // 独走中：後続集団を映す
+        Leader, // 先頭集団（1位と、そこからgroupFramingDistance以内の走者）を映す
+        Chaser, // 先頭集団ショットに映っていない後続集団を映す
     }
-    private ShotMode currentShot = ShotMode.Group;
+    private ShotMode currentShot = ShotMode.Leader;
     private float shotTimer;
+    // 後続ショットの基準となる順位（0始まり）
+    private int chaserStartRank;
+    // 前回の後続ショットに映った最後尾の次の順位。次の後続ショットはここから始める
+    private int nextChaserStartRank;
     private readonly List<RaceParticipant> ranking = new List<RaceParticipant>();
     private static readonly System.Comparison<RaceParticipant> ByProgressDesc =
         (a, b) => b.progress.CompareTo(a.progress);
@@ -155,8 +156,10 @@ public class RaceCameraController : MonoBehaviour
     {
         participants = list;
         hasTriggeredGoalCamera=false;
-        currentShot = ShotMode.Group;
+        currentShot = ShotMode.Leader;
         shotTimer = 0f;
+        chaserStartRank = 0;
+        nextChaserStartRank = 0;
     }
 
     private void OnEnable()
@@ -197,11 +200,11 @@ public class RaceCameraController : MonoBehaviour
             TriggerGoalCamera();
         }
 
-        // 独走状態かどうかでショットを決める。切り替わった瞬間はカットで映像を切り替える
+        // 先頭集団に映りきらない走者がいるかでショットを決める。切り替わった瞬間はカットで映像を切り替える
         bool isCut = UpdateShotMode();
         if (isCut && currentShot == ShotMode.Chaser && !hasTriggeredGoalCamera)
         {
-            OnChaserShotStarted?.Invoke(GetGroupMembers(1, chaserGroupRange));
+            OnChaserShotStarted?.Invoke(GetGroupMembers(chaserStartRank, chaserGroupRange));
         }
         Vector3 shotCenter = GetShotCenter();
 
@@ -264,7 +267,7 @@ public class RaceCameraController : MonoBehaviour
     }
 
     /// <summary>
-    /// 1位と2位の差に応じてショットを更新する。
+    /// 先頭集団ショットに映っていない走者がいれば、先頭集団と後続集団のショットを交互に切り替える。
     /// カット（瞬時の切り替え）が必要なフレームならtrueを返す。
     /// </summary>
     private bool UpdateShotMode()
@@ -272,50 +275,56 @@ public class RaceCameraController : MonoBehaviour
         if (ranking.Count < 2) return false;
 
         ShotMode previousShot = currentShot;
-        float leaderGap = GetGap(0, 1);
+        int leaderGroupCount = GetGroupMembers(0, groupFramingDistance).Count;
 
-        if (currentShot == ShotMode.Group)
+        if (currentShot == ShotMode.Leader)
         {
-            if (leaderGap > groupFramingDistance)
+            if (leaderGroupCount >= ranking.Count)
             {
-                // 独走開始：まずは先頭を映す
-                currentShot = ShotMode.Leader;
+                // 全員が先頭集団ショットに収まっているので切り替えない
                 shotTimer = 0f;
             }
-        }
-        else if (leaderGap < groupReenterDistance)
-        {
-            // 差が縮まったので集団追従に戻る
-            currentShot = ShotMode.Group;
+            else
+            {
+                shotTimer += Time.deltaTime;
+                if (shotTimer >= leaderShotDuration)
+                {
+                    // 前回の続き（まだ映していない後ろの集団）から映す。
+                    // 最後尾まで映し終えた、または先頭集団に含まれる順位なら、先頭集団に映っていない最上位の走者に戻る
+                    chaserStartRank = nextChaserStartRank;
+                    if (chaserStartRank < leaderGroupCount || chaserStartRank >= ranking.Count)
+                    {
+                        chaserStartRank = leaderGroupCount;
+                    }
+                    nextChaserStartRank = chaserStartRank + GetGroupMembers(chaserStartRank, chaserGroupRange).Count;
+
+                    currentShot = ShotMode.Chaser;
+                    shotTimer = 0f;
+                }
+            }
         }
         else
         {
             shotTimer += Time.deltaTime;
-            float duration = currentShot == ShotMode.Leader ? leaderShotDuration : chaserShotDuration;
-            if (shotTimer >= duration)
+            if (shotTimer >= chaserShotDuration)
             {
-                currentShot = currentShot == ShotMode.Leader ? ShotMode.Chaser : ShotMode.Leader;
+                currentShot = ShotMode.Leader;
                 shotTimer = 0f;
             }
         }
 
-        // 後続ショットへの出入りは距離が大きいのでカット。先頭⇔集団は近いのでSmoothDampで繋ぐ
-        return currentShot != previousShot
-            && (currentShot == ShotMode.Chaser || previousShot == ShotMode.Chaser);
+        // 先頭集団⇔後続集団は距離が大きいのでカットで切り替える
+        return currentShot != previousShot;
     }
 
     // 現在のショットでカメラが追う中心点
     private Vector3 GetShotCenter()
     {
-        switch (currentShot)
+        if (currentShot == ShotMode.Chaser)
         {
-            case ShotMode.Leader:
-                return GetGroupCenter(0, 0f);
-            case ShotMode.Chaser:
-                return GetGroupCenter(1, chaserGroupRange);
-            default:
-                return GetGroupCenter(0, groupFramingDistance);
+            return GetGroupCenter(chaserStartRank, chaserGroupRange);
         }
+        return GetGroupCenter(0, groupFramingDistance);
     }
 
     /// <summary>

@@ -6137,7 +6137,6 @@ MonoBehaviour:
   height: 5
   smoothTime: 0.3
   groupFramingDistance: 25
-  groupReenterDistance: 18
   leaderShotDuration: 4
   chaserShotDuration: 3
   chaserGroupRange: 25
