@@ -61,6 +61,10 @@ public class AnimalIdleAnimation : MonoBehaviour
     AnimalEmoteEffect emoteEffect;
     bool playEntranceOnStart;
 
+    // 地面に立っているときのY座標。待機中の上下動(IdleMotion)を途中で止めると、その時点の高さのまま
+    // 次の行動に移ってしまい、少しずつ浮いていくため、行動の起点と移動先の高さは常にこの値にそろえる
+    float groundY;
+
     // 予約中の餌場・寝床の番号。行動中に破棄されたとき(表示上限で消されたときなど)に予約を解除するために覚えておく
     int reservedFeedingSpotIndex = -1;
     int reservedBedSpotIndex = -1;
@@ -74,6 +78,7 @@ public class AnimalIdleAnimation : MonoBehaviour
         dataHolder = GetComponent<AnimalDataHolder>();
         emoteEffect = GetComponent<AnimalEmoteEffect>();
         animalActionScheduler.Register(this);
+        groundY = transform.position.y;
         if (playEntranceOnStart)
         {
             randomMoveCoroutine = StartCoroutine(EntranceThenRandomMove());
@@ -155,13 +160,42 @@ public class AnimalIdleAnimation : MonoBehaviour
         IsBusy = false;
     }
 
+    /// <summary>
+    /// 地面の高さにそろえた現在位置。
+    /// </summary>
+    public Vector3 GroundPosition
+    {
+        get
+        {
+            Vector3 position = transform.position;
+            position.y = groundY;
+            return position;
+        }
+    }
+
     void IdleMotion()
     {
-        Vector3 startPosition = transform.position;
-        startPosition.y += 0.2f;
-        idleTween = transform.DOMove(startPosition, 1f)
+        // 前のTweenが残っていると、参照を失ったまま動き続けて元の位置へ引き戻し続けてしまうので必ず止める
+        StopIdleMotion();
+
+        Vector3 topPosition = GroundPosition;
+        topPosition.y += 0.2f;
+        idleTween = transform.DOMove(topPosition, 1f)
             .SetLoops(-1, LoopType.Yoyo)
             .SetLink(gameObject); // このオブジェクトが破棄されたときに自動でkillされる
+    }
+
+    /// <summary>
+    /// 待機中の上下動を止めて、地面の高さに戻す。
+    /// </summary>
+    void StopIdleMotion()
+    {
+        if (idleTween != null && idleTween.IsActive())
+        {
+            idleTween.Kill();
+            transform.position = GroundPosition;
+        }
+        idleTween = null;
     }
 
     IEnumerator RandomMove()
@@ -177,10 +211,11 @@ public class AnimalIdleAnimation : MonoBehaviour
                 continue;
             }
 
-            if (idleTween != null && idleTween.IsActive())
-            {
-                idleTween.Kill();
-            }
+            StopIdleMotion();
+
+            // 行動中(通常移動を含む)にけんか相手として予約されると、移動のTweenとけんかのTweenが同時に動いたり、
+            // 待機モーションが二重に開始されたりするので、行動が終わるまでは予約されないようにする
+            IsBusy = true;
 
             switch (RollAction())
             {
@@ -201,6 +236,7 @@ public class AnimalIdleAnimation : MonoBehaviour
                     break;
             }
 
+            IsBusy = false;
             IdleMotion();
         }
     }
@@ -229,7 +265,7 @@ public class AnimalIdleAnimation : MonoBehaviour
             float moveX = Random.Range(-2f, 2f);
             spriteRenderer.flipX = moveX < 0; // 反対に進むので画像を反転
 
-            Vector3 currentPosition = transform.position;
+            Vector3 currentPosition = GroundPosition;
             currentPosition.x += moveX;
 
             jumpTween = transform.DOJump(currentPosition, 1f, 1, 1f)
@@ -249,7 +285,7 @@ public class AnimalIdleAnimation : MonoBehaviour
     {
         // 演出中にけんか相手として予約されないようにする
         IsBusy = true;
-        Vector3 originalPosition = transform.position;
+        Vector3 originalPosition = GroundPosition;
         Vector3 originalScale = transform.localScale;
         Color originalColor = spriteRenderer.color;
         bool originalFlipX = spriteRenderer.flipX;
@@ -339,7 +375,7 @@ public class AnimalIdleAnimation : MonoBehaviour
         }
 
         IsBusy = true;
-        Vector3 originalPosition = transform.position;
+        Vector3 originalPosition = GroundPosition;
 
         jumpTween = transform.DOJump(spot.position, 1f, 1, 1f).SetLink(gameObject);
         yield return jumpTween.WaitForCompletion();
@@ -374,7 +410,7 @@ public class AnimalIdleAnimation : MonoBehaviour
         }
 
         IsBusy = true;
-        Vector3 originalPosition = transform.position;
+        Vector3 originalPosition = GroundPosition;
         Vector3 originalScale = transform.localScale;
         Color originalColor = spriteRenderer.color;
 
@@ -431,8 +467,8 @@ public class AnimalIdleAnimation : MonoBehaviour
         }
 
         IsBusy = true;
-        Vector3 originalPosition = transform.position;
-        Vector3 opponentOriginalPosition = opponent.transform.position;
+        Vector3 originalPosition = GroundPosition;
+        Vector3 opponentOriginalPosition = opponent.GroundPosition;
         Vector3 midpoint = (originalPosition + opponentOriginalPosition) / 2f;
 
         Vector3 selfApproach = Vector3.Lerp(originalPosition, midpoint, 0.6f);
@@ -461,10 +497,7 @@ public class AnimalIdleAnimation : MonoBehaviour
 
     private IEnumerator RunFightExchange(Vector3 approachPosition, Vector3 originalPosition)
     {
-        if (idleTween != null && idleTween.IsActive())
-        {
-            idleTween.Kill();
-        }
+        StopIdleMotion();
 
         jumpTween = transform.DOJump(approachPosition, 1f, 1, 1f).SetLink(gameObject);
         yield return jumpTween.WaitForCompletion();
